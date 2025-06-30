@@ -1,6 +1,7 @@
-package org.hilingual.domain;
+package org.hilingual.diary.core.domain;
 
 import jakarta.persistence.*;
+import org.hilingual.user.core.domain.User;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package org.hilingual.domain;
+package org.hilingual.common.core.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
