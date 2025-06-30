@@ -1,4 +1,4 @@
-package org.hilingual.domain;
+package org.hilingual.user.core.domain;
 
 import jakarta.persistence.*;
 
