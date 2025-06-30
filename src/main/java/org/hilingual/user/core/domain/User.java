@@ -3,8 +3,6 @@ package org.hilingual.user.core.domain;
 import jakarta.persistence.*;
 import org.hilingual.diary.core.domain.Diary;
 import org.hilingual.diary.core.domain.Voca;
-import org.hilingual.domain.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
