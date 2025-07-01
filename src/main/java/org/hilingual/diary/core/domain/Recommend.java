@@ -23,4 +23,7 @@ public class Recommend {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diary_id", nullable = false)
     private Diary diary;
+
+    @OneToOne(mappedBy = "recommend")
+    private Voca voca;
 }

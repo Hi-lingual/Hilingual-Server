@@ -18,6 +18,7 @@ public class Voca {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private String phraseId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recommend_id", nullable = false, unique = true)
+    private Recommend recommend;
 }
