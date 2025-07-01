@@ -8,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "user",
+        name = "users",
         uniqueConstraints = @UniqueConstraint(
                 columnNames = {"provider", "provider_id"}
         )
@@ -16,7 +16,7 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;
 
     @Column(nullable = false, length = 20)
     private String provider;

@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 public class Recommend {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long phraseId;
+    private Long id;
 
     @Column(nullable = false)
     private String phrase;
@@ -15,7 +15,7 @@ public class Recommend {
     private String phraseType;
 
     @Column(name = "explanation", nullable = false)
-    private String explain;
+    private String explanation;
 
     @Column(nullable = false)
     private Boolean isMarked;

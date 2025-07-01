@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class Voca {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long vocaId;
+    private Long id;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
