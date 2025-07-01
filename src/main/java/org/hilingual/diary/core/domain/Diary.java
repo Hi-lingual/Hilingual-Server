@@ -10,12 +10,12 @@ import java.util.List;
 public class Diary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long diaryId;
+    private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String originalText;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1500)
     private String rewriteText;
 
     private String imageUrl;
