@@ -26,4 +26,3 @@ public enum GlobalErrorCode implements ErrorCode {
         return message;
     }
 }
-}
