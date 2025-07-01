@@ -1,6 +1,7 @@
-package org.hilingual.user.core.domain;
+package org.hilingual.domain.token;
 
 import jakarta.persistence.*;
+import org.hilingual.domain.user.User;
 
 @Entity
 public class Token {
