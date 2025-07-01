@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 public class UserProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userProfileId;
+    private Long id;
 
     @Column(nullable = false, length = 20, unique = true)
     private String nickname;

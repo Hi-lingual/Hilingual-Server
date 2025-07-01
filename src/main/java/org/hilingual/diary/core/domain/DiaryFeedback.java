@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 public class DiaryFeedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long feedbackId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diary_id", nullable = false)
@@ -18,5 +18,5 @@ public class DiaryFeedback {
     private String rewritePhrase;
 
     @Column(name = "explanation", nullable = false)
-    private String explain;
+    private String explanation;
 }
