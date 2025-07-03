@@ -31,22 +31,33 @@ pipeline {
         }
 
         stage('Deploy to EC2') {
-    steps {
-        sshagent(credentials: ['hilingual-dev-key']) {
-            sh '''
-                ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER "mkdir -p $PROJECT_PATH/build/libs"
+            when {
+                allOf {
+                    expression {
+                        // PR이 아닐 것
+                        return env.CHANGE_ID == null
+                    }
+                    expression {
+                        // develop 브랜치일 것
+                        return env.BRANCH_NAME == 'develop'
+                    }
+                }
+            }
+            steps {
+                sshagent(credentials: ['hilingual-dev-key']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER "mkdir -p $PROJECT_PATH/build/libs"
 
-                scp build/libs/$JAR_NAME $DEPLOY_SERVER:$PROJECT_PATH/build/libs/
+                        scp build/libs/$JAR_NAME $DEPLOY_SERVER:$PROJECT_PATH/build/libs/
 
-                ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER "
-                    cd $PROJECT_PATH &&
-                    docker compose down || true &&
-                    docker compose up --build -d
-                "
-            '''
+                        ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER "
+                            cd $PROJECT_PATH &&
+                            docker compose down || true &&
+                            docker compose up --build -d
+                        "
+                    '''
+                }
+            }
         }
-    }
-}
-
     }
 }
