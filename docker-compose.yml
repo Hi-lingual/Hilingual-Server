@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   app:
     build:
@@ -7,9 +9,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_URL=jdbc:mysql://hilingual-db.c5kyca0ay63n.ap-northeast-2.rds.amazonaws.com:3306/dev?serverTimezone=Asia/Seoul
-      - DB_ID=admin
-      - DB_PW=hilingual614
+      - DB_URL=${DB_URL}
+      - DB_ID=${DB_ID}
+      - DB_PW=${DB_PW}
 
   nginx:
     image: nginx:latest
