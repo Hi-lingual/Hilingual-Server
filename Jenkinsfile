@@ -12,14 +12,11 @@ pipeline {
         JAR_NAME = "HILINGUAL-SERVER-1.0-SNAPSHOT.jar"
     }
 
-    stages {
-        stage('Git Clone') {
-            steps {
-                git branch: 'develop',
-                    credentialsId: 'Jenkins',
-                    url: 'https://github.com/Hi-lingual/Hilingual-Server.git'
-            }
-        }
+   stage('Git Clone') {
+       steps {
+           checkout scm
+       }
+   }
 
         stage('Build JAR') {
             steps {
