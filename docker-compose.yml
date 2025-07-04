@@ -34,3 +34,6 @@ services:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/.env:/etc/nginx/.env
+    environment:
+      - deployment_target
