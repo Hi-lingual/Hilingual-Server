@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        DEPLOY_SERVER = "ubuntu@13.124.29.74"
+        DEPLOY_SERVER = "ubuntu@43.200.125.20"
         PROJECT_PATH = "/home/ubuntu/hilingual"
         JAR_NAME = "HILINGUAL-SERVER-1.0-SNAPSHOT.jar"
     }
