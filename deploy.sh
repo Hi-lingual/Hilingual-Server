@@ -27,7 +27,14 @@ for cnt in {1..10}; do
 done
 
 if [ $cnt -eq 10 ]; then
-    echo "[ERROR] 서버 실행 실패. 롤백하세요."
+    echo "[ERROR] 서버 실행 실패. 롤백을 시작합니다..."
+
+    docker compose stop spring-${AFTER_COLOR}
+    docker compose up -d spring-${BEFORE_COLOR}
+    echo "deployment_target=${BEFORE_COLOR}" > ./nginx/.env
+    docker compose up -d --force-recreate nginx
+
+    echo "[INFO] 롤백 완료. 이전 서버(${BEFORE_COLOR})로 복구됨."
     exit 1
 fi
 
