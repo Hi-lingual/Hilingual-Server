@@ -4,6 +4,7 @@ spring:
     username: ${DB_ID}
     password: ${DB_PW}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,3 +13,30 @@ spring:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: blue
+server:
+  port: 8080
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: green
+server:
+  port: 8081

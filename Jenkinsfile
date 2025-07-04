@@ -12,11 +12,12 @@ pipeline {
         JAR_NAME = "HILINGUAL-SERVER-1.0-SNAPSHOT.jar"
     }
 
-   stage('Git Clone') {
-       steps {
-           checkout scm
-       }
-   }
+    stages {
+        stage('Git Clone') {
+            steps {
+                checkout scm
+            }
+        }
 
         stage('Build JAR') {
             steps {
@@ -40,8 +41,8 @@ pipeline {
 
                         ssh -o StrictHostKeyChecking=no $DEPLOY_SERVER "
                             cd $PROJECT_PATH &&
-                            docker compose down || true &&
-                            docker compose up --build -d
+                            chmod +x deploy.sh &&
+                            ./deploy.sh
                         "
                     '''
                 }
