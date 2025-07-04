@@ -32,16 +32,7 @@ pipeline {
 
         stage('Deploy to EC2') {
             when {
-                allOf {
-                    expression {
-                        // PR이 아닐 것
-                        return env.CHANGE_ID == null
-                    }
-                    expression {
-                        // develop 브랜치일 것
-                        return env.BRANCH_NAME == 'develop'
-                    }
-                }
+                expression { env.BRANCH_NAME == 'develop' }
             }
             steps {
                 sshagent(credentials: ['hilingual-dev-key']) {
