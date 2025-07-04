@@ -7,19 +7,16 @@ pipeline {
     }
 
     environment {
-        DEPLOY_SERVER = "ubuntu@13.124.29.74"
+        DEPLOY_SERVER = "ubuntu@43.200.125.20"
         PROJECT_PATH = "/home/ubuntu/hilingual"
         JAR_NAME = "HILINGUAL-SERVER-1.0-SNAPSHOT.jar"
     }
 
-    stages {
-        stage('Git Clone') {
-            steps {
-                git branch: 'develop',
-                    credentialsId: 'Jenkins',
-                    url: 'https://github.com/Hi-lingual/Hilingual-Server.git'
-            }
-        }
+   stage('Git Clone') {
+       steps {
+           checkout scm
+       }
+   }
 
         stage('Build JAR') {
             steps {
@@ -32,16 +29,7 @@ pipeline {
 
         stage('Deploy to EC2') {
             when {
-                allOf {
-                    expression {
-                        // PR이 아닐 것
-                        return env.CHANGE_ID == null
-                    }
-                    expression {
-                        // develop 브랜치일 것
-                        return env.BRANCH_NAME == 'develop'
-                    }
-                }
+                expression { env.BRANCH_NAME == 'develop' }
             }
             steps {
                 sshagent(credentials: ['hilingual-dev-key']) {
