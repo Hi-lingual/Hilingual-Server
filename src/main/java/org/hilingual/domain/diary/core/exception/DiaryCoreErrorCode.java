@@ -1,7 +1,7 @@
 package org.hilingual.domain.diary.core.exception;
 
 import lombok.RequiredArgsConstructor;
-import org.hilingual.common.code.ErrorCode;
+import org.hilingual.common.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor

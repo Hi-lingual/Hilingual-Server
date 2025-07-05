@@ -1,6 +1,6 @@
 package org.hilingual.domain.diary.api.exception;
 
-import org.hilingual.common.code.ErrorCode;
+import org.hilingual.common.exception.code.ErrorCode;
 
 public abstract class DiaryApiException extends DiaryBaseException{
 
