@@ -34,6 +34,7 @@ dependencies {
 
     // lombok
     compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
     // Spring Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
