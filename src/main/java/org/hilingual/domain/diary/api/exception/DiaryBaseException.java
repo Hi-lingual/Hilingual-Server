@@ -3,8 +3,8 @@ package org.hilingual.domain.diary.api.exception;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.hilingual.common.code.ErrorCode;
-import org.hilingual.common.exception.HilingualBaseException;
+import org.hilingual.common.exception.code.ErrorCode;
+import org.hilingual.common.exception.base.HilingualBaseException;
 import org.springframework.http.HttpStatus;
 
 @Getter
