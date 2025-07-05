@@ -1,4 +1,4 @@
-package org.hilingual.common.code;
+package org.hilingual.common.exception.code;
 
 public interface SuccessCode extends ApiCode {
 }

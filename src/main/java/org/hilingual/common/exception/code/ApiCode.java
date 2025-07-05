@@ -1,4 +1,4 @@
-package org.hilingual.common.code;
+package org.hilingual.common.exception.code;
 
 import org.springframework.http.HttpStatus;
 
