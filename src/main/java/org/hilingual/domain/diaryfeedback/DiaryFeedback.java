@@ -34,4 +34,7 @@ public class DiaryFeedback extends BaseTimeEntity {
 
     @Column(name = COLUMN_EXPLANATION, nullable = false)
     private String explanation;
+
+    @Column(name = COLUMN_VERSION, nullable = false)
+    private Integer version = 1;
 }

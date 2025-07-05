@@ -7,4 +7,5 @@ public class DiaryFeedbackTableConstants {
     public static final String COLUMN_ORIGIN_PHRASE = "origin_phrase";
     public static final String COLUMN_REWRITE_PHRASE = "rewrite_phrase";
     public static final String COLUMN_EXPLANATION = "explanation";
+    public static final String COLUMN_VERSION = "version";
 }
