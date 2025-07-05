@@ -18,7 +18,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(DiaryBaseException.class)
-    public ResponseEntity<BaseResponseDto<Void>> handleAuthBaseException(DiaryBaseException e) {
+    public ResponseEntity<BaseResponseDto<Void>> handleDiaryBaseException(DiaryBaseException e) {
         return ResponseEntity
                 .status(e.getStatus())
                 .body(BaseResponseDto.fail(e.getErrorCode()));
