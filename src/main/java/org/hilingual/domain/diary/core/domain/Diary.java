@@ -8,9 +8,8 @@ import lombok.NoArgsConstructor;
 import org.hilingual.common.domain.BaseTimeEntity;
 import org.hilingual.domain.diaryfeedback.DiaryFeedback;
 import org.hilingual.domain.recommend.Recommend;
-import org.hilingual.domain.user.User;
+import org.hilingual.domain.user.core.domain.User;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hilingual.domain.diary.core.domain.DiaryTableConstants.*;
