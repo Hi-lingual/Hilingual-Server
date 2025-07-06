@@ -16,8 +16,8 @@ public class UserService {
     private final UserRetriever userRetriever;
 
     public BaseResponseDto<NicknameAvailableResponse> getNicknameAvailable(String nickname) {
-        if (nickname.length() < 2 || nickname.length() > 10) return unavailableNickname(UserSuccessCode.NICKNAME_COUNT);
         if (!nickname.matches("^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$")) return unavailableNickname(UserSuccessCode.NICKNAME_SPECIAL_SYMBOLS);
+        if (nickname.length() < 2 || nickname.length() > 10) return unavailableNickname(UserSuccessCode.NICKNAME_COUNT);
         if (userRetriever.isNicknameExists(nickname)) return unavailableNickname(UserSuccessCode.NICKNAME_DUPLICATED);
         return availableNickname();
     }
