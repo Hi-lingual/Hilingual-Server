@@ -2,7 +2,6 @@ package org.hilingual.domain.user.api.service;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.common.dto.BaseResponseDto;
-import org.hilingual.common.exception.code.SuccessCode;
 import org.hilingual.domain.user.api.dto.res.NicknameAvailableResponse;
 import org.hilingual.domain.user.api.exception.UserSuccessCode;
 import org.hilingual.domain.user.core.facade.UserRetriever;
@@ -27,7 +26,7 @@ public class UserService {
         return BaseResponseDto.success(UserSuccessCode.NICKNAME_AVAILABLE, new NicknameAvailableResponse(true));
     }
 
-    private BaseResponseDto<NicknameAvailableResponse> unavailableNickname(SuccessCode code) {
+    private BaseResponseDto<NicknameAvailableResponse> unavailableNickname(UserSuccessCode code) {
         return BaseResponseDto.success(code, new NicknameAvailableResponse(false));
     }
 }
