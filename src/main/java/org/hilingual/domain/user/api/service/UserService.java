@@ -2,6 +2,7 @@ package org.hilingual.domain.user.api.service;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.common.dto.BaseResponseDto;
+import org.hilingual.common.exception.code.SuccessCode;
 import org.hilingual.domain.user.api.dto.res.NicknameAvailableResponse;
 import org.hilingual.domain.user.api.exception.UserSuccessCode;
 import org.hilingual.domain.user.core.facade.UserRetriever;
@@ -16,38 +17,17 @@ public class UserService {
     private final UserRetriever userRetriever;
 
     public BaseResponseDto<NicknameAvailableResponse> getNicknameAvailable(String nickname) {
-        // 글자 수 검사
-        if (nickname.length() < 2 || nickname.length() > 10) {
-            return BaseResponseDto.success(
-                    UserSuccessCode.NICKNAME_COUNT,
-                    new NicknameAvailableResponse(false)
-            );
-        }
-
-        // 특수문자/이모지 검사
-        if (!isPlainKoreanOrEnglish(nickname)) {
-            return BaseResponseDto.success(
-                    UserSuccessCode.NICKNAME_SPECIAL_SYMBOLS,
-                    new NicknameAvailableResponse(false)
-            );
-        }
-
-        // 중복 검사
-        if (userRetriever.isNicknameExists(nickname)) {
-            return BaseResponseDto.success(
-                    UserSuccessCode.NICKNAME_DUPLICATED,
-                    new NicknameAvailableResponse(false)
-            );
-        }
-
-        // 사용 가능
-        return BaseResponseDto.success(
-                UserSuccessCode.NICKNAME_AVAILABLE,
-                new NicknameAvailableResponse(true)
-        );
+        if (nickname.length() < 2 || nickname.length() > 10) return unavailableNickname(UserSuccessCode.NICKNAME_COUNT);
+        if (!nickname.matches("^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$")) return unavailableNickname(UserSuccessCode.NICKNAME_SPECIAL_SYMBOLS);
+        if (userRetriever.isNicknameExists(nickname)) return unavailableNickname(UserSuccessCode.NICKNAME_DUPLICATED);
+        return availableNickname();
     }
 
-    private boolean isPlainKoreanOrEnglish(String nickname) {
-        return nickname.matches("^[가-힣a-zA-Z0-9]*$");
+    private BaseResponseDto<NicknameAvailableResponse> availableNickname() {
+        return BaseResponseDto.success(UserSuccessCode.NICKNAME_AVAILABLE, new NicknameAvailableResponse(true));
+    }
+
+    private BaseResponseDto<NicknameAvailableResponse> unavailableNickname(SuccessCode code) {
+        return BaseResponseDto.success(code, new NicknameAvailableResponse(false));
     }
 }
