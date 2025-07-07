@@ -1,6 +1,7 @@
 package org.hilingual.external.s3;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hilingual.external.s3.exception.InvalidImageException;
 import org.hilingual.external.s3.exception.S3ApiException;
 import org.hilingual.external.s3.exception.S3ErrorCode;
@@ -13,8 +14,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -24,19 +25,23 @@ public class S3Service {
     private final AWSProperties awsProperties;
     private final S3Client s3Client;
 
-    private static final List<String> IMAGE_EXTENSIONS = Arrays.asList(
-            "image/jpeg", "image/png", "image/jpg", "image/webp", "image/heic", "image/heif"
+    private static final Map<String, String> EXTENSION_MAP = Map.of(
+            "image/jpeg", ".jpg",
+            "image/png", ".png",
+            "image/webp", ".webp",
+            "image/heic", ".heic",
+            "image/heif", ".heif"
     );
+
+    private static final List<String> ALLOWED_CONTENT_TYPES = List.copyOf(EXTENSION_MAP.keySet());
     private static final Long MAX_FILE_SIZE = 7 * 1024 * 1024L;
 
     public String uploadImage(String directoryPath, MultipartFile image) {
 
-        System.out.println("메서드 진입");
-
         validateExtension(image);
         validateFileSize(image);
 
-        final String key = directoryPath + generateImageFileName();
+        final String key = buildKey(directoryPath, image);
 
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(awsProperties.getBucketName())
@@ -69,13 +74,15 @@ public class S3Service {
         }
     }
 
-    private String generateImageFileName() {
-        return UUID.randomUUID() + ".jpg";
+    private String buildKey(String directoryPath, MultipartFile image) {
+        String extension = EXTENSION_MAP.getOrDefault(image.getContentType(), ".jpg");
+        String prefix = directoryPath.endsWith("/") ? directoryPath : directoryPath + "/";
+        return prefix + UUID.randomUUID() + extension;
     }
 
     private void validateExtension(MultipartFile image) {
         String contentType = image.getContentType();
-        if (!IMAGE_EXTENSIONS.contains(contentType)) {
+        if (!ALLOWED_CONTENT_TYPES.contains(contentType)) {
             throw new InvalidImageException(S3ErrorCode.INVALID_IMAGE_EXTENSION);
         }
     }
