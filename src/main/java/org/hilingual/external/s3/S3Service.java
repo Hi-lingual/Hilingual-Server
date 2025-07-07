@@ -34,7 +34,7 @@ public class S3Service {
     );
 
     private static final List<String> ALLOWED_CONTENT_TYPES = List.copyOf(EXTENSION_MAP.keySet());
-    private static final Long MAX_FILE_SIZE = 7 * 1024 * 1024L;
+    private static final Long MAX_FILE_SIZE = 10 * 1024 * 1024L;
 
     public String uploadImage(String directoryPath, MultipartFile image) {
 

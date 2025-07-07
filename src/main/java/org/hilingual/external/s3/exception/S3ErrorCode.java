@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 public enum S3ErrorCode implements ErrorCode {
     // 400
     INVALID_IMAGE_EXTENSION(HttpStatus.BAD_REQUEST, 40001, "허용되지 않은 이미지 확장자입니다."),
-    INVALID_IMAGE_SIZE(HttpStatus.BAD_REQUEST, 40002, "이미지 용량은 최대 7MB까지 가능합니다."),
+    INVALID_IMAGE_SIZE(HttpStatus.BAD_REQUEST, 40002, "이미지 용량은 최대 10MB까지 가능합니다."),
 
     // 500
     FILE_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 50001, "파일 처리 중 오류가 발생했습니다."),
