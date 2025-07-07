@@ -10,7 +10,6 @@ import org.hilingual.domain.diaryfeedback.DiaryFeedback;
 import org.hilingual.domain.recommend.Recommend;
 import org.hilingual.domain.user.User;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hilingual.domain.diary.core.domain.DiaryTableConstants.*;
@@ -45,5 +44,4 @@ public class Diary extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "diary", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Recommend> recommends;
-
 }

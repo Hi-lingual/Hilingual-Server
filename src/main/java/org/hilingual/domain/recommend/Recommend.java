@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hilingual.common.domain.BaseTimeEntity;
 import org.hilingual.domain.diary.core.domain.Diary;
-import org.hilingual.domain.voca.Voca;
 
 import static org.hilingual.domain.recommend.RecommendTableConstants.*;
 
@@ -38,7 +37,4 @@ public class Recommend extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_DIARY_ID, nullable = false)
     private Diary diary;
-
-    @OneToOne(mappedBy = "recommend")
-    private Voca voca;
 }
