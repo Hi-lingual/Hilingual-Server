@@ -4,6 +4,11 @@ spring:
     username: ${DB_ID}
     password: ${DB_PW}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
 
   jpa:
     hibernate:
@@ -22,6 +27,12 @@ management:
   endpoint:
     health:
       show-details: always
+
+aws-property:
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
+  aws-region: ${AWS_REGION}
+  bucket-name: ${AWS_BUCKET_NAME}
 
 ---
 
