@@ -4,6 +4,11 @@ spring:
     username: ${DB_ID}
     password: ${DB_PW}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
 
   jpa:
     hibernate:
@@ -14,14 +19,24 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
 
+logging:
+  file:
+    name: /home/ubuntu/logs/app.log
+
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus
   endpoint:
     health:
       show-details: always
+
+aws-property:
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
+  aws-region: ${AWS_REGION}
+  bucket-name: ${AWS_BUCKET_NAME}
 
 ---
 
@@ -40,3 +55,4 @@ spring:
       on-profile: green
 server:
   port: 8081
+

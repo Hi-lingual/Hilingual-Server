@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "[INFO] 도커 이미지 빌드 시작"
+docker compose build --no-cache
+
 EXIST_BLUE=$(docker ps | grep "hilingual-blue" | grep Up)
 
 if [ -z "$EXIST_BLUE" ]; then
