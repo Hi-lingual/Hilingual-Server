@@ -1,4 +1,4 @@
-package org.hilingual.domain.user;
+package org.hilingual.domain.user.core.domain;
 
 public class UserTableConstants {
     public static final String TABLE_USER = "users";

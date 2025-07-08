@@ -9,6 +9,7 @@ import org.hilingual.external.s3.exception.S3BaseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -65,6 +66,14 @@ public class GlobalExceptionHandler {
                 .body(BaseResponseDto.fail(errorCode));
     }
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleMissingParam(MissingServletRequestParameterException e) {
+        return ResponseEntity
+                .status(GlobalErrorCode.NOT_FOUND_END_POINT.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.NOT_FOUND_END_POINT));
+    }
+
+    // 기본 예외
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponseDto<Void>> handleException(Exception e) {
         log.error("[UnhandledException] message: {}", e.getMessage(), e);
