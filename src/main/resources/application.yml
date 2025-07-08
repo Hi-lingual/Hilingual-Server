@@ -34,6 +34,9 @@ aws-property:
   aws-region: ${AWS_REGION}
   bucket-name: ${AWS_BUCKET_NAME}
 
+openai:
+  api-key: ${OPENAI_API_KEY}
+
 ---
 
 spring:
