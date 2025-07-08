@@ -1,4 +1,4 @@
-package org.hilingual.domain.user;
+package org.hilingual.domain.user.core.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -15,7 +15,7 @@ import org.hilingual.domain.voca.Voca;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.hilingual.domain.user.UserTableConstants.*;
+import static org.hilingual.domain.user.core.domain.UserTableConstants.*;
 
 @Entity
 @Table(

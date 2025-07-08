@@ -1,12 +1,15 @@
 package org.hilingual.advice;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hilingual.common.dto.BaseResponseDto;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.hilingual.common.exception.code.GlobalErrorCode;
 import org.hilingual.domain.diary.api.exception.DiaryBaseException;
+import org.hilingual.external.s3.exception.S3BaseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -14,11 +17,23 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(DiaryBaseException.class)
     public ResponseEntity<BaseResponseDto<Void>> handleDiaryBaseException(DiaryBaseException e) {
+        log.error("[DiaryBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(S3BaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleS3BaseException(S3BaseException e) {
+        log.error("[S3BaseException] message: {}", e.getMessage(), e);
+
         return ResponseEntity
                 .status(e.getStatus())
                 .body(BaseResponseDto.fail(e.getErrorCode()));
@@ -26,6 +41,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<BaseResponseDto<Map<String, String>>> handleValidationException(MethodArgumentNotValidException e) {
+        log.error("[ValidationException] message: {}", e.getMessage(), e);
+
         Map<String, String> errors = new HashMap<>();
         e.getBindingResult().getFieldErrors().forEach(err ->
                 errors.put(err.getField(), err.getDefaultMessage())
@@ -36,9 +53,10 @@ public class GlobalExceptionHandler {
                 .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
     }
 
-    // 존재하지 않는 요청에 대한 예외
     @ExceptionHandler(value = {NoHandlerFoundException.class, HttpRequestMethodNotSupportedException.class})
     public ResponseEntity<BaseResponseDto<Void>> handleNoPageFoundException(Exception e) {
+        log.error("[NoHandlerFoundException] message: {}", e.getMessage(), e);
+
         ErrorCode errorCode = e instanceof HttpRequestMethodNotSupportedException
                 ? GlobalErrorCode.METHOD_NOT_ALLOWED
                 : GlobalErrorCode.NOT_FOUND_END_POINT;
@@ -48,9 +66,18 @@ public class GlobalExceptionHandler {
                 .body(BaseResponseDto.fail(errorCode));
     }
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleMissingParam(MissingServletRequestParameterException e) {
+        return ResponseEntity
+                .status(GlobalErrorCode.NOT_FOUND_END_POINT.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.NOT_FOUND_END_POINT));
+    }
+
     // 기본 예외
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponseDto<Void>> handleException(Exception e) {
+        log.error("[UnhandledException] message: {}", e.getMessage(), e);
+
         return ResponseEntity
                 .status(GlobalErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
                 .body(BaseResponseDto.fail(GlobalErrorCode.INTERNAL_SERVER_ERROR));
