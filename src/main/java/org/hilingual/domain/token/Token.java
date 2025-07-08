@@ -1,4 +1,4 @@
-package org.hilingual.domain.security;
+package org.hilingual.domain.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import org.springframework.data.redis.core.TimeToLive;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RefreshToken {
+public class Token {
     @Id
     private String userId;
 
