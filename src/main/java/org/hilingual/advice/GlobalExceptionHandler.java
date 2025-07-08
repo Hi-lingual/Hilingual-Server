@@ -5,6 +5,7 @@ import org.hilingual.common.dto.BaseResponseDto;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.hilingual.common.exception.code.GlobalErrorCode;
 import org.hilingual.domain.diary.api.exception.DiaryBaseException;
+import org.hilingual.external.openai.exception.OpenAiBaseException;
 import org.hilingual.external.s3.exception.S3BaseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -32,6 +33,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(S3BaseException.class)
     public ResponseEntity<BaseResponseDto<Void>> handleS3BaseException(S3BaseException e) {
         log.error("[S3BaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(OpenAiBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleOpenAiBaseException(OpenAiBaseException e) {
+        log.error("[OpenAiBaseException] message: {}", e.getMessage(), e);
 
         return ResponseEntity
                 .status(e.getStatus())
