@@ -1,4 +1,4 @@
-package org.hilingual.domain.user;
+package org.hilingual.domain.user.core.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -6,16 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hilingual.common.domain.BaseTimeEntity;
-import org.hilingual.domain.diary.core.domain.Diary;
-import org.hilingual.domain.token.Token;
-import org.hilingual.domain.usercalendar.UserCalendar;
 import org.hilingual.domain.usesrprofile.UserProfile;
-import org.hilingual.domain.voca.Voca;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import static org.hilingual.domain.user.UserTableConstants.*;
+import static org.hilingual.domain.user.core.domain.UserTableConstants.*;
 
 @Entity
 @Table(
