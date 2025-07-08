@@ -1,4 +1,7 @@
 spring:
+  application:
+    name: securityTest
+
   datasource:
     url: ${DB_URL}
     username: ${DB_ID}
@@ -22,6 +25,16 @@ spring:
 logging:
   file:
     name: /home/ubuntu/logs/app.log
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret-key: ${SECRET_KEY}
+  access-expiration-seconds: 86400
+  refresh-expiration-seconds: 604800
 
 management:
   endpoints:
