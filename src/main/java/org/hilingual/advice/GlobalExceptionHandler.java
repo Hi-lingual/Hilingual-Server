@@ -5,6 +5,7 @@ import org.hilingual.common.dto.BaseResponseDto;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.hilingual.common.exception.code.GlobalErrorCode;
 import org.hilingual.domain.diary.api.exception.DiaryBaseException;
+import org.hilingual.external.s3.exception.S3BaseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
