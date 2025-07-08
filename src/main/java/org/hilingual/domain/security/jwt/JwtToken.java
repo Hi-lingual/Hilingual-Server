@@ -1,4 +1,4 @@
-package org.hilingual.domain.security;
+package org.hilingual.domain.security.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

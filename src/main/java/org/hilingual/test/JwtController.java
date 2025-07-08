@@ -1,8 +1,8 @@
 package org.hilingual.test;
 
 import lombok.RequiredArgsConstructor;
-import org.hilingual.domain.security.JwtProvider;
-import org.hilingual.domain.security.JwtToken;
+import org.hilingual.domain.security.jwt.JwtProvider;
+import org.hilingual.domain.security.jwt.JwtToken;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

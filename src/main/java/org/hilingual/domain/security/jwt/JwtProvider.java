@@ -1,4 +1,4 @@
-package org.hilingual.domain.security;
+package org.hilingual.domain.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -20,11 +20,11 @@ public class JwtProvider {
     private final long REFRESH_EXPIRATION_MILLISECONDS;
 
     public JwtProvider(@Value("${jwt.secret-key}") String secret,
-                       @Value("${jwt.access-expiration-seconds}") long accessExpirationSeconds,
-                       @Value("${jwt.refresh-expiration-seconds}") long refreshExpirationSeconds) {
+                       @Value("${jwt.access-expiration-seconds}") long accessTokenExpirePeriod,
+                       @Value("${jwt.refresh-expiration-seconds}") long refreshTokenExpirePeriod) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.ACCESS_EXPIRATION_MILLISECONDS = accessExpirationSeconds * 1000;
-        this.REFRESH_EXPIRATION_MILLISECONDS = refreshExpirationSeconds * 1000;
+        this.ACCESS_EXPIRATION_MILLISECONDS = accessTokenExpirePeriod * 1000;
+        this.REFRESH_EXPIRATION_MILLISECONDS = refreshTokenExpirePeriod * 1000;
     }
 
     public JwtToken generateToken(Long userId) {
