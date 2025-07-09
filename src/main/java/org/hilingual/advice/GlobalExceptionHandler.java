@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
                 .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
                 .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
     }
-  
+
     @ExceptionHandler(OpenAiBaseException.class)
     public ResponseEntity<BaseResponseDto<Void>> handleOpenAiBaseException(OpenAiBaseException e) {
         log.error("[OpenAiBaseException] message: {}", e.getMessage(), e);

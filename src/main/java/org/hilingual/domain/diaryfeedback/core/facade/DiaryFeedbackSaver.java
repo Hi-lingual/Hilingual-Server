@@ -13,6 +13,6 @@ public class DiaryFeedbackSaver {
     private final DiaryFeedBackRepository diaryFeedbackRepository;
 
     public DiaryFeedback save(DiaryFeedback diaryFeedback){
-        return diaryFeedBackRepository.save(diaryFeedback);
+        return diaryFeedbackRepository.save(diaryFeedback);
     }
 }

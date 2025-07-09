@@ -27,15 +27,15 @@ public class Recommend extends BaseTimeEntity {
 
     @Column(name = COLUMN_PHRASE_TYPE, nullable = false)
     private String phraseType;
-
+  
     @Column(name = COLUMN_EXPLANATION, nullable = false)
     private String explanation;
 
-    @Column(name = COLUMN_REASON, nullable = false)
-    private String reason;
-
     @Column(name = COLUMN_IS_MARKED, nullable = false)
     private Boolean isMarked;
+
+    @Column(name = COLUMN_REASON, nullable = false)
+    private String reason;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_DIARY_ID, nullable = false)
