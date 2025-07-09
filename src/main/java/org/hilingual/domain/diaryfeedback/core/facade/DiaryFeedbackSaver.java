@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DiaryFeedbackSaver {
 
-    private final DiaryFeedBackRepository diaryFeedbackRepository;
+    private final DiaryFeedbackRepository diaryFeedbackRepository;
 
     public DiaryFeedback save(DiaryFeedback diaryFeedback){
         return diaryFeedbackRepository.save(diaryFeedback);

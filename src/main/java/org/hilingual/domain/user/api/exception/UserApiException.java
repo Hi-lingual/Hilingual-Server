@@ -1,10 +1,11 @@
-package org.hilingual.domain.diary.api.exception;
+package org.hilingual.domain.user.api.exception;
 
 import org.hilingual.common.exception.code.ErrorCode;
+import org.hilingual.domain.diary.api.exception.DiaryBaseException;
 
-public abstract class DiaryApiException extends DiaryBaseException{
+public abstract class UserApiException extends DiaryBaseException {
 
-    protected DiaryApiException(ErrorCode errorCode) {
+    protected UserApiException(ErrorCode errorCode) {
         super(errorCode);
     }
 }
