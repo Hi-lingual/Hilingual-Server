@@ -43,6 +43,12 @@ dependencies {
     implementation("software.amazon.awssdk:bom:2.21.0")
     implementation("software.amazon.awssdk:s3:2.21.0")
 
+    // Configuration
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 }
 
 test {
