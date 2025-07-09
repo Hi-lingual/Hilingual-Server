@@ -28,13 +28,13 @@ logging:
 
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
 jwt:
   secret-key: ${SECRET_KEY}
-  access-expiration-seconds: 86400
-  refresh-expiration-seconds: 604800
+  access-expiration-seconds: ${ACCESS_EXPIRATION}
+  refresh-expiration-seconds: ${REFRESH_EXPIRATION}
 
 management:
   endpoints:
