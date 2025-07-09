@@ -5,6 +5,8 @@ import org.hilingual.common.dto.BaseResponseDto;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.hilingual.common.exception.code.GlobalErrorCode;
 import org.hilingual.domain.diary.api.exception.DiaryBaseException;
+import org.hilingual.domain.security.jwt.JwtApiException;
+import org.hilingual.domain.security.jwt.JwtBaseException;
 import org.hilingual.external.s3.exception.S3BaseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -20,6 +22,15 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(JwtBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleJwtBaseException(JwtBaseException e) {
+        log.error("[JwtBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
 
     @ExceptionHandler(DiaryBaseException.class)
     public ResponseEntity<BaseResponseDto<Void>> handleDiaryBaseException(DiaryBaseException e) {
