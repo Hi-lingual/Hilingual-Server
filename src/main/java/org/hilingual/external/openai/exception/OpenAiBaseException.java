@@ -1,4 +1,4 @@
-package org.hilingual.domain.user.api.exception;
+package org.hilingual.external.openai.exception;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class UserBaseException extends HilingualBaseException {
+public abstract class OpenAiBaseException extends HilingualBaseException {
 
     private final ErrorCode errorCode;
-    public abstract HttpStatus getStatus();
 
+    public abstract HttpStatus getStatus();
 }

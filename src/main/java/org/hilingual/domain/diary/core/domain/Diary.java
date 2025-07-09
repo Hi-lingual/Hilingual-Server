@@ -44,4 +44,9 @@ public class Diary extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "diary", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Recommend> recommends;
+
+    public static Diary create(User user, String originalText, String rewriteText, String imageUrl) {
+        return new Diary(null, originalText, rewriteText, imageUrl, user, null, null);
+    }
+
 }

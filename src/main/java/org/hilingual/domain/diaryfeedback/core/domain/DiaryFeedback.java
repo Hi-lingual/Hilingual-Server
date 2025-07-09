@@ -37,4 +37,9 @@ public class DiaryFeedback extends BaseTimeEntity {
 
     @Column(name = COLUMN_VERSION, nullable = false)
     private Integer version = 1;
+
+    public static DiaryFeedback create(Diary diary, String originPhrase, String rewritePhrase, String explanation) {
+        return new DiaryFeedback(null, diary, originPhrase, rewritePhrase, explanation, 1);
+    }
+
 }
