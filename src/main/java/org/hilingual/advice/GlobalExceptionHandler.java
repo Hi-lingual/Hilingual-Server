@@ -1,5 +1,6 @@
 package org.hilingual.advice;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.hilingual.common.dto.BaseResponseDto;
 import org.hilingual.common.exception.code.ErrorCode;
@@ -40,6 +41,15 @@ public class GlobalExceptionHandler {
                 .body(BaseResponseDto.fail(e.getErrorCode()));
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleConstraintViolation(ConstraintViolationException e) {
+        log.warn("[ConstraintViolationException] {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
+    }
+  
     @ExceptionHandler(OpenAiBaseException.class)
     public ResponseEntity<BaseResponseDto<Void>> handleOpenAiBaseException(OpenAiBaseException e) {
         log.error("[OpenAiBaseException] message: {}", e.getMessage(), e);
