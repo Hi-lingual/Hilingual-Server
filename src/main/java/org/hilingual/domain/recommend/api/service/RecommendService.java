@@ -3,7 +3,9 @@ package org.hilingual.domain.recommend.api.service;
 import lombok.RequiredArgsConstructor;
 import org.hilingual.domain.diaryfeedback.core.facade.DiaryValidator;
 import org.hilingual.domain.recommend.api.dto.res.RecommendList;
+import org.hilingual.domain.recommend.core.domain.Recommend;
 import org.hilingual.domain.recommend.core.facade.RecommendRetriever;
+import org.hilingual.domain.recommend.core.facade.RecommendSaver;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +18,14 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class RecommendService {
 
+    private final RecommendSaver recommendSaver;
     private final RecommendRetriever recommendRetriever;
     private final DiaryValidator diaryValidator;
+
+    @Transactional
+    public void saveRecommend(Recommend recommend) {
+        recommendSaver.save(recommend);
+    }
 
     public RecommendList getRecommendList(final long userId, final long diaryId){
         diaryValidator.validateDiaryOwnership(userId, diaryId);

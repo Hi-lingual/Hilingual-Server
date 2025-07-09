@@ -42,7 +42,7 @@ public class Recommend extends BaseTimeEntity {
     private Diary diary;
 
     public static Recommend create(Diary diary, String phrase, String phraseType, String explanation, String reason) {
-        return new Recommend(null, phrase, phraseType, explanation, reason, false, diary);
+        return new Recommend(null, phrase, phraseType, explanation, false, reason, diary);
     }
 
 }
