@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.hilingual.common.dto.BaseResponseDto;
 import org.hilingual.domain.user.api.dto.res.NicknameAvailableResponse;
 import org.hilingual.domain.user.api.exception.UserSuccessCode;
+import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.user.core.facade.UserRetriever;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +16,20 @@ public class UserService {
 
     private final UserRetriever userRetriever;
 
+    public User findById(final long userId) {
+        return userRetriever.findByUserId(userId);
+    }
+
     public BaseResponseDto<NicknameAvailableResponse> getNicknameAvailable(String nickname) {
-        if (!nickname.matches("^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$")) return unavailableNickname(UserSuccessCode.NICKNAME_SPECIAL_SYMBOLS);
-        if (nickname.length() < 2 || nickname.length() > 10) return unavailableNickname(UserSuccessCode.NICKNAME_COUNT);
-        if (userRetriever.isNicknameExists(nickname)) return unavailableNickname(UserSuccessCode.NICKNAME_DUPLICATED);
+        if (!nickname.matches("^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$")) {
+            return unavailableNickname(UserSuccessCode.NICKNAME_SPECIAL_SYMBOLS);
+        }
+        if (nickname.length() < 2 || nickname.length() > 10) {
+            return unavailableNickname(UserSuccessCode.NICKNAME_COUNT);
+        }
+        if (userRetriever.isNicknameExists(nickname)) {
+            return unavailableNickname(UserSuccessCode.NICKNAME_DUPLICATED);
+        }
         return availableNickname();
     }
 
