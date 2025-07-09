@@ -1,4 +1,4 @@
-package org.hilingual.domain.diaryfeedback;
+package org.hilingual.domain.diaryfeedback.core.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hilingual.common.domain.BaseTimeEntity;
 import org.hilingual.domain.diary.core.domain.Diary;
 
-import static org.hilingual.domain.diaryfeedback.DiaryFeedbackTableConstants.*;
+import static org.hilingual.domain.diaryfeedback.core.domain.DiaryFeedbackTableConstants.*;
 
 @Entity
 @Table(name = TABLE_DIARY_FEEDBACK)
