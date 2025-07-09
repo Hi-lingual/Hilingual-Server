@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.hilingual.domain.diary.core.domain.Diary;
 import org.hilingual.domain.diary.core.exception.DiaryCoreErrorCode;
 import org.hilingual.domain.diary.core.exception.DiaryForbiddenException;
-import org.hilingual.domain.diary.core.exception.DiaryNotFoundException;
 import org.hilingual.domain.diary.core.facade.DiaryRetriever;
 import org.hilingual.domain.diaryfeedback.api.dto.DiaryFeedbackList;
 import org.hilingual.domain.diaryfeedback.core.domain.DiaryFeedback;
@@ -29,7 +28,7 @@ public class DiaryFeedbackService {
     public void saveFeedback(DiaryFeedback diaryFeedback) {
         diaryFeedbackSaver.save(diaryFeedback);
     }
-
+  
     public DiaryFeedbackList getFeedbackList(final long userId, final long diaryId){
         validateDiaryOwnership(userId, diaryId);
 
