@@ -1,4 +1,4 @@
-package org.hilingual.domain.diaryfeedback;
+package org.hilingual.domain.diaryfeedback.core.domain;
 
 public class DiaryFeedbackTableConstants {
     public static final String TABLE_DIARY_FEEDBACK = "diary_feedback";
