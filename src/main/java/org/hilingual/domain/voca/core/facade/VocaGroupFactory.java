@@ -3,6 +3,7 @@ package org.hilingual.domain.voca.core.facade;
 import org.hilingual.domain.voca.api.dto.res.VocaItemResponse;
 import org.hilingual.domain.voca.api.dto.res.VocaListResponse;
 import org.hilingual.domain.voca.api.dto.res.WordGroup;
+import org.hilingual.domain.voca.api.exception.VocaInvalidSortTypeException;
 import org.hilingual.domain.voca.core.domain.Voca;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,7 @@ public class VocaGroupFactory {
         return switch (sort) {
             case 1 -> groupByFirstLetter(vocas);
             case 2 -> groupByDateGroup(vocas);
-            default -> throw new IllegalArgumentException("Invalid sort value: " + sort);
+            default -> throw new VocaInvalidSortTypeException();
         };
     }
 

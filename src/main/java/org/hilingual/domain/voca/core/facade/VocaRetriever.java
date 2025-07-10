@@ -17,7 +17,7 @@ public class VocaRetriever {
     private final VocaRepository vocaRepository;
     private final VocaGroupFactory vocaGroupFactory;
 
-    public VocaListResponse retrieveGroupedVoca(final Long userId, final int sort) {
+    public VocaListResponse findGroupedVoca(final Long userId, final int sort) {
         final List<Voca> vocas = switch (sort) {
             case 1 -> vocaRepository.findAllByUserIdOrderByPhraseAsc(userId);
             case 2 -> vocaRepository.findAllByUserIdOrderByCreatedAtDesc(userId);

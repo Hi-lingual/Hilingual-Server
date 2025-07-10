@@ -14,6 +14,6 @@ public class VocaService {
     private final VocaRetriever vocaRetriever;
 
     public VocaListResponse getVocaList(final Long userId, final int sort) {
-        return vocaRetriever.retrieveGroupedVoca(userId, sort);
+        return vocaRetriever.findGroupedVoca(userId, sort);
     }
 }

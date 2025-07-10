@@ -16,14 +16,20 @@ public class VocaController {
 
     @GetMapping
     public ResponseEntity<VocaListResponse> getVocaList(
-            @RequestParam(value = "sort", required = false, defaultValue = "1") final int sort
+            @RequestParam(value = "sort", required = false, defaultValue = "1") final String sortStr
     ) {
-        if (sort != 1 && sort != 2) {
-            throw new VocaInvalidSortTypeException(); // ApiException
+        final int sort;
+        try {
+            sort = Integer.parseInt(sortStr);
+        } catch (NumberFormatException e) {
+            throw new VocaInvalidSortTypeException();
         }
 
-        Long userId = 1L; // TODO: 나중에 로그인 적용되면 리팩토링 예정
-        VocaListResponse response = vocaService.getVocaList(userId, sort);
-        return ResponseEntity.ok(response);
+        if (sort != 1 && sort != 2) {
+            throw new VocaInvalidSortTypeException();
+        }
+
+        Long userId = 1L; // TODO: 로그인 연동 후 수정
+        return ResponseEntity.ok(vocaService.getVocaList(userId, sort));
     }
 }
