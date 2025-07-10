@@ -1,4 +1,4 @@
-package org.hilingual.domain.recommend.api.cotroller;
+package org.hilingual.domain.recommend.api.controller;
 
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;

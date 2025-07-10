@@ -27,7 +27,7 @@ public class Recommend extends BaseTimeEntity {
 
     @Column(name = COLUMN_PHRASE_TYPE, nullable = false)
     private String phraseType;
-  
+
     @Column(name = COLUMN_EXPLANATION, nullable = false)
     private String explanation;
 
