@@ -31,7 +31,8 @@ if [ $cnt -eq 10 ]; then
 
     docker compose stop spring-${AFTER_COLOR}
     docker compose up -d spring-${BEFORE_COLOR}
-    echo "deployment_target=${BEFORE_COLOR}" > ./nginx/.env
+    
+    echo "TARGET_UPSTREAM=hilingual-${BEFORE_COLOR}:8080" > .env
     docker compose up -d --force-recreate nginx
 
     echo "[INFO] 롤백 완료. 이전 서버(${BEFORE_COLOR})로 복구됨."
@@ -39,7 +40,7 @@ if [ $cnt -eq 10 ]; then
 fi
 
 echo "[INFO] Nginx 대상 변경: ${AFTER_COLOR}"
-echo "deployment_target=${AFTER_COLOR}" > ./nginx/.env
+echo "TARGET_UPSTREAM=hilingual-${AFTER_COLOR}:8080" > .env
 
 echo "[INFO] Nginx 컨테이너 재시작 중..."
 docker compose up -d --force-recreate nginx

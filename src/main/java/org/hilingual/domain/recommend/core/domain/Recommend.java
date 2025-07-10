@@ -1,4 +1,4 @@
-package org.hilingual.domain.recommend;
+package org.hilingual.domain.recommend.core.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -7,9 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hilingual.common.domain.BaseTimeEntity;
 import org.hilingual.domain.diary.core.domain.Diary;
-import org.hilingual.domain.voca.Voca;
 
-import static org.hilingual.domain.recommend.RecommendTableConstants.*;
+import static org.hilingual.domain.recommend.core.domain.RecommendTableConstants.*;
 
 @Entity
 @Table(name = TABLE_RECOMMEND)
@@ -35,10 +34,15 @@ public class Recommend extends BaseTimeEntity {
     @Column(name = COLUMN_IS_MARKED, nullable = false)
     private Boolean isMarked;
 
+    @Column(name = COLUMN_REASON, nullable = false)
+    private String reason;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_DIARY_ID, nullable = false)
     private Diary diary;
 
-    @OneToOne(mappedBy = "recommend")
-    private Voca voca;
+    public static Recommend create(Diary diary, String phrase, String phraseType, String explanation, String reason) {
+        return new Recommend(null, phrase, phraseType, explanation, false, reason, diary);
+    }
+
 }

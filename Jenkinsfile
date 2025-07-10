@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk17'
-        gradle 'gradle'
+        jdk 'jdk17'         // Jenkins 관리 > JDK 이름과 정확히 일치해야 함
+        gradle 'gradle'     // Jenkins 관리 > Gradle 이름과 일치
     }
 
     environment {
@@ -13,6 +13,18 @@ pipeline {
     }
 
     stages {
+
+        stage('Check Java & Gradle Version') {
+            steps {
+                sh '''
+                    echo "[DEBUG] JAVA HOME: $JAVA_HOME"
+                    which java
+                    java -version
+                    ./gradlew --version
+                '''
+            }
+        }
+
         stage('Git Clone') {
             steps {
                 checkout scm
@@ -23,7 +35,7 @@ pipeline {
             steps {
                 sh '''
                     chmod +x ./gradlew
-                    ./gradlew clean build
+                    ./gradlew clean build --refresh-dependencies --no-daemon -x test
                 '''
             }
         }
