@@ -2,6 +2,7 @@ package org.hilingual.domain.voca.api.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.domain.voca.api.dto.res.VocaListResponse;
+import org.hilingual.domain.voca.api.exception.VocaApiErrorCode;
 import org.hilingual.domain.voca.api.exception.VocaInvalidSortTypeException;
 import org.hilingual.domain.voca.api.service.VocaService;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +23,11 @@ public class VocaController {
         try {
             sort = Integer.parseInt(sortStr);
         } catch (NumberFormatException e) {
-            throw new VocaInvalidSortTypeException();
+            throw new VocaInvalidSortTypeException(VocaApiErrorCode.INVALID_SORT_TYPE);
         }
 
         if (sort != 1 && sort != 2) {
-            throw new VocaInvalidSortTypeException();
+            throw new VocaInvalidSortTypeException(VocaApiErrorCode.INVALID_SORT_TYPE);
         }
 
         Long userId = 1L; // TODO: 로그인 연동 후 수정
