@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum VocaApiErrorCode implements ErrorCode {
 
-    INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, 40004, "올바르지 않은 정렬 방식입니다. sort는 1 또는 2여야 합니다.\n");
+    INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, 40004, "올바르지 않은 정렬 방식입니다. sort는 1 또는 2여야 합니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
