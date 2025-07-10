@@ -1,11 +1,13 @@
 package org.hilingual.advice;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.hilingual.common.dto.BaseResponseDto;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.hilingual.common.exception.code.GlobalErrorCode;
 import org.hilingual.domain.diary.api.exception.DiaryBaseException;
 import org.hilingual.domain.security.token.api.exception.JwtBaseException;
+import org.hilingual.external.openai.exception.OpenAiBaseException;
 import org.hilingual.external.s3.exception.S3BaseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.hilingual.domain.voca.api.exception.VocaBaseException;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +53,33 @@ public class GlobalExceptionHandler {
                 .body(BaseResponseDto.fail(e.getErrorCode()));
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleConstraintViolation(ConstraintViolationException e) {
+        log.warn("[ConstraintViolationException] {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
+    }
+
+    @ExceptionHandler(OpenAiBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleOpenAiBaseException(OpenAiBaseException e) {
+        log.error("[OpenAiBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(VocaBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleVocaBaseException(VocaBaseException e) {
+        log.error("[VocaBaseException] message: {}", e.getMessage(), e);
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<BaseResponseDto<Map<String, String>>> handleValidationException(MethodArgumentNotValidException e) {
         log.error("[ValidationException] message: {}", e.getMessage(), e);
@@ -83,7 +114,6 @@ public class GlobalExceptionHandler {
                 .body(BaseResponseDto.fail(GlobalErrorCode.NOT_FOUND_END_POINT));
     }
 
-    // 기본 예외
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponseDto<Void>> handleException(Exception e) {
         log.error("[UnhandledException] message: {}", e.getMessage(), e);
@@ -92,4 +122,7 @@ public class GlobalExceptionHandler {
                 .status(GlobalErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
                 .body(BaseResponseDto.fail(GlobalErrorCode.INTERNAL_SERVER_ERROR));
     }
+
+
+
 }

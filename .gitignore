@@ -218,3 +218,11 @@ build/
 
 .idea/.name
 .idea/libraries/
+
+# IntelliJ IDEA
+*.iml
+.idea/modules.xml
+.idea/**/*.iml
+.idea/modules/
+.idea/kotlinc.xml
+.idea/compiler.xml

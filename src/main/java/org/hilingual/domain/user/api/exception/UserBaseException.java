@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class UserBaseException extends HilingualBaseException {
+
     private final ErrorCode errorCode;
     public abstract HttpStatus getStatus();
+
 }

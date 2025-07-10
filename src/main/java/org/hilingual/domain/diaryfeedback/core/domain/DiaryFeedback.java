@@ -1,4 +1,4 @@
-package org.hilingual.domain.diaryfeedback;
+package org.hilingual.domain.diaryfeedback.core.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hilingual.common.domain.BaseTimeEntity;
 import org.hilingual.domain.diary.core.domain.Diary;
 
-import static org.hilingual.domain.diaryfeedback.DiaryFeedbackTableConstants.*;
+import static org.hilingual.domain.diaryfeedback.core.domain.DiaryFeedbackTableConstants.*;
 
 @Entity
 @Table(name = TABLE_DIARY_FEEDBACK)
@@ -37,4 +37,9 @@ public class DiaryFeedback extends BaseTimeEntity {
 
     @Column(name = COLUMN_VERSION, nullable = false)
     private Integer version = 1;
+
+    public static DiaryFeedback create(Diary diary, String originPhrase, String rewritePhrase, String explanation) {
+        return new DiaryFeedback(null, diary, originPhrase, rewritePhrase, explanation, 1);
+    }
+
 }

@@ -1,4 +1,4 @@
-package org.hilingual.domain.voca;
+package org.hilingual.domain.voca.core.domain;
 
 public class VocaTableConstants {
     public static final String TABLE_VOCA = "voca";
