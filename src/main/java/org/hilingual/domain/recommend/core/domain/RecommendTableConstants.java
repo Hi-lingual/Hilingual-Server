@@ -1,4 +1,4 @@
-package org.hilingual.domain.recommend;
+package org.hilingual.domain.recommend.core.domain;
 
 public class RecommendTableConstants {
     public static final String TABLE_RECOMMEND = "recommend";

@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hilingual.common.domain.BaseTimeEntity;
 import org.hilingual.domain.diaryfeedback.DiaryFeedback;
-import org.hilingual.domain.recommend.Recommend;
+import org.hilingual.domain.recommend.core.domain.Recommend;
 import org.hilingual.domain.user.User;
 
 import java.util.List;
