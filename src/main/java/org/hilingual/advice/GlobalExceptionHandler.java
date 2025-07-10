@@ -12,6 +12,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.hilingual.domain.voca.api.exception.VocaBaseException;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +34,14 @@ public class GlobalExceptionHandler {
                 .status(e.getStatus())
                 .body(BaseResponseDto.fail(e.getErrorCode()));
     }
+
+    @ExceptionHandler(VocaBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleVocaBaseException(VocaBaseException e) {
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<BaseResponseDto<Map<String, String>>> handleValidationException(MethodArgumentNotValidException e) {
@@ -64,4 +74,7 @@ public class GlobalExceptionHandler {
                 .status(GlobalErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
                 .body(BaseResponseDto.fail(GlobalErrorCode.INTERNAL_SERVER_ERROR));
     }
+
+
+
 }

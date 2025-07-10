@@ -5,6 +5,8 @@ import org.hilingual.domain.voca.api.dto.res.VocaListResponse;
 import org.hilingual.domain.voca.core.domain.Voca;
 import org.hilingual.domain.voca.core.repository.VocaRepository;
 import org.springframework.stereotype.Component;
+import org.hilingual.domain.voca.api.exception.VocaInvalidSortTypeException;
+
 
 import java.util.List;
 
@@ -19,9 +21,10 @@ public class VocaRetriever {
         final List<Voca> vocas = switch (sort) {
             case 1 -> vocaRepository.findAllByUserIdOrderByPhraseAsc(userId);
             case 2 -> vocaRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
-            default -> throw new IllegalArgumentException("Invalid sort value: " + sort);
+            default -> throw new VocaInvalidSortTypeException();
         };
 
         return vocaGroupFactory.create(vocas, sort);
     }
+
 }

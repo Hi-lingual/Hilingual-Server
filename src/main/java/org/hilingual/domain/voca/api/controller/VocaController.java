@@ -18,7 +18,7 @@ public class VocaController {
             @RequestParam(value = "sort", required = false, defaultValue = "1") final int sort
     ) {
 
-        Long userId = 1L; // TODO: 나중에 로그인 적용되면 userId 주입
+        Long userId = 1L; // TODO: 나중에 로그인 적용되면 리팩토링 예정
         VocaListResponse response = vocaService.getVocaList(userId, sort);
         return ResponseEntity.ok(response);
     }
