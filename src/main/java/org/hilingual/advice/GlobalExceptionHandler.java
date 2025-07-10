@@ -63,6 +63,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(VocaBaseException.class)
     public ResponseEntity<BaseResponseDto<Void>> handleVocaBaseException(VocaBaseException e) {
+        log.error("[VocaBaseException] message: {}", e.getMessage(), e);
         return ResponseEntity
                 .status(e.getStatus())
                 .body(BaseResponseDto.fail(e.getErrorCode()));
