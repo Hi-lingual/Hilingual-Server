@@ -26,11 +26,6 @@ logging:
   file:
     name: /home/ubuntu/logs/app.log
 
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-
 jwt:
   secret-key: ${SECRET_KEY}
   access-expiration-seconds: ${ACCESS_EXPIRATION}
@@ -54,6 +49,10 @@ aws-property:
 ---
 
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
   config:
     activate:
       on-profile: blue
@@ -63,6 +62,10 @@ server:
 ---
 
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
   config:
     activate:
       on-profile: green
