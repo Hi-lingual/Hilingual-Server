@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 public enum DiaryApiErrorCode implements ErrorCode {
+    DIARY_TOO_SHORT(HttpStatus.BAD_REQUEST, 40003, "10자 이상 작성해주세요."),
     ;
 
     public final HttpStatus httpStatus;

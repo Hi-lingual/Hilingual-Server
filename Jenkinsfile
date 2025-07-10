@@ -10,6 +10,7 @@ pipeline {
         DEPLOY_SERVER = "ubuntu@43.200.125.20"
         PROJECT_PATH = "/home/ubuntu/hilingual"
         JAR_NAME = "HILINGUAL-SERVER-1.0-SNAPSHOT.jar"
+        DISCORD_WEBHOOK_URL = credentials('discord-webhook-url')
     }
 
     stages {
@@ -48,5 +49,19 @@ pipeline {
                 }
             }
         }
-    }
-}
+  stage('Notify to Discord') {
+              when {
+                  expression { env.BRANCH_NAME == 'develop' }
+              }
+              steps {
+                  sh '''
+                      curl -X POST "$DISCORD_WEBHOOK_URL" \
+                      -H "Content-Type: application/json" \
+                      -d '{
+                            "content": ":rocket: *[Hilingual]* `develop` 브랜치에 코드가 푸시되고 배포되었습니다!\\n커밋 메시지: '${GIT_COMMIT}'"
+                          }'
+                  '''
+              }
+          }
+      }
+  }

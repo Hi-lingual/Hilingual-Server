@@ -11,4 +11,6 @@ public interface RecommendRepository extends JpaRepository<Recommend, Long> {
 
     @Query("select r from Recommend r where r.id in (select v.recommend.id from Voca v where v.id = :vocaId)")
     List<Recommend> findAllByVocaId(@Param("vocaId") Long vocaId);
+    List<Recommend> findByDiaryId(Long diaryId);
+
 }

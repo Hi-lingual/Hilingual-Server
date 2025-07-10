@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hilingual.common.domain.BaseTimeEntity;
 import org.hilingual.domain.recommend.core.domain.Recommend;
-import org.hilingual.domain.user.User;
+import org.hilingual.domain.user.core.domain.User;
 
 import static org.hilingual.domain.voca.core.domain.VocaTableConstants.*;
 

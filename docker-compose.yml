@@ -8,11 +8,12 @@ services:
     container_name: hilingual-blue
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
       - SPRING_PROFILES_ACTIVE=blue
-      - DB_URL=${DB_URL}
-      - DB_ID=${DB_ID}
-      - DB_PW=${DB_PW}
+    networks:
+      - hilingual-network
 
   spring-green:
     build:
@@ -21,11 +22,12 @@ services:
     container_name: hilingual-green
     ports:
       - "8081:8080"
+    env_file:
+      - .env
     environment:
       - SPRING_PROFILES_ACTIVE=green
-      - DB_URL=${DB_URL}
-      - DB_ID=${DB_ID}
-      - DB_PW=${DB_PW}
+    networks:
+      - hilingual-network
 
   nginx:
     image: nginx:latest
@@ -36,4 +38,14 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/.env:/etc/nginx/.env
     environment:
-      - deployment_target
+      - deployment_target=${deployment_target}
+    depends_on:
+      - spring-blue
+      - spring-green
+    networks:
+      - hilingual-network
+
+networks:
+  hilingual-network:
+    driver: bridge
+
