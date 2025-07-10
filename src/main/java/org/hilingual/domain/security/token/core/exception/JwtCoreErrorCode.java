@@ -1,11 +1,11 @@
-package org.hilingual.domain.security.jwt;
+package org.hilingual.domain.security.token.core.exception;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
-public enum JwtApiErrorCode implements ErrorCode {
+public enum JwtCoreErrorCode  implements ErrorCode {
     ;
 
     public final HttpStatus httpStatus;

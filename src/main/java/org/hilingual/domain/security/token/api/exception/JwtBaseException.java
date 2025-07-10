@@ -1,4 +1,4 @@
-package org.hilingual.domain.security.jwt;
+package org.hilingual.domain.security.token.api.exception;
 
 import lombok.AccessLevel;
 import lombok.Getter;

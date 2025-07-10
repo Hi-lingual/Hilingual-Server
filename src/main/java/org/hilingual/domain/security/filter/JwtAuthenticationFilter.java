@@ -5,8 +5,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.hilingual.domain.security.jwt.JwtProvider;
+import org.hilingual.common.exception.code.GlobalErrorCode;
+import org.hilingual.domain.security.token.api.service.JwtProvider;
 import org.hilingual.domain.security.constant.SecurityConstants;
+import org.hilingual.domain.security.token.core.exception.UnauthorizedException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -31,15 +33,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String token = extractToken(request);
 
-        if (token != null && jwtProvider.validateToken(token)) {
+        if (token == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        try {
+            jwtProvider.validateToken(token);
             Long userId = jwtProvider.getUserId(token);
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     userId, null, Collections.emptyList()
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private String extractToken(HttpServletRequest request) {
