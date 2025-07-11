@@ -1,5 +1,6 @@
 package org.hilingual.domain.voca.core.exception;
 
+import org.hilingual.common.exception.code.ErrorCode;
 import org.hilingual.domain.voca.api.exception.VocaApiErrorCode;
 import org.hilingual.domain.voca.core.exception.VocaCoreErrorCode;
 import org.springframework.http.HttpStatus;
@@ -7,7 +8,7 @@ import org.springframework.http.HttpStatus;
 // TODO : User 도메인 구현되면 구현 예정
 public class VocaNotFoundException extends VocaCoreException {
 
-    public VocaNotFoundException(VocaCoreErrorCode errorCode) {
+    public VocaNotFoundException(ErrorCode errorCode) {
         super(errorCode);
     }
 

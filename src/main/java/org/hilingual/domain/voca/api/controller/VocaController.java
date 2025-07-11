@@ -40,7 +40,7 @@ public class VocaController {
     public ResponseEntity<VocaSearchListResponse> searchVocaList(
             @RequestParam final String keyword
     ) {
-        final Long userId = 1L;
+        final Long userId = 1L; // TODO: 로그인 연동 후 수정
 
         if (keyword.trim().isEmpty()) {
             throw new VocaInvalidKeywordException(VocaApiErrorCode.INVALID_KEYWORD);
