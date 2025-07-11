@@ -5,7 +5,6 @@ import org.hilingual.domain.voca.api.dto.res.VocaListResponse;
 import org.hilingual.domain.voca.api.dto.res.VocaSearchListResponse;
 import org.hilingual.domain.voca.core.domain.Voca;
 import org.hilingual.domain.voca.core.facade.VocaRetriever;
-import org.hilingual.domain.voca.core.facade.VocaSearcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +17,6 @@ import java.util.List;
 public class VocaService {
 
     private final VocaRetriever vocaRetriever;
-    private final VocaSearcher vocaSearcher;
 
 
     // 단어장 목록 조회
@@ -28,7 +26,7 @@ public class VocaService {
 
     // 단어장 검색
     public VocaSearchListResponse searchVocaList(final Long userId, final String keyword) {
-        final List<Voca> vocas = vocaSearcher.searchStartsWith(userId, keyword);
+        final List<Voca> vocas = vocaRetriever.findStartsWithVoca(userId, keyword);
         return VocaSearchListResponse.from(vocas);
     }
 }

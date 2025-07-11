@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.hilingual.domain.voca.api.exception.VocaInvalidSortTypeException;
 
 
+
 import java.util.List;
 
 @Component
@@ -26,6 +27,11 @@ public class VocaRetriever {
         };
 
         return vocaGroupFactory.create(vocas, sort);
+    }
+
+    public List<Voca> findStartsWithVoca(final Long userId, final String keyword) {
+        final List<Voca> vocas = vocaRepository.findAllByUserIdAndPhraseStartsWith(userId, keyword);
+        return vocas;
     }
 
 }
