@@ -2,7 +2,9 @@ package org.hilingual.domain.voca.api.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.domain.voca.api.dto.res.VocaListResponse;
+import org.hilingual.domain.voca.api.dto.res.VocaSearchListResponse;
 import org.hilingual.domain.voca.api.exception.VocaApiErrorCode;
+import org.hilingual.domain.voca.api.exception.VocaInvalidKeywordException;
 import org.hilingual.domain.voca.api.exception.VocaInvalidSortTypeException;
 import org.hilingual.domain.voca.api.service.VocaService;
 import org.springframework.http.ResponseEntity;
@@ -33,4 +35,18 @@ public class VocaController {
         Long userId = 1L; // TODO: 로그인 연동 후 수정
         return ResponseEntity.ok(vocaService.getVocaList(userId, sort));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<VocaSearchListResponse> searchVocaList(
+            @RequestParam final String keyword
+    ) {
+        final Long userId = 1L; // TODO: 로그인 연동 후 수정
+
+        if (keyword.trim().isEmpty()) {
+            throw new VocaInvalidKeywordException(VocaApiErrorCode.INVALID_KEYWORD);
+        }
+
+        return ResponseEntity.ok(vocaService.searchVocaList(userId, keyword.trim()));
+    }
+
 }

@@ -3,10 +3,12 @@ package org.hilingual.domain.voca.core.facade;
 import lombok.RequiredArgsConstructor;
 import org.hilingual.domain.voca.api.dto.res.VocaListResponse;
 import org.hilingual.domain.voca.api.exception.VocaApiErrorCode;
+import org.hilingual.domain.voca.api.exception.VocaInvalidKoreanKeywordException;
 import org.hilingual.domain.voca.core.domain.Voca;
 import org.hilingual.domain.voca.core.repository.VocaRepository;
 import org.springframework.stereotype.Component;
 import org.hilingual.domain.voca.api.exception.VocaInvalidSortTypeException;
+
 
 
 import java.util.List;
@@ -27,5 +29,15 @@ public class VocaRetriever {
 
         return vocaGroupFactory.create(vocas, sort);
     }
+
+    public List<Voca> findStartsWithVoca(final Long userId, final String keyword) {
+
+        final List<Voca> vocas = vocaRepository.findAllByUserIdAndPhraseStartsWith(userId, keyword);
+
+        return vocas;
+    }
+
+    // TODO : 한글 예외처리
+
 
 }
