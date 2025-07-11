@@ -5,6 +5,8 @@ import org.hilingual.domain.voca.api.dto.res.VocaListResponse;
 import org.hilingual.domain.voca.api.exception.VocaApiErrorCode;
 import org.hilingual.domain.voca.api.exception.VocaInvalidKoreanKeywordException;
 import org.hilingual.domain.voca.core.domain.Voca;
+import org.hilingual.domain.voca.core.exception.VocaCoreErrorCode;
+import org.hilingual.domain.voca.core.exception.VocaNotFoundException;
 import org.hilingual.domain.voca.core.repository.VocaRepository;
 import org.springframework.stereotype.Component;
 import org.hilingual.domain.voca.api.exception.VocaInvalidSortTypeException;
@@ -30,6 +32,8 @@ public class VocaRetriever {
         return vocaGroupFactory.create(vocas, sort);
     }
 
+    // TODO : 검색 한글 예외처리 추가 (단어장 사용 시)
+
     public List<Voca> findStartsWithVoca(final Long userId, final String keyword) {
 
         final List<Voca> vocas = vocaRepository.findAllByUserIdAndPhraseStartsWith(userId, keyword);
@@ -37,7 +41,11 @@ public class VocaRetriever {
         return vocas;
     }
 
-    // TODO : 한글 예외처리
+
+    public Voca findByUserIdAndVocaId(final Long userId, final Long vocaId) {
+        return vocaRepository.findByIdAndUserId(vocaId, userId)
+                .orElseThrow(() -> new VocaNotFoundException(VocaCoreErrorCode.VOCA_NOT_FOUND));
+    }
 
 
 }

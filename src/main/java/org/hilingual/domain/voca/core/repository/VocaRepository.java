@@ -6,6 +6,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface VocaRepository extends Repository<Voca, Long> {
 
@@ -39,5 +40,12 @@ public interface VocaRepository extends Repository<Voca, Long> {
             @Param("keyword") String keyword
     );
 
+    @Query("""
+    SELECT v FROM Voca v
+    JOIN FETCH v.recommend r
+    WHERE v.id = :vocaId
+      AND v.user.id = :userId
+""")
+    Optional<Voca> findByIdAndUserId(@Param("vocaId") Long vocaId, @Param("userId") Long userId);
 }
 

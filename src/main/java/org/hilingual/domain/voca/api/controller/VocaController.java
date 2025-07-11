@@ -1,6 +1,7 @@
 package org.hilingual.domain.voca.api.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.hilingual.domain.voca.api.dto.res.VocaDetailResponse;
 import org.hilingual.domain.voca.api.dto.res.VocaListResponse;
 import org.hilingual.domain.voca.api.dto.res.VocaSearchListResponse;
 import org.hilingual.domain.voca.api.exception.VocaApiErrorCode;
@@ -47,6 +48,14 @@ public class VocaController {
         }
 
         return ResponseEntity.ok(vocaService.searchVocaList(userId, keyword.trim()));
+    }
+
+    @GetMapping("/{vocaId}")
+    public ResponseEntity<VocaDetailResponse> getVocaDetail(
+            @PathVariable final Long vocaId
+    ) {
+        final Long userId = 1L; // TODO: 로그인 연동 후 수정
+        return ResponseEntity.ok(vocaService.getVocaDetail(userId, vocaId));
     }
 
 }
