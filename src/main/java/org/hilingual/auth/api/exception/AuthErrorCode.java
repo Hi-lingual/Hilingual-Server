@@ -1,11 +1,9 @@
 package org.hilingual.auth.api.exception;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-@Getter
 @RequiredArgsConstructor
 public enum AuthErrorCode implements ErrorCode {
     // 400

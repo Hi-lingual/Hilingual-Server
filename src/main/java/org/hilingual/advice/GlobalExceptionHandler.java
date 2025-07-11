@@ -2,6 +2,7 @@ package org.hilingual.advice;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.hilingual.auth.api.exception.AuthBaseException;
 import org.hilingual.common.dto.BaseResponseDto;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.hilingual.common.exception.code.GlobalErrorCode;
@@ -9,9 +10,11 @@ import org.hilingual.domain.diary.api.exception.DiaryBaseException;
 import org.hilingual.domain.token.api.exception.JwtBaseException;
 import org.hilingual.external.openai.exception.OpenAiBaseException;
 import org.hilingual.external.s3.exception.S3BaseException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -25,6 +28,24 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
+        log.error("MissingRequestHeaderException occurred: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
+    }
+
+    @ExceptionHandler(AuthBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleAuthBaseException(AuthBaseException e) {
+        log.error("[AuthApiBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
 
     @ExceptionHandler(JwtBaseException.class)
     public ResponseEntity<BaseResponseDto<Void>> handleJwtBaseException(JwtBaseException e) {

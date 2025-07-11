@@ -9,9 +9,8 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AuthApiBaseException extends HilingualBaseException {
+public abstract class AuthBaseException extends HilingualBaseException {
 
     private final ErrorCode errorCode;
-
     public abstract HttpStatus getStatus();
 }

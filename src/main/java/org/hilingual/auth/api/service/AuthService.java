@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hilingual.auth.core.domain.GoogleOAuth2UserInfo;
 import org.hilingual.auth.api.exception.AuthErrorCode;
-import org.hilingual.auth.core.exception.GoogleAuthException;
+import org.hilingual.auth.core.exception.GoogleAuthUnAuthorizedException;
+import org.hilingual.common.exception.code.GlobalErrorCode;
 import org.hilingual.domain.token.api.dto.res.JwtTokenResponse;
 import org.hilingual.domain.token.api.service.JwtProvider;
 import org.hilingual.domain.token.api.service.RefreshTokenService;
@@ -41,15 +42,19 @@ public class AuthService {
 
     @Transactional
     public JwtTokenResponse googleLogin(String provider, String providerToken) {
+        if (providerToken == null || providerToken.length() < 101) {
+            throw new GoogleAuthUnAuthorizedException(GlobalErrorCode.UNAUTHORIZED);
+        }
+
         if(!PROVIDER_GOOGLE.equalsIgnoreCase(provider)) {
-            log.info("[구글 로그인] -> 안돼요");
-            throw new GoogleAuthException(AuthErrorCode.AUTH_GOOGLE_SERVER_ERROR);
+            log.info("[구글 로그인] -> provider 누락");
+            throw new GoogleAuthUnAuthorizedException(GlobalErrorCode.INVALID_INPUT_VALUE);
         }
 
         GoogleIdToken.Payload payload = verifyGoogleIdToken(providerToken);
         if (payload == null) {
             log.info("[구글 로그인] id token 오류");
-            throw new GoogleAuthException(AuthErrorCode.INVALID_GOOGLE_ID_TOKEN);
+            throw new GoogleAuthUnAuthorizedException(GlobalErrorCode.UNAUTHORIZED);
         }
 
         GoogleOAuth2UserInfo userInfo = new GoogleOAuth2UserInfo(payload);
@@ -94,10 +99,10 @@ public class AuthService {
                 return idToken.getPayload();
             } else {
                 log.warn("[구글 로그인] ID Token 검증 실패: verifier.verify(idTokenValue)가 null 반환");
-                return null;
+                throw new GoogleAuthUnAuthorizedException(GlobalErrorCode.UNAUTHORIZED);
             }
         } catch (GeneralSecurityException | IOException e) {
-            throw new GoogleAuthException(AuthErrorCode.AUTH_GOOGLE_SERVER_ERROR);
+            throw new GoogleAuthUnAuthorizedException(AuthErrorCode.AUTH_GOOGLE_SERVER_ERROR);
         }
     }
 
