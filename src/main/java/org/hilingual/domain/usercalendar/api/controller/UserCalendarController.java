@@ -25,6 +25,7 @@ public class UserCalendarController {
         final Long userId = 1L; // TODO: 로그인 연동 후 대체
 
         final LocalDate parsedDate;
+
         try {
             parsedDate = LocalDate.parse(date);
         } catch (DateTimeParseException e) {
