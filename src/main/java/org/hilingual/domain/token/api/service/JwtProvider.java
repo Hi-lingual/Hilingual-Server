@@ -85,7 +85,8 @@ public class JwtProvider {
                 .compact();
         log.info("[token] JwtProvider의 generateToken에서 refreshToken 생성 = {}", refreshToken);
 
-        return JwtTokenResponse.of(accessToken, refreshToken);
+        // TODO 일단 false로 넘기고 AuthService에서 처리
+        return JwtTokenResponse.of(accessToken, refreshToken, false);
     }
 
     public Long getUserId(String token) {
