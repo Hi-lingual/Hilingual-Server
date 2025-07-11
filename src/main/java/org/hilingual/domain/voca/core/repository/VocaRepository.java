@@ -26,4 +26,18 @@ public interface VocaRepository extends Repository<Voca, Long> {
         ORDER BY v.createdAt DESC
     """)
     List<Voca> findAllByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
+
+    @Query("""
+    SELECT v FROM Voca v
+    JOIN FETCH v.recommend r
+    WHERE v.user.id = :userId
+      AND LOWER(r.phrase) LIKE LOWER(CONCAT(:keyword, '%'))
+    ORDER BY LOWER(SUBSTRING(r.phrase, LENGTH(:keyword) + 1))
+""")
+    List<Voca> findAllByUserIdAndPhraseStartsWith(
+            @Param("userId") Long userId,
+            @Param("keyword") String keyword
+    );
+
 }
+
