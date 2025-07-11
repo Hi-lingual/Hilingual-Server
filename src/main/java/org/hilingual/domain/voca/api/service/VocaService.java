@@ -8,8 +8,6 @@ import org.hilingual.domain.voca.core.domain.Voca;
 import org.hilingual.domain.voca.core.facade.VocaRetriever;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
 import java.util.List;
 
 @Service
@@ -32,7 +30,6 @@ public class VocaService {
     }
 
     //특정 단어 세부 조회
-    @Transactional(readOnly = true)
     public VocaDetailResponse getVocaDetail(final Long userId, final Long vocaId) {
         final Voca voca = vocaRetriever.findByUserIdAndVocaId(userId, vocaId);
         return VocaDetailResponse.from(voca);
