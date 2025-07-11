@@ -1,6 +1,7 @@
 package org.hilingual.domain.voca.api.service;
 
 import lombok.RequiredArgsConstructor;
+import org.hilingual.domain.voca.api.dto.res.VocaDetailResponse;
 import org.hilingual.domain.voca.api.dto.res.VocaListResponse;
 import org.hilingual.domain.voca.api.dto.res.VocaSearchListResponse;
 import org.hilingual.domain.voca.core.domain.Voca;
@@ -29,4 +30,12 @@ public class VocaService {
         final List<Voca> vocas = vocaRetriever.findStartsWithVoca(userId, keyword);
         return VocaSearchListResponse.from(vocas);
     }
+
+    //특정 단어 세부 조회
+    @Transactional(readOnly = true)
+    public VocaDetailResponse getVocaDetail(final Long userId, final Long vocaId) {
+        final Voca voca = vocaRetriever.findByUserIdAndVocaId(userId, vocaId);
+        return VocaDetailResponse.from(voca);
+    }
+
 }
