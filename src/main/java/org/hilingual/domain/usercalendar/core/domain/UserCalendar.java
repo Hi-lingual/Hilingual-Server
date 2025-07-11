@@ -1,4 +1,4 @@
-package org.hilingual.domain.usercalendar;
+package org.hilingual.domain.usercalendar.core.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,7 +10,7 @@ import org.hilingual.domain.user.core.domain.User;
 
 import java.time.LocalDate;
 
-import static org.hilingual.domain.usercalendar.UserCalendarTableConstants.*;
+import static org.hilingual.domain.usercalendar.core.domain.UserCalendarTableConstants.*;
 
 @Entity
 @Table(name = TABLE_USER_CALENDAR)
