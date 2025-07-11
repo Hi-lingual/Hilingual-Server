@@ -1,4 +1,4 @@
-package org.hilingual.domain.usercalendar;
+package org.hilingual.domain.usercalendar.core.domain;
 
 public class UserCalendarTableConstants {
     public static final String TABLE_USER_CALENDAR = "user_calendar";
