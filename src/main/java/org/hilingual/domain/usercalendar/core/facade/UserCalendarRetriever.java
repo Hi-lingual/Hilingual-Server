@@ -5,7 +5,7 @@ import org.hilingual.domain.diary.core.domain.Diary;
 import org.hilingual.domain.diary.core.repository.DiaryRepository;
 import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarDiarySummaryResponse;
 import org.hilingual.domain.usercalendar.api.exception.UserCalendarDiaryNotFoundException;
-import org.hilingual.domain.usercalendar.api.exception.UserCalendarApiErrorCode;
+import org.hilingual.domain.usercalendar.core.exception.UserCalendarCoreErrorCode;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -33,7 +33,7 @@ public class UserCalendarRetriever {
                         )
                 )
                 .orElseThrow(() ->
-                        new UserCalendarDiaryNotFoundException(UserCalendarApiErrorCode.DIARY_NOT_FOUND)
+                        new UserCalendarDiaryNotFoundException(UserCalendarCoreErrorCode.DIARY_NOT_FOUND)
                 );
     }
 }
