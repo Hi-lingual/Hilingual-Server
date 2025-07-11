@@ -31,22 +31,13 @@ public class VocaRetriever {
     }
 
     public List<Voca> findStartsWithVoca(final Long userId, final String keyword) {
-        if (containsKorean(keyword)) {
-            throw new VocaInvalidKoreanKeywordException(VocaApiErrorCode.INVALID_KEYWORD_KOREAN);
-        }
 
         final List<Voca> vocas = vocaRepository.findAllByUserIdAndPhraseStartsWith(userId, keyword);
-
-        if (vocas.isEmpty()) {
-            throw new VocaInvalidKoreanKeywordException(VocaApiErrorCode.INVALID_KEYWORD_KOREAN);
-        }
 
         return vocas;
     }
 
-    private boolean containsKorean(final String input) {
-        return input != null && input.matches(".*[가-힣]+.*");
-    }
+    // TODO : 한글 예외처리
 
 
 }
