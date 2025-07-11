@@ -1,6 +1,9 @@
 package org.hilingual.domain.diary.api.controller;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.hilingual.domain.diary.api.dto.res.DiaryDetails;
 import org.hilingual.domain.diary.api.dto.res.DiaryDto;
 import org.hilingual.domain.diary.api.exception.DiaryApiErrorCode;
 import org.hilingual.domain.diary.api.exception.DiaryContentTooShortException;
@@ -16,9 +19,9 @@ public class DiaryController {
 
     private final DiaryService diaryService;
 
-    @PostMapping(value = "/v1/diaries", consumes = "multipart/form-data")
+    @GetMapping(value = "/v1/diaries", consumes = "multipart/form-data")
     public ResponseEntity<DiaryDto> getFeedbacks(
-           // @RequestHeader("Authorization") Long userId,
+            // @RequestHeader("Authorization") Long userId,
             @RequestPart("originalText") String originalText,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
     ) {
@@ -26,6 +29,14 @@ public class DiaryController {
             throw new DiaryContentTooShortException(DiaryApiErrorCode.DIARY_TOO_SHORT);
         }
         return ResponseEntity.ok(diaryService.getFeedbacks(1L, originalText, imageFile));
+    }
+
+    @GetMapping("/v1/diaries/{diaryId}")
+    public ResponseEntity<DiaryDetails> getDiaryDetails(
+           //  @RequestHeader("Authorization") Long userId,
+            @PathVariable("diaryId") @NotNull @Min(1) Long diaryId
+    ){
+        return ResponseEntity.ok(diaryService.getDiaryDetails(1L, diaryId));
     }
 
 }
