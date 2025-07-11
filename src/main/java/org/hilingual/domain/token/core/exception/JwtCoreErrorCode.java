@@ -1,4 +1,4 @@
-package org.hilingual.domain.security.token.core.exception;
+package org.hilingual.domain.token.core.exception;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.common.exception.code.ErrorCode;

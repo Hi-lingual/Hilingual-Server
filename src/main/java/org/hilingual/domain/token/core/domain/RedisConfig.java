@@ -1,4 +1,4 @@
-package org.hilingual.domain.security.token.core.domain;
+package org.hilingual.domain.token.core.domain;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

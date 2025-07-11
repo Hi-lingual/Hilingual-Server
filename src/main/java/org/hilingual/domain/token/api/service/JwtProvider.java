@@ -1,11 +1,11 @@
-package org.hilingual.domain.security.token.api.service;
+package org.hilingual.domain.token.api.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.hilingual.common.exception.code.GlobalErrorCode;
-import org.hilingual.domain.security.token.api.dto.res.JwtTokenResponse;
-import org.hilingual.domain.security.token.core.exception.UnauthorizedException;
+import org.hilingual.domain.token.api.dto.res.JwtTokenResponse;
+import org.hilingual.domain.token.core.exception.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.SignatureException;

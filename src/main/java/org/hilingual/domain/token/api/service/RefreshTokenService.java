@@ -1,12 +1,12 @@
-package org.hilingual.domain.security.token.api.service;
+package org.hilingual.domain.token.api.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hilingual.common.exception.code.GlobalErrorCode;
-import org.hilingual.domain.security.token.api.dto.res.JwtTokenResponse;
-import org.hilingual.domain.security.token.core.domain.RefreshToken;
-import org.hilingual.domain.security.token.core.exception.UnauthorizedException;
+import org.hilingual.domain.token.api.dto.res.JwtTokenResponse;
+import org.hilingual.domain.token.core.domain.RefreshToken;
+import org.hilingual.domain.token.core.exception.UnauthorizedException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +51,6 @@ public class RefreshTokenService {
             return Optional.of(RefreshToken.builder()
                     .userId(storedUserId)
                     .refreshToken(refreshToken)
-                    .expirationTimestamp(expirationTimestamp)
                     .build());
         } catch (UnauthorizedException e) {
             log.warn("[Redis] 리프레시 토큰 유효성 검증 실패 또는 만료: {}", refreshToken);
