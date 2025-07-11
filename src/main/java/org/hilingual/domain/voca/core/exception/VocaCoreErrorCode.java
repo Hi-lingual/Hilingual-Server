@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum VocaCoreErrorCode implements ErrorCode {
 
-    VOCA_NOT_FOUND(HttpStatus.NOT_FOUND, 40410, "요청한 단어장이 존재하지 않습니다.");
+    VOCA_NOT_FOUND(HttpStatus.NOT_FOUND, 40410, "요청한 단어장이 존재하지 않습니다."),
+    VOCA_SEARCH_NOT_FOUND(HttpStatus.NOT_FOUND, 40402, "검색 결과가 없습니다.");
+
 
     private final HttpStatus httpStatus;
     private final int code;

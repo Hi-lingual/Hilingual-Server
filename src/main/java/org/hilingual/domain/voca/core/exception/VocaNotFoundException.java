@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 // TODO : User 도메인 구현되면 구현 예정
 public class VocaNotFoundException extends VocaCoreException {
 
-    public VocaNotFoundException(VocaApiErrorCode errorCode) {
+    public VocaNotFoundException(VocaCoreErrorCode errorCode) {
         super(errorCode);
     }
 
