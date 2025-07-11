@@ -1,17 +1,13 @@
-package org.hilingual.domain.voca.api.exception;
+package org.hilingual.domain.usercalendar.core.exception;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
-public enum VocaApiErrorCode implements ErrorCode {
+public enum UserCalendarCoreErrorCode implements ErrorCode{
 
-    INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, 40004, "올바르지 않은 정렬 방식입니다. sort는 1 또는 2여야 합니다."),
-    INVALID_KEYWORD(HttpStatus.BAD_REQUEST, 40006, "검색어는 필수입니다."),
-    INVALID_KEYWORD_KOREAN(HttpStatus.BAD_REQUEST, 40007, "검색어에는 한글을 포함할 수 없습니다.");
-
-
+    DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, 40405, "해당 날짜에 작성된 일기가 없습니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
@@ -31,4 +27,5 @@ public enum VocaApiErrorCode implements ErrorCode {
     public String getMessage() {
         return message;
     }
+
 }

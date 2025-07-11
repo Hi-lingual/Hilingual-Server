@@ -1,11 +1,11 @@
-package org.hilingual.domain.voca.api.exception;
+package org.hilingual.domain.usercalendar.api.exception;
 
 import org.hilingual.common.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public class VocaInvalidSortTypeException extends VocaApiException {
+public class UserCalendarInvalidDateFormatException extends UserCalendarApiException {
 
-    public VocaInvalidSortTypeException(ErrorCode errorCode) {
+    public UserCalendarInvalidDateFormatException(ErrorCode errorCode) {
         super(errorCode);
     }
 
@@ -14,4 +14,3 @@ public class VocaInvalidSortTypeException extends VocaApiException {
         return HttpStatus.BAD_REQUEST;
     }
 }
-

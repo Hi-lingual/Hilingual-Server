@@ -7,6 +7,8 @@ import org.hilingual.common.dto.BaseResponseDto;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.hilingual.common.exception.code.GlobalErrorCode;
 import org.hilingual.domain.diary.api.exception.DiaryBaseException;
+import org.hilingual.domain.security.token.api.exception.JwtBaseException;
+import org.hilingual.domain.usercalendar.api.exception.UserCalendarBaseException;
 import org.hilingual.domain.token.api.exception.JwtBaseException;
 import org.hilingual.external.openai.exception.OpenAiBaseException;
 import org.hilingual.external.s3.exception.S3BaseException;
@@ -87,6 +89,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<BaseResponseDto<Void>> handleOpenAiBaseException(OpenAiBaseException e) {
         log.error("[OpenAiBaseException] message: {}", e.getMessage(), e);
 
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(UserCalendarBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleUserCalendarBaseException(UserCalendarBaseException e) {
+        log.error("[UserCalendarBaseException] message: {}", e.getMessage(), e);
         return ResponseEntity
                 .status(e.getStatus())
                 .body(BaseResponseDto.fail(e.getErrorCode()));
