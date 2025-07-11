@@ -25,7 +25,5 @@ ehthumbs.db
 *.lnk
 $RECYCLE.BIN/
 ...
-
 README.md
-
 data.sql
