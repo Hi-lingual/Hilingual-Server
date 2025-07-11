@@ -26,11 +26,6 @@ ehthumbs.db
 $RECYCLE.BIN/
 ...
 
-Jenkinsfile
 README.md
-Dockerfile
-docker-compose.yml
-deploy.sh
-nginx/
 
 data.sql
