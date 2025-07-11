@@ -1,4 +1,4 @@
-package org.hilingual.domain.security.filter;
+package org.hilingual.auth.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -6,9 +6,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.hilingual.common.exception.code.GlobalErrorCode;
-import org.hilingual.domain.security.token.api.service.JwtProvider;
-import org.hilingual.domain.security.constant.SecurityConstants;
-import org.hilingual.domain.security.token.core.exception.UnauthorizedException;
+import org.hilingual.domain.token.api.service.JwtProvider;
+import org.hilingual.auth.security.constant.SecurityConstants;
+import org.hilingual.domain.token.core.exception.UnauthorizedException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;

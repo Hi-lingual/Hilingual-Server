@@ -1,4 +1,4 @@
-package org.hilingual.domain.security.filter;
+package org.hilingual.auth.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

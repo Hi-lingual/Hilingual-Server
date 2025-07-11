@@ -1,11 +1,11 @@
 package org.hilingual.test;
 
 import lombok.RequiredArgsConstructor;
-import org.hilingual.domain.security.token.api.service.JwtProvider;
-import org.hilingual.domain.security.token.api.dto.res.JwtTokenResponse;
-import org.hilingual.domain.security.token.core.exception.UnauthorizedException;
-import org.hilingual.domain.security.token.core.domain.RefreshToken;
-import org.hilingual.domain.security.token.api.service.RefreshTokenService;
+import org.hilingual.domain.token.api.service.JwtProvider;
+import org.hilingual.domain.token.api.dto.res.JwtTokenResponse;
+import org.hilingual.domain.token.core.exception.UnauthorizedException;
+import org.hilingual.domain.token.core.domain.RefreshToken;
+import org.hilingual.domain.token.api.service.RefreshTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

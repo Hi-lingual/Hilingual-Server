@@ -1,9 +1,9 @@
-package org.hilingual.domain.security.config;
+package org.hilingual.auth.security.config;
 
 import lombok.RequiredArgsConstructor;
-import org.hilingual.domain.security.constant.SecurityConstants;
-import org.hilingual.domain.security.filter.JwtAuthenticationFilter;
-import org.hilingual.domain.security.filter.CustomJwtAuthenticationEntryPoint;
+import org.hilingual.auth.security.constant.SecurityConstants;
+import org.hilingual.auth.security.filter.JwtAuthenticationFilter;
+import org.hilingual.auth.security.filter.CustomJwtAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

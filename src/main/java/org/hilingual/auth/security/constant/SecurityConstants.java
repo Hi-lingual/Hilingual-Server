@@ -1,4 +1,4 @@
-package org.hilingual.domain.security.constant;
+package org.hilingual.auth.security.constant;
 
 public class SecurityConstants {
     public static final String AUTHORIZATION_HEADER = "Authorization";
