@@ -7,8 +7,8 @@ import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hilingual.auth.core.domain.GoogleOAuth2UserInfo;
-import org.hilingual.auth.exception.AuthErrorCode;
-import org.hilingual.auth.exception.GoogleAuthException;
+import org.hilingual.auth.api.exception.AuthErrorCode;
+import org.hilingual.auth.core.exception.GoogleAuthException;
 import org.hilingual.domain.token.api.dto.res.JwtTokenResponse;
 import org.hilingual.domain.token.api.service.JwtProvider;
 import org.hilingual.domain.token.api.service.RefreshTokenService;
@@ -25,7 +25,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.hilingual.auth.constant.AuthConstants.PROVIDER_GOOGLE;
+import static org.hilingual.auth.api.constant.AuthConstants.PROVIDER_GOOGLE;
 
 @Slf4j
 @Service

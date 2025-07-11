@@ -1,4 +1,4 @@
-package org.hilingual.auth.exception;
+package org.hilingual.auth.api.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

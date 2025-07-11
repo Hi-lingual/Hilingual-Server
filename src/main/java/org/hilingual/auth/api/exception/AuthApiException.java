@@ -1,4 +1,4 @@
-package org.hilingual.auth.exception;
+package org.hilingual.auth.api.exception;
 
 import org.hilingual.common.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
