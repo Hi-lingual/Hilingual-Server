@@ -2,9 +2,6 @@ package org.hilingual.domain.voca.core.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.domain.voca.core.domain.Voca;
-import org.hilingual.domain.voca.core.exception.VocaCoreErrorCode;
-import org.hilingual.domain.voca.core.exception.VocaNotFoundException;
-import org.hilingual.domain.voca.core.exception.VocaSearchNotFoundException;
 import org.hilingual.domain.voca.core.repository.VocaRepository;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +15,6 @@ public class VocaSearcher {
 
     public List<Voca> searchStartsWith(final Long userId, final String keyword) {
         final List<Voca> result = vocaRepository.findAllByUserIdAndPhraseStartsWith(userId, keyword);
-
-        if (result.isEmpty()) {
-            throw new VocaSearchNotFoundException(VocaCoreErrorCode.VOCA_SEARCH_NOT_FOUND);
-        }
 
         return result;
     }
