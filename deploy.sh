@@ -5,11 +5,13 @@ EXIST_BLUE=$(docker ps | grep "hilingual-blue" | grep Up)
 if [ -z "$EXIST_BLUE" ]; then
     docker compose up -d spring-blue
     BEFORE_COLOR="green"
+    BEFORE_PORT=8081
     AFTER_COLOR="blue"
     AFTER_PORT=8080
 else
     docker compose up -d spring-green
     BEFORE_COLOR="blue"
+    BEFORE_PORT=8080
     AFTER_COLOR="green"
     AFTER_PORT=8081
 fi
@@ -35,7 +37,7 @@ if [ $cnt -eq 10 ]; then
 
     # ✅ nginx만 이전 TARGET_UPSTREAM 값으로 재기동
     echo "[INFO] Nginx 롤백 환경변수 주입 중..."
-    TARGET_UPSTREAM="hilingual-${BEFORE_COLOR}:8080" docker compose up -d --no-deps --force-recreate nginx
+    TARGET_UPSTREAM="hilingual-${BEFORE_COLOR}:${BEFORE_PORT}" docker compose up -d --no-deps --force-recreate nginx
 
     echo "[INFO] 롤백 완료. 이전 서버(${BEFORE_COLOR})로 복구됨."
     exit 1
@@ -44,7 +46,7 @@ fi
 echo "[INFO] Nginx 대상 변경: ${AFTER_COLOR}"
 
 # ✅ nginx만 재기동 (ENV 직접 주입)
-TARGET_UPSTREAM="hilingual-${AFTER_COLOR}:8080" docker compose up -d --no-deps --force-recreate nginx
+TARGET_UPSTREAM="hilingual-${AFTER_COLOR}:${AFTER_PORT}" docker compose up -d --no-deps --force-recreate nginx
 
 echo "[INFO] 이전 서버 종료: $BEFORE_COLOR"
 docker compose stop spring-${BEFORE_COLOR}
