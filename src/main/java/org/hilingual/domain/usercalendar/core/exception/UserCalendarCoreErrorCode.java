@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum UserCalendarCoreErrorCode implements ErrorCode{
 
-    DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, 40405, "해당 날짜에 작성된 일기가 없습니다.");
+    DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, 40405, "해당 날짜에 작성된 일기가 없습니다."),
+    TOPIC_NOT_FOUND(HttpStatus.NOT_FOUND, 40406, "해당 날짜에 주제가 존재하지 않습니다.");
+
 
     private final HttpStatus httpStatus;
     private final int code;

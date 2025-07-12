@@ -2,6 +2,7 @@ package org.hilingual.domain.usercalendar.api.service;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarDiarySummaryResponse;
+import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarTopicResponse;
 import org.hilingual.domain.usercalendar.api.exception.FutureDateNotAllowedException;
 import org.hilingual.domain.usercalendar.api.exception.UserCalendarApiErrorCode;
 import org.hilingual.domain.usercalendar.core.facade.UserCalendarRetriever;
@@ -23,4 +24,12 @@ public class UserCalendarService {
         }
         return userCalendarRetriever.findDiaryByDate(userId, date);
     }
+
+    public UserCalendarTopicResponse getTopicByDate(final LocalDate date, final Long userId) {
+        if (date.isAfter(LocalDate.now())) {
+            throw new FutureDateNotAllowedException(UserCalendarApiErrorCode.FUTURE_DATE_NOT_ALLOWED);
+        }
+        return userCalendarRetriever.findTopicByDate(date);
+    }
+
 }
