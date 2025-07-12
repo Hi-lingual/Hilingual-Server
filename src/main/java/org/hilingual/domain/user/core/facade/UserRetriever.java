@@ -5,7 +5,9 @@ import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.user.core.exception.UserCoreErrorCode;
 import org.hilingual.domain.user.core.exception.UserNotFoundException;
 import org.hilingual.domain.user.core.repository.UserRepository;
-import org.hilingual.domain.usesrprofile.core.repository.UserProfileRepository;
+
+import org.hilingual.domain.userprofile.core.repository.UserProfileRepository;
+
 import org.springframework.stereotype.Component;
 
 @Component

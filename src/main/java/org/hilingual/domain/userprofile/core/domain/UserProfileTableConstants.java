@@ -1,4 +1,4 @@
-package org.hilingual.domain.usesrprofile;
+package org.hilingual.domain.userprofile.core.domain;
 
 public class UserProfileTableConstants {
     public static final String TABLE_USER_PROFILE = "user_profile";
