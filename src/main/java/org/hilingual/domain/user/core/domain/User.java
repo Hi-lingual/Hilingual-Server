@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hilingual.common.domain.BaseTimeEntity;
-import org.hilingual.domain.usesrprofile.UserProfile;
+import org.hilingual.domain.userprofile.core.domain.UserProfile;
 
 import java.time.LocalDateTime;
 

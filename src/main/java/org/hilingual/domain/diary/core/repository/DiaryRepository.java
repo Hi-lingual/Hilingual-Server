@@ -23,4 +23,15 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
             @Param("endOfDay") LocalDateTime endOfDay
     );
 
+    @Query("""
+    SELECT d.createdAt FROM Diary d
+    WHERE d.user.id = :userId
+""")
+    List<LocalDateTime> findCreatedAtsByUserId(@Param("userId") Long userId);
+
+    @Query("""
+    SELECT MAX(d.createdAt) FROM Diary d
+    WHERE d.user.id = :userId
+""")
+    Optional<LocalDateTime> findLatestCreatedAtByUserId(@Param("userId") Long userId);
 }
