@@ -29,7 +29,8 @@ done
 if [ $cnt -eq 10 ]; then
     echo "[ERROR] 서버 실행 실패. 롤백을 시작합니다..."
 
-    docker compose stop spring-${AFTER_COLOR}
+    echo "[INFO] 실패한 ${AFTER_COLOR} 컨테이너는 중지하지 않고 유지합니다."
+    echo "[INFO] 이전(${BEFORE_COLOR}) 서버로 롤백합니다..."
     docker compose up -d spring-${BEFORE_COLOR}
 
     # ✅ nginx만 이전 TARGET_UPSTREAM 값으로 재기동
