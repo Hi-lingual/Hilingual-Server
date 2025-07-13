@@ -15,7 +15,7 @@ import org.hilingual.domain.token.api.service.JwtProvider;
 import org.hilingual.domain.token.api.service.RefreshTokenService;
 import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.user.core.repository.UserRepository;
-import org.hilingual.domain.usesrprofile.UserProfile;
+import org.hilingual.domain.userprofile.core.domain.UserProfile;
 import org.hilingual.domain.usesrprofile.core.repository.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

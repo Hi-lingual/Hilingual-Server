@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hilingual.common.domain.BaseTimeEntity;
-import org.hilingual.domain.usesrprofile.UserProfile;
+import org.hilingual.domain.userprofile.core.domain.UserProfile;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package org.hilingual.domain.usesrprofile;
+package org.hilingual.domain.userprofile.core.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hilingual.common.domain.BaseTimeEntity;
 import org.hilingual.domain.user.core.domain.User;
 
-import static org.hilingual.domain.usesrprofile.UserProfileTableConstants.*;
+import static org.hilingual.domain.userprofile.core.domain.UserProfileTableConstants.*;
 
 @Entity
 @Table(name = TABLE_USER_PROFILE)
@@ -37,4 +37,14 @@ public class UserProfile extends BaseTimeEntity {
     @OneToOne
     @JoinColumn(name = COLUMN_USER_ID, nullable = false)
     private User user;
+
+    public void updateTotalDiaries(final int totalDiaries) {
+        this.totalDiaries = totalDiaries;
+    }
+
+    public void updateStreak(final int streak) {
+        this.streak = streak;
+    }
 }
+
+

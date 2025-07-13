@@ -38,7 +38,7 @@ services:
       - ./nginx/nginx.template.conf:/etc/nginx/nginx.template.conf
       - ./nginx/start-nginx.sh:/docker-entrypoint.d/start-nginx.sh
     environment:
-      - TARGET_UPSTREAM=${TARGET_UPSTREAM}  
+      - TARGET_UPSTREAM=${TARGET_UPSTREAM}
     networks:
       - hilingual-network
 
