@@ -19,7 +19,7 @@ public class DiaryController {
 
     private final DiaryService diaryService;
 
-    @GetMapping(value = "/v1/diaries", consumes = "multipart/form-data")
+    @PostMapping(value = "/v1/diaries", consumes = "multipart/form-data")
     public ResponseEntity<DiaryDto> getFeedbacks(
             // @RequestHeader("Authorization") Long userId,
             @RequestPart("originalText") String originalText,
