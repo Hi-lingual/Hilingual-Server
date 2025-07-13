@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum UserProfileCoreErrorCode implements ErrorCode {
 
-    USER_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, 40406, "회원 기본 정보가 존재하지 않습니다.");
+    USER_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, 40406, "회원 기본 정보가 존재하지 않습니다."),
+    USER_PROFILE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, 40011, "이미 존재하는 프로필 정보입니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
