@@ -8,6 +8,11 @@ import org.hilingual.common.exception.code.GlobalSuccessCode;
 import org.hilingual.domain.token.api.dto.res.JwtTokenResponse;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
+
+import static org.hilingual.auth.api.constant.AuthConstants.PROVIDER_APPLE;
+import static org.hilingual.auth.api.constant.AuthConstants.PROVIDER_GOOGLE;
+
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -19,7 +24,7 @@ public class AuthController {
             @RequestHeader("Provider-Token") String providerToken,
             @RequestBody AuthRequest authRequest
     ) {
-        JwtTokenResponse responseData = authService.googleLogin(authRequest.provider(), providerToken);
+        JwtTokenResponse responseData = authService.socialLogin(authRequest.provider(), providerToken);
         return BaseResponseDto.success(GlobalSuccessCode.OK, responseData);
     }
 }
