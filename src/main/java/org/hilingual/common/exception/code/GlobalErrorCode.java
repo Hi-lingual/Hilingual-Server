@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum GlobalErrorCode implements ErrorCode {
     // 400
-    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, 40000, "잘못된 요청 값입니다."),
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, 40000, "비어있거나 잘못된 요청 값입니다."),
 
     // 401
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증되지 않은 사용자입니다."),
