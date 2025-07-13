@@ -30,4 +30,9 @@ public class Voca extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_RECOMMEND_ID, nullable = false, unique = true)
     private Recommend recommend;
+
+    public Voca(User user, Recommend recommend) {
+        this.user = user;
+        this.recommend = recommend;
+    }
 }

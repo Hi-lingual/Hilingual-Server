@@ -1,14 +1,21 @@
 package org.hilingual.domain.voca.core.repository;
 
+import org.hilingual.domain.recommend.core.domain.Recommend;
+import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.voca.core.domain.Voca;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface VocaRepository extends Repository<Voca, Long> {
+public interface VocaRepository extends JpaRepository<Voca, Long> {
+
+    void deleteByUserAndRecommend(User user, Recommend recommend);
+
+    boolean existsByUserAndRecommend(User user, Recommend recommend);
+
 
     // AZ순 정렬 (Recommend.phrase 기반)
     @Query("""

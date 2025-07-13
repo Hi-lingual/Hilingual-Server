@@ -45,4 +45,7 @@ public class Recommend extends BaseTimeEntity {
         return new Recommend(null, phrase, phraseType, explanation, false, reason, diary);
     }
 
+    public void updateMarkStatus(boolean isMarked) {
+        this.isMarked = isMarked;
+    }
 }

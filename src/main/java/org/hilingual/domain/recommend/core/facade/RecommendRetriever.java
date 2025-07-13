@@ -2,6 +2,8 @@ package org.hilingual.domain.recommend.core.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.domain.recommend.core.domain.Recommend;
+import org.hilingual.domain.recommend.core.exception.RecommendCoreErrorCode;
+import org.hilingual.domain.recommend.core.exception.RecommendNotFoundException;
 import org.hilingual.domain.recommend.core.repository.RecommendRepository;
 import org.springframework.stereotype.Component;
 
@@ -17,4 +19,8 @@ public class RecommendRetriever {
         return recommendRepository.findByDiaryId(diaryId);
     }
 
+    public Recommend findById(final long phraseId){
+        return recommendRepository.findById(phraseId)
+                .orElseThrow(()-> new RecommendNotFoundException(RecommendCoreErrorCode.RECOMMEND_NOT_FOUND));
+    }
 }
