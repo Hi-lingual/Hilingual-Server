@@ -33,7 +33,7 @@ public class JwtProvider {
 
     public Claims parseTokenClaims(String token) {
         try {
-            return Jwts.parserBuilder()
+            return Jwts.parser()
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token)
@@ -56,10 +56,9 @@ public class JwtProvider {
         }
     }
 
-    public boolean validateToken(String token) {
+    public void validateToken(String token) {
         try {
             parseTokenClaims(token);
-            return true;
         } catch (UnauthorizedException e) {
             throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
         }
@@ -70,9 +69,9 @@ public class JwtProvider {
         Date now = new Date();
 
         String accessToken = Jwts.builder()
-                .setSubject(String.valueOf(userId))
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + ACCESS_EXPIRATION))
+                .subject(String.valueOf(userId))
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + ACCESS_EXPIRATION))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
         log.info("[token] JwtProvider의 generateToken에서 accessToken 생성 = {}", accessToken);

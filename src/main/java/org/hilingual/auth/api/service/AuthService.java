@@ -4,8 +4,15 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.hilingual.auth.api.dto.res.ApplePublicKeyResponse;
+import org.hilingual.auth.api.dto.res.AppleTokenResponse;
 import org.hilingual.auth.core.domain.GoogleOAuth2UserInfo;
 import org.hilingual.auth.api.exception.AuthErrorCode;
 import org.hilingual.auth.core.exception.GoogleAuthUnAuthorizedException;
@@ -13,19 +20,27 @@ import org.hilingual.common.exception.code.GlobalErrorCode;
 import org.hilingual.domain.token.api.dto.res.JwtTokenResponse;
 import org.hilingual.domain.token.api.service.JwtProvider;
 import org.hilingual.domain.token.api.service.RefreshTokenService;
+import org.hilingual.domain.token.core.exception.UnauthorizedException;
 import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.user.core.repository.UserRepository;
 import org.hilingual.domain.userprofile.core.domain.UserProfile;
 import org.hilingual.domain.usesrprofile.core.repository.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.Optional;
+import java.security.PrivateKey;
+import java.util.*;
 
+import static org.hilingual.auth.api.constant.AuthConstants.PROVIDER_APPLE;
 import static org.hilingual.auth.api.constant.AuthConstants.PROVIDER_GOOGLE;
 
 @Slf4j
@@ -40,15 +55,40 @@ public class AuthService {
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
+    @Value("${spring.security.oauth2.client.registration.apple.client-id}")
+    private String appleClientId;
+
+    @Value("${apple.oauth.key-id}")
+    private String appleKeyId;
+
+    @Value("${apple.oauth.team-id}")
+    private String appleTeamId;
+
+    @Value("${apple.oauth.private-key-value}")
+    private String applePrivateKey;
+
+    private static final long THIRTY_DAYS_MS = 1000L * 60 * 60 * 24 * 30;
+
     @Transactional
-    public JwtTokenResponse googleLogin(String provider, String providerToken) {
-        if (providerToken == null || providerToken.length() < 101) {
-            throw new GoogleAuthUnAuthorizedException(GlobalErrorCode.UNAUTHORIZED);
+    public JwtTokenResponse socialLogin(String provider, String providerToken) {
+        if (providerToken == null || providerToken.isEmpty()) {
+            throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
         }
 
-        if(!PROVIDER_GOOGLE.equalsIgnoreCase(provider)) {
-            log.info("[구글 로그인] -> provider 누락");
-            throw new GoogleAuthUnAuthorizedException(GlobalErrorCode.INVALID_INPUT_VALUE);
+        if (PROVIDER_GOOGLE.equalsIgnoreCase(provider)) {
+            return googleLogin(providerToken);
+        } else if (PROVIDER_APPLE.equalsIgnoreCase(provider)) {
+            return appleLogin(providerToken);
+        } else {
+            log.error("[소셜 로그인] 지원하지 않는 Provider: {}", provider);
+            throw new UnauthorizedException(GlobalErrorCode.INVALID_INPUT_VALUE);
+        }
+    }
+
+    @Transactional
+    public JwtTokenResponse googleLogin(String providerToken) {
+        if (providerToken == null || providerToken.length() < 101) {
+            throw new GoogleAuthUnAuthorizedException(GlobalErrorCode.UNAUTHORIZED);
         }
 
         GoogleIdToken.Payload payload = verifyGoogleIdToken(providerToken);
@@ -71,7 +111,7 @@ public class AuthService {
             updateIsCompletedStatus(user);
         } else {
             user = User.builder()
-                    .provider(provider)
+                    .provider(PROVIDER_GOOGLE)
                     .providerId(providerId)
                     .build();
             log.info("[구글 로그인] 새로 생성된 유저 : {}", user);
@@ -120,4 +160,136 @@ public class AuthService {
         }
     }
 
+    public AppleTokenResponse getAppleToken(String code) {
+        WebClient webClient = WebClient.builder()
+                .baseUrl("https://appleid.apple.com")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=utf-8")
+                .build();
+
+        try {
+            return webClient.post()
+                    .uri(uriBuilder -> uriBuilder.path("/auth/token")
+                            .queryParam("grant_type", "authorization_code")
+                            .queryParam("client_id", appleClientId)
+                            .queryParam("client_secret", makeClientSecretToken())
+                            .queryParam("code", code)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(AppleTokenResponse.class)
+                    .block();
+        } catch (WebClientResponseException e) {
+            log.error("[애플 로그인 실패]: {}", e.getResponseBodyAsString(), e);
+            throw e;
+        }
+    }
+
+    public String makeClientSecretToken() {
+        String token = Jwts.builder()
+                .subject(appleClientId) // sub (Service ID / Client ID)
+                .issuer(appleTeamId) // iss (Team ID)
+                .issuedAt(new Date()) // iat
+                .expiration(new Date(System.currentTimeMillis() + THIRTY_DAYS_MS)) // exp (최대 6개월)
+                .audience() // <--- 인자 없이 호출
+                .add("https://appleid.apple.com") // <--- AudienceBuilder에 add()
+                .and() // <--- 다시 JwtBuilder로 돌아감
+                .header() // 헤더 빌더 시작
+                .keyId(appleKeyId) // kid (Key ID) 설정
+                .and() // 다시 JWT 빌더로 돌아감
+                .signWith(getPrivateKey(), Jwts.SIG.ES256) // 개인 키로 서명 (JJWT 0.12.0+ 필요)
+                .compact();
+        log.info("[애플 로그인] 로그인 요청 인증 토큰: {}", token);
+        return token;
+    }
+
+    private PrivateKey getPrivateKey() {
+        try {
+            byte[] decodedKeyBytes = Base64.getDecoder().decode(applePrivateKey);
+            String pemKeyContent = new String(decodedKeyBytes, StandardCharsets.UTF_8);
+
+            PEMParser pemParser = new PEMParser(new StringReader(pemKeyContent));
+            Object object = pemParser.readObject();
+
+            if (object instanceof PrivateKeyInfo) {
+                JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+                return converter.getPrivateKey((PrivateKeyInfo) object);
+            } else {
+                log.error("[애플 로그인] 예상치 못한 Private Key 형식: {}", object.getClass().getName());
+                throw new RuntimeException("애플 로그인 실패: 개인 키 파싱 실패 - 예상치 못한 형식");
+            }
+        } catch (Exception e) {
+            log.error("[애플 로그인] PK 생성 실패: {}", e.getMessage(), e);
+            throw new RuntimeException("애플 로그인 실패: 개인 키 로드 중 오류 발생", e);
+        }
+    }
+
+    @Cacheable(value = "applePublicKeys", key = "'allKeys'") // key = "'allKeys'"를 사용하여 단일 캐시 엔트리로 관리
+    public List<ApplePublicKeyResponse.ApplePublicKeyDto> getPublicKeys() {
+        log.info("[애플 로그인] Apple 공개 키를 JWKS 엔드포인트에서 가져옵니다.");
+        try {
+            ApplePublicKeyResponse response = WebClient.builder()
+                    .baseUrl("https://appleid.apple.com")
+                    .build()
+                    .get()
+                    .uri("/auth/keys")
+                    .retrieve()
+                    .bodyToMono(ApplePublicKeyResponse.class)
+                    .block();
+
+            if (response == null || response.getKeys() == null || response.getKeys().isEmpty()) {
+                throw new RuntimeException("[애플 로그인] Apple JWKS 응답이 비어있습니다.");
+            }
+            log.info("[애플 로그인] Apple 공개 키 {}개 성공적으로 로드 및 캐싱됨.", response.getKeys().size());
+            return response.getKeys();
+        } catch (Exception e) {
+            log.error("[애플 로그인] Apple 공개 키 로드 실패: {}", e.getMessage(), e);
+            throw new RuntimeException("[애플 로그인] Apple 공개 키 로드 중 오류 발생", e);
+        }
+    }
+
+
+    @Transactional
+    public JwtTokenResponse appleLogin(String providerToken) {
+        if (providerToken == null || providerToken.isEmpty()) {
+            throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
+        }
+
+        Claims claims;
+        try {
+            MyKeyLocator myKeyLocator = new MyKeyLocator(getPublicKeys()); // 캐시된 키 목록 사용
+            claims = Jwts.parser()
+                    .keyLocator(myKeyLocator)
+                    .build()
+                    .parseSignedClaims(providerToken) // Apple ID Token
+                    .getPayload();
+            log.info("[애플 로그인] idToken 검증 완료: {}", claims.toString());
+        } catch (Exception e) {
+            log.error("[애플 로그인] ID Token 검증 실패: {}", e.getMessage(), e);
+            throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
+        }
+
+        String authId = claims.getSubject();
+
+        Optional<User> optionalUser = userRepository.findByProviderAndProviderId(PROVIDER_APPLE, authId);
+        User user;
+
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+            // TODO 만약 탈퇴한 유저(isDeleted true인 경우) 다시 활성화시켜주는 로직
+        } else {
+            user = User.builder()
+                    .provider(PROVIDER_APPLE)
+                    .providerId(authId)
+                    .isCompleted(false)
+                    .build();
+            log.info("[애플 로그인] 새로 생성된 유저 : {}", user);
+            userRepository.save(user);
+        }
+
+        JwtTokenResponse authToken = jwtProvider.generateToken(user.getId());
+        refreshTokenService.save(user.getId(), authToken.getRefreshToken());
+
+        updateIsCompletedStatus(user);
+
+        return JwtTokenResponse.of(authToken.getAccessToken(), authToken.getRefreshToken(), user.getIsCompleted());
+    }
 }
