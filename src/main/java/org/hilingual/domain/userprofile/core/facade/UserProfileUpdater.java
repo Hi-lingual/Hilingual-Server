@@ -18,25 +18,27 @@ public class UserProfileUpdater {
     private final DiaryRetriever diaryRetriever;
 
     private static final ZoneId ZONE_ID = ZoneId.of("Asia/Seoul");
+    private static final long STREAK_WINDOW_HOURS = 48L;
 
     @Transactional
     public void updateDiaryStats(final Long userId) {
         UserProfile profile = userProfileRetriever.findByUserIdOrThrow(userId);
 
-        int totalDiaries = diaryRetriever.findDiaryCreatedAts(userId).size();
-        profile.updateTotalDiaries(totalDiaries);
+        List<LocalDateTime> diaryTimestamps = diaryRetriever.findDiaryCreatedAts(userId);
+
+        profile.updateTotalDiaries(diaryTimestamps.size());
 
         LocalDateTime now = LocalDateTime.now(ZONE_ID);
 
-        if (hasWrittenInLast48Hours(userId, now)) {
+        if (hasWrittenInLast48Hours(diaryTimestamps, now)) {
             profile.updateStreak(profile.getStreak() + 1);
         } else {
             profile.updateStreak(1); // streak 리셋
         }
     }
 
-    private boolean hasWrittenInLast48Hours(Long userId, LocalDateTime now) {
-        return diaryRetriever.findDiaryCreatedAts(userId).stream()
-                .anyMatch(writtenAt -> writtenAt.isAfter(now.minusHours(48)));
+    private boolean hasWrittenInLast48Hours(List<LocalDateTime> diaryTimestamps, LocalDateTime now) {
+        return diaryTimestamps.stream()
+                .anyMatch(writtenAt -> writtenAt.isAfter(now.minusHours(STREAK_WINDOW_HOURS)));
     }
 }

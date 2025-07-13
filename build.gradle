@@ -59,6 +59,9 @@ dependencies {
 
     // Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation 'com.h2database:h2'
+
 }
 
 test {

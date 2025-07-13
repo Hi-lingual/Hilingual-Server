@@ -17,13 +17,18 @@ public class DiarySaver {
 
 
     @Transactional
-    public Diary save(final User user, final String originalText, final String rewriteText, final String imageUrl) {
-        Diary diary = Diary.create(user, originalText, rewriteText, imageUrl);// 정적 팩토리 메서드 활용
+    public Diary save(final User user,
+                      final String originalText,
+                      final String rewriteText,
+                      final String imageUrl) {
+
+        Diary diary = Diary.create(user, originalText, rewriteText, imageUrl);
+
+        Diary savedDiary = diaryRepository.save(diary);
 
         userProfileUpdater.updateDiaryStats(user.getId());
 
-
-        return diaryRepository.save(diary);
+        return savedDiary;
     }
 
 }
