@@ -12,6 +12,8 @@ import org.hilingual.domain.token.api.exception.JwtBaseException;
 import org.hilingual.external.openai.exception.OpenAiBaseException;
 import org.hilingual.external.s3.exception.S3BaseException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -77,6 +79,26 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<BaseResponseDto<Void>> handleConstraintViolation(ConstraintViolationException e) {
         log.warn("[ConstraintViolationException] {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
+    }
+
+    //  JSON 요청 바디가 비어있거나, 잘못된 형식일 때
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        log.error("[HttpMessageNotReadableException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
+    }
+
+    // 지원하지 않는 Content-Type으로 요청할 때
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException e) {
+        log.error("[HttpMediaTypeNotSupportedException] message: {}", e.getMessage(), e);
 
         return ResponseEntity
                 .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
