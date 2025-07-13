@@ -7,6 +7,7 @@ spring:
     username: ${DB_ID}
     password: ${DB_PW}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   servlet:
     multipart:
       enabled: true
@@ -21,6 +22,16 @@ spring:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
 
 logging:
   file:

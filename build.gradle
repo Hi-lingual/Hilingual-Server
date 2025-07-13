@@ -59,6 +59,13 @@ dependencies {
 
     // Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // OAuth
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'com.google.oauth-client:google-oauth-client-java6:1.36.0'
+    implementation 'com.google.oauth-client:google-oauth-client-jetty:1.36.0'
+    implementation 'com.google.api-client:google-api-client:2.4.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
 }
 
 test {
