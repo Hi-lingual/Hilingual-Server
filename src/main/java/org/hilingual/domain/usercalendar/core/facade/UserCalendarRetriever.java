@@ -9,12 +9,14 @@ import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarTopicResponse;
 import org.hilingual.domain.usercalendar.api.exception.UserCalendarDiaryNotFoundException;
 import org.hilingual.domain.usercalendar.core.exception.UserCalendarCoreErrorCode;
 import org.hilingual.domain.usercalendar.core.exception.UserCalendarTopicNotFoundException;
+import org.hilingual.domain.usercalendar.core.repository.UserCalendarRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -67,5 +69,9 @@ public class UserCalendarRetriever {
             return (int) Math.ceil(secondsRemaining / 60.0);
         }
     }
+    private final UserCalendarRepository userCalendarRepository;
 
+    public List<LocalDate> findWrittenDatesByMonth(final Long userId, final int year, final int month) {
+        return userCalendarRepository.findWrittenDatesByUserIdAndYearAndMonth(userId, year, month);
+    }
 }

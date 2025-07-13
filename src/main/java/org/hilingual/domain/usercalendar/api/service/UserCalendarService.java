@@ -2,6 +2,7 @@ package org.hilingual.domain.usercalendar.api.service;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarDiarySummaryResponse;
+import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarMonthlyResponse;
 import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarTopicResponse;
 import org.hilingual.domain.usercalendar.api.exception.FutureDateNotAllowedException;
 import org.hilingual.domain.usercalendar.api.exception.UserCalendarApiErrorCode;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,6 +32,11 @@ public class UserCalendarService {
             throw new FutureDateNotAllowedException(UserCalendarApiErrorCode.FUTURE_DATE_NOT_ALLOWED);
         }
         return userCalendarRetriever.findTopicByDate(date);
+    }
+
+    public UserCalendarMonthlyResponse getWrittenDatesOfMonth(final Long userId, final int year, final int month) {
+        List<LocalDate> writtenDates = userCalendarRetriever.findWrittenDatesByMonth(userId, year, month);
+        return UserCalendarMonthlyResponse.from(writtenDates);
     }
 
 }
