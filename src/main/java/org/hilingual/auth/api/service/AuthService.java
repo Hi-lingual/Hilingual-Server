@@ -24,7 +24,7 @@ import org.hilingual.domain.token.core.exception.UnauthorizedException;
 import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.user.core.repository.UserRepository;
 import org.hilingual.domain.userprofile.core.domain.UserProfile;
-import org.hilingual.domain.usesrprofile.core.repository.UserProfileRepository;
+import org.hilingual.domain.userprofile.core.repository.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
