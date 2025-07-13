@@ -1,5 +1,6 @@
 package org.hilingual.domain.userprofile.core.repository;
 
+import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.userprofile.core.domain.UserProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,5 +18,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
         WHERE u.id = :userId
     """)
     Optional<UserProfile> findByUserId(@Param("userId") Long userId);
+
+    Optional<UserProfile> findByUser(User user);
 }
 
