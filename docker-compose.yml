@@ -35,12 +35,10 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.template.conf:/etc/nginx/nginx.template.conf      # 🔁 여기 이름 바꿔야 함
+      - ./nginx/nginx.template.conf:/etc/nginx/nginx.template.conf
       - ./nginx/start-nginx.sh:/docker-entrypoint.d/start-nginx.sh
-    env_file:
-      - .env
     environment:
-      - deployment_target=${deployment_target}
+      - TARGET_UPSTREAM=${TARGET_UPSTREAM}  
     networks:
       - hilingual-network
 

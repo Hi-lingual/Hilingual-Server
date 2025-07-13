@@ -83,6 +83,4 @@ spring:
   config:
     activate:
       on-profile: green
-server:
-  port: 8081
 
