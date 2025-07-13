@@ -45,6 +45,10 @@ public class UserProfile extends BaseTimeEntity {
     public void updateStreak(final int streak) {
         this.streak = streak;
     }
+
+    public static UserProfile create(User user, String nickname, String profileImg) {
+        return new UserProfile(null, nickname, profileImg, 0, 0, user);
+    }
 }
 
 
