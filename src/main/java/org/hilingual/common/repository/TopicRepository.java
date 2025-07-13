@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.Optional;
 
-@Repository
 public interface TopicRepository extends JpaRepository<Topic, LocalDate> {
     Optional<Topic> findByDate(LocalDate date);
 }

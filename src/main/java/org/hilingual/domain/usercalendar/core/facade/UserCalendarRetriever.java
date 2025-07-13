@@ -44,7 +44,9 @@ public class UserCalendarRetriever {
                         new UserCalendarDiaryNotFoundException(UserCalendarCoreErrorCode.DIARY_NOT_FOUND)
                 );
     }
+
     public UserCalendarTopicResponse findTopicByDate(final LocalDate date) {
+
         final Topic topic = topicRepository.findByDate(date)
                 .orElseThrow(() -> new UserCalendarTopicNotFoundException(UserCalendarCoreErrorCode.TOPIC_NOT_FOUND));
 
@@ -52,7 +54,9 @@ public class UserCalendarRetriever {
 
         return UserCalendarTopicResponse.of(topic.getTopicKor(), topic.getTopicEn(), remainingTime);
     }
+
     private int calculateRemainingMinutesUntilDeadline(final LocalDate topicDate) {
+
         final ZoneId seoulZone = ZoneId.of("Asia/Seoul");
         final LocalDateTime now = LocalDateTime.now(seoulZone);
 
