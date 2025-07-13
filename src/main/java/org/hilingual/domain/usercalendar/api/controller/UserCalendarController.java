@@ -2,7 +2,9 @@ package org.hilingual.domain.usercalendar.api.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarDiarySummaryResponse;
+import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarMonthlyResponse;
 import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarTopicResponse;
+import org.hilingual.domain.usercalendar.api.exception.InvalidMonthException;
 import org.hilingual.domain.usercalendar.api.exception.UserCalendarApiErrorCode;
 import org.hilingual.domain.usercalendar.api.exception.UserCalendarInvalidDateFormatException;
 import org.hilingual.domain.usercalendar.api.service.UserCalendarService;
@@ -49,4 +51,18 @@ public class UserCalendarController {
 
         return ResponseEntity.ok(userCalendarService.getTopicByDate(parsedDate, userId));
     }
+
+    @GetMapping("/month")
+    public ResponseEntity<UserCalendarMonthlyResponse> getMonthlyCalendar(
+            @RequestParam final int year,
+            @RequestParam final int month
+    ) {
+        final Long userId = 1L; // TODO: 인증 연동 후 교체
+
+        if (month < 1 || month > 12) {
+            throw new InvalidMonthException(UserCalendarApiErrorCode.INVALID_MONTH);
+        }
+        return ResponseEntity.ok(userCalendarService.getWrittenDatesOfMonth(userId, year, month));
+    }
+
 }
