@@ -11,7 +11,7 @@ public record RecommendList(
             String phrase,
             String explanation,
             String reason,
-            Boolean isMarked
+            Boolean isBookmarked
 
     ){
     }
