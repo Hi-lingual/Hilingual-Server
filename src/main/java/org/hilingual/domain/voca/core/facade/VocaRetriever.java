@@ -42,10 +42,9 @@ public class VocaRetriever {
     }
 
 
-    public Voca findByUserIdAndVocaId(final Long userId, final Long vocaId) {
-        return vocaRepository.findByIdAndUserId(vocaId, userId)
+    public Voca findByUserIdAndPhraseId(final Long userId, final Long phraseId) {
+        return vocaRepository.findByPhraseIdAndUserId(phraseId, userId)
                 .orElseThrow(() -> new VocaNotFoundException(VocaCoreErrorCode.VOCA_NOT_FOUND));
     }
-
 
 }

@@ -30,8 +30,8 @@ public class VocaService {
     }
 
     //특정 단어 세부 조회
-    public VocaDetailResponse getVocaDetail(final Long userId, final Long vocaId) {
-        final Voca voca = vocaRetriever.findByUserIdAndVocaId(userId, vocaId);
+    public VocaDetailResponse getVocaDetails(final Long userId, final Long phraseId) {
+        final Voca voca = vocaRetriever.findByUserIdAndPhraseId(userId, phraseId);
         return VocaDetailResponse.from(voca);
     }
 
