@@ -64,23 +64,49 @@ public class JwtProvider {
         }
     }
 
+    public String generateAccessToken(Long userId) {
+        log.info("[token] AccessToken 재발급: userId = {}", userId);
+        Date now = new Date();
+        return Jwts.builder()
+                .subject(String.valueOf(userId))
+                .claim("type", "access")
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + ACCESS_EXPIRATION))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String generateRefreshToken(Long userId) {
+        log.info("[token] RefreshToken 재발급: userId = {}", userId);
+        Date now = new Date();
+        return Jwts.builder()
+                .subject(String.valueOf(userId))
+                .claim("type", "refresh")
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + REFRESH_EXPIRATION))
+                .signWith(secretKey)
+                .compact();
+    }
+
     public JwtTokenResponse generateToken(Long userId) {
         log.info("[token] JwtProvider의 generateToken 진입");
         Date now = new Date();
 
         String accessToken = Jwts.builder()
                 .subject(String.valueOf(userId))
+                .claim("type", "access")
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + ACCESS_EXPIRATION))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .signWith(secretKey)
                 .compact();
         log.info("[token] JwtProvider의 generateToken에서 accessToken 생성 = {}", accessToken);
 
         String refreshToken = Jwts.builder()
-                .setSubject(String.valueOf(userId))
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + REFRESH_EXPIRATION))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .subject(String.valueOf(userId))
+                .claim("type", "refresh")
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + REFRESH_EXPIRATION))
+                .signWith(secretKey)
                 .compact();
         log.info("[token] JwtProvider의 generateToken에서 refreshToken 생성 = {}", refreshToken);
 
@@ -96,6 +122,16 @@ public class JwtProvider {
     public Instant getExpiration(String token) {
         Claims claims = parseTokenClaims(token);
         return claims.getExpiration().toInstant();
+    }
+
+    public boolean isAccessToken(String token) {
+        Claims claims = parseTokenClaims(token);
+        return "access".equals(claims.get("type", String.class));
+    }
+
+    public boolean isRefreshToken(String token) {
+        Claims claims = parseTokenClaims(token);
+        return "refresh".equals(claims.get("type", String.class));
     }
 
     public long getRefreshExpirationMilliseconds() {
