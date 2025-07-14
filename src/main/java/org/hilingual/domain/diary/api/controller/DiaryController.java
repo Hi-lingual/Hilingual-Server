@@ -14,6 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
+import static org.hilingual.auth.util.UserAuthenticationUtils.getCurrentUserId;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -23,24 +25,24 @@ public class DiaryController {
 
     @PostMapping(value = "/v1/diaries", consumes = "multipart/form-data")
     public ResponseEntity<DiaryDto> getFeedbacks(
-            // @RequestHeader("Authorization") Long userId,
             @RequestPart("originalText") String originalText,
             @RequestPart("date") String date,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
     ) {
+        Long userId = getCurrentUserId();
         if(originalText.length() < 10){
             throw new DiaryContentTooShortException(DiaryApiErrorCode.DIARY_TOO_SHORT);
         }
         LocalDate writtenDate = LocalDate.parse(date);
-        return ResponseEntity.ok(diaryService.getFeedbacks(1L, originalText, writtenDate, imageFile));
+        return ResponseEntity.ok(diaryService.getFeedbacks(userId, originalText, writtenDate, imageFile));
     }
 
     @GetMapping("/v1/diaries/{diaryId}")
     public ResponseEntity<DiaryDetails> getDiaryDetails(
-           //  @RequestHeader("Authorization") Long userId,
             @PathVariable("diaryId") @NotNull @Min(1) Long diaryId
     ){
-        return ResponseEntity.ok(diaryService.getDiaryDetails(1L, diaryId));
+        Long userId = getCurrentUserId();
+        return ResponseEntity.ok(diaryService.getDiaryDetails(userId, diaryId));
     }
 
 }

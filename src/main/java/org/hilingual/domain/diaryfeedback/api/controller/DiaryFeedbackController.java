@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import static org.hilingual.auth.util.UserAuthenticationUtils.getCurrentUserId;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -19,9 +21,9 @@ public class DiaryFeedbackController {
 
     @GetMapping("/v1/diaries/{diaryId}/feedbacks")
     public ResponseEntity<DiaryFeedbackList> getDiaryFeedbackList(
-           // @RequestHeader("Authorization") Long userId,
             @PathVariable("diaryId") @NotNull @Min(1) Long diaryId
     ) {
-        return ResponseEntity.ok(diaryFeedbackService.getFeedbackList(1L, diaryId));
+        Long userId = getCurrentUserId();
+        return ResponseEntity.ok(diaryFeedbackService.getFeedbackList(userId, diaryId));
     }
 }

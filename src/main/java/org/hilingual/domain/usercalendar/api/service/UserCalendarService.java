@@ -27,7 +27,7 @@ public class UserCalendarService {
         return userCalendarRetriever.findDiaryByDate(userId, date);
     }
 
-    public UserCalendarTopicResponse getTopicByDate(final LocalDate date, final Long userId) {
+    public UserCalendarTopicResponse getTopicByDate(final LocalDate date) {
         if (date.isAfter(LocalDate.now())) {
             throw new FutureDateNotAllowedException(UserCalendarApiErrorCode.FUTURE_DATE_NOT_ALLOWED);
         }

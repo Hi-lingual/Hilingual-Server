@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import static org.hilingual.auth.util.UserAuthenticationUtils.getCurrentUserId;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -20,18 +22,18 @@ public class RecommendController {
 
     @GetMapping("/v1/diaries/{diaryId}/recommended")
     public ResponseEntity<RecommendList> getRecommendList(
-           // @RequestHeader("Authorization") Long userId,
             @PathVariable @Validated @Min(1) Long diaryId
     ){
-        return ResponseEntity.ok(recommendService.getRecommendList(1L, diaryId));
+        Long userId = getCurrentUserId();
+        return ResponseEntity.ok(recommendService.getRecommendList(userId, diaryId));
     }
 
     @PatchMapping("/v1/diaries/{phraseId}")
     public ResponseEntity<Void> bookMark(
-            // @RequestHeader("Authorization") Long userId // TODO 소셜 로그인 연동
             @PathVariable @Validated @Min(1) Long phraseId,
             @RequestBody @NotNull BookmarkRequest bookmarkRequest
     ){
-        return ResponseEntity.ok(recommendService.bookMark(1L, phraseId, bookmarkRequest.isBookmarked()));
+        Long userId = getCurrentUserId();
+        return ResponseEntity.ok(recommendService.bookMark(userId, phraseId, bookmarkRequest.isBookmarked()));
     }
 }

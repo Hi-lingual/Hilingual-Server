@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+import static org.hilingual.auth.util.UserAuthenticationUtils.getCurrentUserId;
+
 @RestController
 @RequestMapping("/api/v1/calendar")
 @RequiredArgsConstructor
@@ -25,8 +27,7 @@ public class UserCalendarController {
     public ResponseEntity<UserCalendarDiarySummaryResponse> getDiarySummaryByDate(
             @PathVariable final String date
     ) {
-        final Long userId = 1L; // TODO: 로그인 연동 후 대체
-
+        Long userId = getCurrentUserId();
         final LocalDate parsedDate;
 
         try {
@@ -40,7 +41,6 @@ public class UserCalendarController {
 
     @GetMapping("/{date}/topic")
     public ResponseEntity<UserCalendarTopicResponse> getTopicByDate(@PathVariable final String date) {
-        final Long userId = 1L; // TODO: 로그인 연동 후 대체
         final LocalDate parsedDate;
 
         try {
@@ -49,7 +49,7 @@ public class UserCalendarController {
             throw new UserCalendarInvalidDateFormatException(UserCalendarApiErrorCode.INVALID_DATE_FORMAT);
         }
 
-        return ResponseEntity.ok(userCalendarService.getTopicByDate(parsedDate, userId));
+        return ResponseEntity.ok(userCalendarService.getTopicByDate(parsedDate));
     }
 
     @GetMapping("/month")
@@ -57,7 +57,7 @@ public class UserCalendarController {
             @RequestParam final int year,
             @RequestParam final int month
     ) {
-        final Long userId = 1L; // TODO: 인증 연동 후 교체
+        Long userId = getCurrentUserId();
 
         if (month < 1 || month > 12) {
             throw new InvalidMonthException(UserCalendarApiErrorCode.INVALID_MONTH);
