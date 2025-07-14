@@ -10,6 +10,7 @@ import org.hilingual.domain.diaryfeedback.core.domain.DiaryFeedback;
 import org.hilingual.domain.recommend.core.domain.Recommend;
 import org.hilingual.domain.user.core.domain.User;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.hilingual.domain.diary.core.domain.DiaryTableConstants.*;
@@ -35,6 +36,9 @@ public class Diary extends BaseTimeEntity {
     @Column(name = COLUMN_IMAGE_URL)
     private String imageUrl;
 
+    @Column(name = COLUMN_WRITTEN_DATE)
+    private LocalDate writtenDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_USER_ID, nullable = false)
     private User user;
@@ -45,8 +49,8 @@ public class Diary extends BaseTimeEntity {
     @OneToMany(mappedBy = "diary", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Recommend> recommends;
 
-    public static Diary create(User user, String originalText, String rewriteText, String imageUrl) {
-        return new Diary(null, originalText, rewriteText, imageUrl, user, null, null);
+    public static Diary create(User user, String originalText, String rewriteText, String imageUrl, LocalDate writtenDate) {
+        return new Diary(null, originalText, rewriteText, imageUrl, writtenDate, user, null, null);
     }
 
 }

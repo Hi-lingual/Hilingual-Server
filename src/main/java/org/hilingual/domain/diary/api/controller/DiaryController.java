@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -23,12 +25,14 @@ public class DiaryController {
     public ResponseEntity<DiaryDto> getFeedbacks(
             // @RequestHeader("Authorization") Long userId,
             @RequestPart("originalText") String originalText,
+            @RequestPart("date") String date,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
     ) {
         if(originalText.length() < 10){
             throw new DiaryContentTooShortException(DiaryApiErrorCode.DIARY_TOO_SHORT);
         }
-        return ResponseEntity.ok(diaryService.getFeedbacks(1L, originalText, imageFile));
+        LocalDate writtenDate = LocalDate.parse(date);
+        return ResponseEntity.ok(diaryService.getFeedbacks(1L, originalText, writtenDate, imageFile));
     }
 
     @GetMapping("/v1/diaries/{diaryId}")
