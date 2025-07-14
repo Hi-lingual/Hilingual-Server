@@ -8,6 +8,8 @@ import org.hilingual.domain.userprofile.core.facade.UserProfileUpdater;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Component
 @RequiredArgsConstructor
 public class DiarySaver {
@@ -15,19 +17,19 @@ public class DiarySaver {
     private final DiaryRepository diaryRepository;
     private final UserProfileUpdater userProfileUpdater;
 
-
     @Transactional
-    public Diary save(final User user,
-                      final String originalText,
-                      final String rewriteText,
-                      final String imageUrl) {
+    public Diary save(
+            final User user,
+            final String originalText,
+            final String rewriteText,
+            final String imageUrl,
+            final LocalDate writtenDate
+    ) {
 
-        Diary diary = Diary.create(user, originalText, rewriteText, imageUrl);
-
+        Diary diary = Diary.create(user, originalText, rewriteText, imageUrl, writtenDate);
         Diary savedDiary = diaryRepository.save(diary);
 
         userProfileUpdater.updateDiaryStats(user.getId());
-
         return savedDiary;
     }
 

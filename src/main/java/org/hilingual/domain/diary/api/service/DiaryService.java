@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class DiaryService {
     private final DiaryValidator diaryValidator;
 
     @Transactional
-    public DiaryDto getFeedbacks(Long userId, String originalText, MultipartFile imageFile) {
+    public DiaryDto getFeedbacks(Long userId, String originalText, LocalDate writtenDate, MultipartFile imageFile) {
         String imageUrl = null;
         if (imageFile != null && !imageFile.isEmpty()) {
             imageUrl = s3Service.uploadImage("diaries", imageFile);
@@ -56,7 +57,7 @@ public class DiaryService {
         List<Map<String, Object>> phraseList = (List<Map<String, Object>>) aiResponse.get("phraseList");
 
         User user = userService.findById(userId);
-        Diary diary = diarySaver.save(user, originalText, rewriteText, imageUrl);
+        Diary diary = diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate);
 
         feedbackList.stream()
                 .map(f -> DiaryFeedback.create(
