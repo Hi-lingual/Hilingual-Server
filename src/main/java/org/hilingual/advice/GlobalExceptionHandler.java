@@ -7,6 +7,7 @@ import org.hilingual.common.dto.BaseResponseDto;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.hilingual.common.exception.code.GlobalErrorCode;
 import org.hilingual.domain.diary.api.exception.DiaryBaseException;
+import org.hilingual.domain.recommend.api.exception.RecommendBaseException;
 import org.hilingual.domain.usercalendar.api.exception.UserCalendarBaseException;
 import org.hilingual.domain.token.api.exception.JwtBaseException;
 import org.hilingual.external.openai.exception.OpenAiBaseException;
@@ -30,6 +31,15 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(RecommendBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleRecommendBaseException(RecommendBaseException e) {
+        log.error("[RecommendBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<BaseResponseDto<Void>> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
