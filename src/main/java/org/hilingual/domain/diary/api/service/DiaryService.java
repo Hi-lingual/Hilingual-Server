@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -89,7 +90,7 @@ public class DiaryService {
         String rewriteText = diary.getRewriteText();
         String imageUrl = diary.getImageUrl();
 
-        String date = diary.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 EEEE"));
+        String date = diary.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 EEEE", Locale.KOREAN));
 
         List<DiaryDetails.DiffRange> diffRanges = diaryDiffService.extractDiffRanges(originalText, rewriteText);
 
