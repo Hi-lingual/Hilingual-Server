@@ -44,6 +44,8 @@ public class DiaryService {
     private final DiaryRetriever diaryRetriever;
     private final DiaryValidator diaryValidator;
 
+    private static final String S3_BASE_URL = "https://hilingual-bucket.s3.ap-northeast-2.amazonaws.com/";
+
     @Transactional
     public DiaryDto getFeedbacks(Long userId, String originalText, LocalDate writtenDate, MultipartFile imageFile) {
         String imageUrl = null;
@@ -89,9 +91,14 @@ public class DiaryService {
 
         String originalText = diary.getOriginalText();
         String rewriteText = diary.getRewriteText();
-        String imageUrl = diary.getImageUrl();
+        String imageUrlKey = diary.getImageUrl();
 
-        String date = diary.getCreatedAt().format(DateTimeFormatter.ofPattern("M월 d일 EEEE", Locale.KOREAN));
+        String imageUrl = (imageUrlKey != null && !imageUrlKey.isBlank())
+                ? S3_BASE_URL + imageUrlKey
+                : null;
+
+        String date = diary.getCreatedAt()
+                .format(DateTimeFormatter.ofPattern("M월 d일 EEEE", Locale.KOREAN));
 
         List<DiaryDetails.DiffRange> diffRanges = diaryDiffService.extractDiffRanges(originalText, rewriteText);
 
