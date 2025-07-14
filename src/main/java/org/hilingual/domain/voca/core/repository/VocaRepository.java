@@ -50,9 +50,9 @@ public interface VocaRepository extends JpaRepository<Voca, Long> {
     @Query("""
     SELECT v FROM Voca v
     JOIN FETCH v.recommend r
-    WHERE v.id = :vocaId
+    WHERE r.id = :phraseId
       AND v.user.id = :userId
 """)
-    Optional<Voca> findByIdAndUserId(@Param("vocaId") Long vocaId, @Param("userId") Long userId);
+    Optional<Voca> findByPhraseIdAndUserId(@Param("phraseId") Long phraseId, @Param("userId") Long userId);
 }
 

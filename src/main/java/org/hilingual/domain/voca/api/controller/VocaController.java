@@ -50,12 +50,12 @@ public class VocaController {
         return ResponseEntity.ok(vocaService.searchVocaList(userId, keyword.trim()));
     }
 
-    @GetMapping("/{vocaId}")
-    public ResponseEntity<VocaDetailResponse> getVocaDetail(
-            @PathVariable final Long vocaId
+    @GetMapping("/{phraseId}")
+    public ResponseEntity<VocaDetailResponse> getVocaDetails(
+            @PathVariable final Long phraseId
     ) {
         final Long userId = 1L; // TODO: 로그인 연동 후 수정
-        return ResponseEntity.ok(vocaService.getVocaDetail(userId, vocaId));
+        return ResponseEntity.ok(vocaService.getVocaDetails(userId, phraseId));
     }
 
 }
