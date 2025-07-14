@@ -3,6 +3,7 @@ package org.hilingual.domain.token.api.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hilingual.auth.api.dto.res.RefreshJwtTokenResponse;
 import org.hilingual.common.exception.code.GlobalErrorCode;
 import org.hilingual.domain.token.api.dto.res.JwtTokenResponse;
 import org.hilingual.domain.token.core.domain.RefreshToken;
@@ -65,31 +66,17 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public JwtTokenResponse reissue(String oldRefreshToken) {
-        jwtProvider.validateToken(oldRefreshToken);
-        Long userId = jwtProvider.getUserId(oldRefreshToken);
-        Optional<RefreshToken> storedToken = find(oldRefreshToken);
+    public RefreshJwtTokenResponse reissue(String refreshToken) {
+        jwtProvider.validateToken(refreshToken);
 
-        if (storedToken.isEmpty()){
-            log.warn("[Redis] {} 유저에 대한 {} 토큰 발견 불가", userId, oldRefreshToken);
+        if (!jwtProvider.isRefreshToken(refreshToken)) {
             throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
         }
 
-        if (!storedToken.get().getUserId().equals(userId)) {
-            log.warn("[Redis] {} 유저의 토큰이 아님 (토큰 위조 가능성): {}", userId, oldRefreshToken);
-            delete(oldRefreshToken);
-            throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
-        }
+        Long userId = jwtProvider.getUserId(refreshToken);
 
-        delete(oldRefreshToken);
-        log.info("[Redis] 기존 리프레시 토큰 삭제 완료: {}", oldRefreshToken);
+        String newAccessToken  = jwtProvider.generateAccessToken(userId);
 
-        JwtTokenResponse newJwtToken = jwtProvider.generateToken(userId);
-        log.info("[Token] 새로운 AccessToken 및 RefreshToken 발급 완료 for userId={}", userId);
-
-        save(userId, newJwtToken.getRefreshToken());
-        log.info("[Redis] 새로운 리프레시 토큰 저장 완료: {}", newJwtToken.getRefreshToken());
-
-        return newJwtToken;
+        return RefreshJwtTokenResponse.of(newAccessToken, refreshToken);
     }
 }

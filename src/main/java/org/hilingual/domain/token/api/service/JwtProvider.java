@@ -64,12 +64,25 @@ public class JwtProvider {
         }
     }
 
+    public String generateAccessToken(Long userId) {
+        log.info("[token] AccessToken 재발급: userId = {}", userId);
+        Date now = new Date();
+        return Jwts.builder()
+                .subject(String.valueOf(userId))
+                .claim("type", "access")
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + ACCESS_EXPIRATION))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     public JwtTokenResponse generateToken(Long userId) {
         log.info("[token] JwtProvider의 generateToken 진입");
         Date now = new Date();
 
         String accessToken = Jwts.builder()
                 .subject(String.valueOf(userId))
+                .claim("type", "access")
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + ACCESS_EXPIRATION))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -78,6 +91,7 @@ public class JwtProvider {
 
         String refreshToken = Jwts.builder()
                 .setSubject(String.valueOf(userId))
+                .claim("type", "refresh")
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + REFRESH_EXPIRATION))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -96,6 +110,16 @@ public class JwtProvider {
     public Instant getExpiration(String token) {
         Claims claims = parseTokenClaims(token);
         return claims.getExpiration().toInstant();
+    }
+
+    public boolean isAccessToken(String token) {
+        Claims claims = parseTokenClaims(token);
+        return "access".equals(claims.get("type", String.class));
+    }
+
+    public boolean isRefreshToken(String token) {
+        Claims claims = parseTokenClaims(token);
+        return "refresh".equals(claims.get("type", String.class));
     }
 
     public long getRefreshExpirationMilliseconds() {

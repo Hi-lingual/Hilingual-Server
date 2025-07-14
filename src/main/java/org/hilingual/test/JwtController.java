@@ -1,6 +1,7 @@
 package org.hilingual.test;
 
 import lombok.RequiredArgsConstructor;
+import org.hilingual.auth.api.dto.res.RefreshJwtTokenResponse;
 import org.hilingual.domain.token.api.service.JwtProvider;
 import org.hilingual.domain.token.api.dto.res.JwtTokenResponse;
 import org.hilingual.domain.token.core.exception.UnauthorizedException;
@@ -56,7 +57,7 @@ public class JwtController {
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueTokens(@RequestParam String refreshToken) {
         try {
-            JwtTokenResponse newTokens = refreshTokenService.reissue(refreshToken);
+            RefreshJwtTokenResponse newTokens = refreshTokenService.reissue(refreshToken);
             return ResponseEntity.ok(newTokens);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
