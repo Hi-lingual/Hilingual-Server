@@ -71,7 +71,7 @@ public class JwtProvider {
                 .subject(String.valueOf(userId))
                 .claim("type", "access")
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + ACCESS_EXPIRATION))
+                .expiration(new Date(now.getTime() + ACCESS_EXPIRATION * 1000L))
                 .signWith(secretKey)
                 .compact();
     }
@@ -83,7 +83,7 @@ public class JwtProvider {
                 .subject(String.valueOf(userId))
                 .claim("type", "refresh")
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + REFRESH_EXPIRATION))
+                .expiration(new Date(now.getTime() + REFRESH_EXPIRATION * 1000L))
                 .signWith(secretKey)
                 .compact();
     }
@@ -96,7 +96,7 @@ public class JwtProvider {
                 .subject(String.valueOf(userId))
                 .claim("type", "access")
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + ACCESS_EXPIRATION))
+                .expiration(new Date(now.getTime() + ACCESS_EXPIRATION * 1000L))
                 .signWith(secretKey)
                 .compact();
         log.info("[token] JwtProvider의 generateToken에서 accessToken 생성 = {}", accessToken);
@@ -105,7 +105,7 @@ public class JwtProvider {
                 .subject(String.valueOf(userId))
                 .claim("type", "refresh")
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + REFRESH_EXPIRATION))
+                .expiration(new Date(now.getTime() + REFRESH_EXPIRATION * 1000L))
                 .signWith(secretKey)
                 .compact();
         log.info("[token] JwtProvider의 generateToken에서 refreshToken 생성 = {}", refreshToken);
@@ -135,6 +135,6 @@ public class JwtProvider {
     }
 
     public long getRefreshExpirationMilliseconds() {
-        return REFRESH_EXPIRATION;
+        return REFRESH_EXPIRATION * 1000L;
     }
 }
