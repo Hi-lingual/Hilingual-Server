@@ -31,8 +31,8 @@ public class Recommend extends BaseTimeEntity {
     @Column(name = COLUMN_EXPLANATION, nullable = false)
     private String explanation;
 
-    @Column(name = COLUMN_IS_MARKED, nullable = false)
-    private Boolean isMarked;
+    @Column(name = COLUMN_IS_BOOKMARKED, nullable = false)
+    private Boolean isBookmarked;
 
     @Column(name = COLUMN_REASON, nullable = false)
     private String reason;
@@ -45,7 +45,7 @@ public class Recommend extends BaseTimeEntity {
         return new Recommend(null, phrase, phraseType, explanation, false, reason, diary);
     }
 
-    public void updateMarkStatus(boolean isMarked) {
-        this.isMarked = isMarked;
+    public void updateMarkStatus(boolean isBookmarked) {
+        this.isBookmarked = isBookmarked;
     }
 }

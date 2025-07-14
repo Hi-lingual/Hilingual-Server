@@ -9,14 +9,14 @@ public record VocaItemResponse(
         Long phraseId,
         String phrase,
         List<String> phraseType,
-        Boolean isMarked
+        Boolean isBookmarked
 ) {
     public static VocaItemResponse from(final Voca voca) {
         return new VocaItemResponse(
                 voca.getRecommend().getId(),
                 voca.getRecommend().getPhrase(),
                 parsePhraseTypes(voca.getRecommend().getPhraseType()),
-                voca.getRecommend().getIsMarked()
+                voca.getRecommend().getIsBookmarked()
         );
     }
 

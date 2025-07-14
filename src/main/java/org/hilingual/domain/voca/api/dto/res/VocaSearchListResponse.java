@@ -20,14 +20,14 @@ public record VocaSearchListResponse(
             Long phraseId,
             String phrase,
             List<String> phraseType,
-            Boolean isMarked
+            Boolean isBookmarked
     ) {
         public static Item from(final Voca voca) {
             return new Item(
                     voca.getRecommend().getId(),
                     voca.getRecommend().getPhrase(),
                     parsePhraseTypes(voca.getRecommend().getPhraseType()),
-                    voca.getRecommend().getIsMarked()
+                    voca.getRecommend().getIsBookmarked()
             );
         }
 
