@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hilingual.auth.api.dto.res.RefreshJwtTokenResponse;
 import org.hilingual.common.exception.code.GlobalErrorCode;
-import org.hilingual.domain.token.api.dto.res.JwtTokenResponse;
 import org.hilingual.domain.token.core.domain.RefreshToken;
 import org.hilingual.domain.token.core.exception.UnauthorizedException;
 import org.springframework.data.redis.core.StringRedisTemplate;
