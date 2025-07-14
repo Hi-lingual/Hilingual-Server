@@ -50,6 +50,9 @@ spring:
             token-uri: https://appleid.apple.com/auth/token
             jwk-set-uri: https://appleid.apple.com/auth/keys
             user-name-attribute: sub
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
 
 apple:
   oauth:
@@ -70,7 +73,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info
   endpoint:
     health:
       show-details: always
