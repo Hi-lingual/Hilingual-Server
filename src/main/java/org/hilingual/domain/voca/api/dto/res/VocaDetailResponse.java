@@ -11,7 +11,7 @@ public record VocaDetailResponse(
         String phrase,
         List<String> phraseType,
         String explanation,
-        String createdAt,
+        String writtenDate,
         Boolean isBookmarked
 ) {
 
@@ -23,7 +23,10 @@ public record VocaDetailResponse(
                 voca.getRecommend().getPhrase(),
                 parsePhraseTypes(voca.getRecommend().getPhraseType()),
                 voca.getRecommend().getExplanation(),
-                voca.getCreatedAt().format(FORMATTER),
+                voca.getRecommend()
+                        .getDiary()
+                        .getWrittenDate()
+                        .format(FORMATTER),
                 voca.getRecommend().getIsBookmarked()
         );
     }
