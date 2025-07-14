@@ -12,7 +12,7 @@ public record VocaDetailResponse(
         List<String> phraseType,
         String explanation,
         String createdAt,
-        Boolean isMarked
+        Boolean isBookmarked
 ) {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yy.MM.dd");
@@ -24,7 +24,7 @@ public record VocaDetailResponse(
                 parsePhraseTypes(voca.getRecommend().getPhraseType()),
                 voca.getRecommend().getExplanation(),
                 voca.getCreatedAt().format(FORMATTER),
-                voca.getRecommend().getIsMarked()
+                voca.getRecommend().getIsBookmarked()
         );
     }
 

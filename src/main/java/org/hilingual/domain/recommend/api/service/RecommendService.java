@@ -1,7 +1,6 @@
 package org.hilingual.domain.recommend.api.service;
 
 import lombok.RequiredArgsConstructor;
-import org.hilingual.domain.diary.core.facade.DiaryRetriever;
 import org.hilingual.domain.diaryfeedback.core.facade.DiaryValidator;
 import org.hilingual.domain.recommend.api.dto.res.RecommendList;
 import org.hilingual.domain.recommend.core.domain.Recommend;
@@ -49,7 +48,7 @@ public class RecommendService {
                                 r.getPhrase(),
                                 r.getExplanation(),
                                 r.getReason(),
-                                r.getIsMarked()
+                                r.getIsBookmarked()
                         ))
                         .collect(Collectors.toList());
         return new RecommendList(phrases);
