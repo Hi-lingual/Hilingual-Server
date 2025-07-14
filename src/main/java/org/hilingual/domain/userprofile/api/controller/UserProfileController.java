@@ -19,7 +19,7 @@ public class UserProfileController {
 
     private final UserProfileService userProfileService;
 
-    @GetMapping("/userprofile")
+    @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getUserProfile() {
         Long userId = 1L; // TODO: 인증 연동 후 교체
         return ResponseEntity.ok(userProfileService.getUserProfile(userId));
