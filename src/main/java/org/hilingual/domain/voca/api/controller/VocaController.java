@@ -11,6 +11,8 @@ import org.hilingual.domain.voca.api.service.VocaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.hilingual.auth.util.UserAuthenticationUtils.getCurrentUserId;
+
 @RestController
 @RequestMapping("/api/v1/voca")
 @RequiredArgsConstructor
@@ -22,6 +24,8 @@ public class VocaController {
     public ResponseEntity<VocaListResponse> getVocaList(
             @RequestParam(value = "sort", required = false, defaultValue = "1") final String sortStr
     ) {
+        Long userId = getCurrentUserId();
+
         final int sort;
         try {
             sort = Integer.parseInt(sortStr);
@@ -29,11 +33,9 @@ public class VocaController {
             throw new VocaInvalidSortTypeException(VocaApiErrorCode.INVALID_SORT_TYPE);
         }
 
-        if (sort != 1 && sort != 2) {
+        if (sort != 1 && sort != 2)
             throw new VocaInvalidSortTypeException(VocaApiErrorCode.INVALID_SORT_TYPE);
-        }
 
-        Long userId = 1L; // TODO: 로그인 연동 후 수정
         return ResponseEntity.ok(vocaService.getVocaList(userId, sort));
     }
 
@@ -41,11 +43,10 @@ public class VocaController {
     public ResponseEntity<VocaSearchListResponse> searchVocaList(
             @RequestParam final String keyword
     ) {
-        final Long userId = 1L; // TODO: 로그인 연동 후 수정
+        Long userId = getCurrentUserId();
 
-        if (keyword.trim().isEmpty()) {
+        if (keyword.trim().isEmpty())
             throw new VocaInvalidKeywordException(VocaApiErrorCode.INVALID_KEYWORD);
-        }
 
         return ResponseEntity.ok(vocaService.searchVocaList(userId, keyword.trim()));
     }
@@ -54,7 +55,7 @@ public class VocaController {
     public ResponseEntity<VocaDetailResponse> getVocaDetails(
             @PathVariable final Long phraseId
     ) {
-        final Long userId = 1L; // TODO: 로그인 연동 후 수정
+        Long userId = getCurrentUserId();
         return ResponseEntity.ok(vocaService.getVocaDetails(userId, phraseId));
     }
 
