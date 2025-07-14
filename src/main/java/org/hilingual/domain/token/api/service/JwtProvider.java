@@ -72,7 +72,7 @@ public class JwtProvider {
                 .claim("type", "access")
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + ACCESS_EXPIRATION))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -80,11 +80,11 @@ public class JwtProvider {
         log.info("[token] RefreshToken 재발급: userId = {}", userId);
         Date now = new Date();
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
+                .subject(String.valueOf(userId))
                 .claim("type", "refresh")
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + REFRESH_EXPIRATION))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + REFRESH_EXPIRATION))
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -97,16 +97,16 @@ public class JwtProvider {
                 .claim("type", "access")
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + ACCESS_EXPIRATION))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .signWith(secretKey)
                 .compact();
         log.info("[token] JwtProvider의 generateToken에서 accessToken 생성 = {}", accessToken);
 
         String refreshToken = Jwts.builder()
-                .setSubject(String.valueOf(userId))
+                .subject(String.valueOf(userId))
                 .claim("type", "refresh")
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + REFRESH_EXPIRATION))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + REFRESH_EXPIRATION))
+                .signWith(secretKey)
                 .compact();
         log.info("[token] JwtProvider의 generateToken에서 refreshToken 생성 = {}", refreshToken);
 
