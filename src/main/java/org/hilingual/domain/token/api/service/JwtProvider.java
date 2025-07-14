@@ -76,6 +76,18 @@ public class JwtProvider {
                 .compact();
     }
 
+    public String generateRefreshToken(Long userId) {
+        log.info("[token] RefreshToken 재발급: userId = {}", userId);
+        Date now = new Date();
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .claim("type", "refresh")
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + REFRESH_EXPIRATION))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     public JwtTokenResponse generateToken(Long userId) {
         log.info("[token] JwtProvider의 generateToken 진입");
         Date now = new Date();

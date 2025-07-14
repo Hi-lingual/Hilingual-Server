@@ -75,8 +75,17 @@ public class RefreshTokenService {
 
         Long userId = jwtProvider.getUserId(refreshToken);
 
-        String newAccessToken  = jwtProvider.generateAccessToken(userId);
+        Optional<RefreshToken> tokenOptional = find(refreshToken);
+        if (tokenOptional.isEmpty()) {
+            throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
+        }
+        delete(refreshToken);
 
-        return RefreshJwtTokenResponse.of(newAccessToken, refreshToken);
+        String newAccessToken  = jwtProvider.generateAccessToken(userId);
+        String newRefreshToken = jwtProvider.generateRefreshToken(userId);
+
+        save(userId, newRefreshToken);
+
+        return RefreshJwtTokenResponse.of(newAccessToken, newRefreshToken);
     }
 }
