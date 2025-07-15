@@ -29,9 +29,11 @@ public class UserCalendarService {
 
 
     public UserCalendarDiarySummaryResponse getDiarySummary(final LocalDate date, final Long userId) {
+        /*
         if (date.isAfter(LocalDate.now())) {
             throw new FutureDateNotAllowedException(UserCalendarApiErrorCode.FUTURE_DATE_NOT_ALLOWED);
         }
+         */
 
         UserCalendarDiarySummaryResponse raw =
                 userCalendarRetriever.findDiaryByDate(userId, date);
@@ -50,9 +52,11 @@ public class UserCalendarService {
     }
 
     public UserCalendarTopicResponse getTopicByDate(final LocalDate date) {
+        /*
         if (date.isAfter(LocalDate.now())) {
             throw new FutureDateNotAllowedException(UserCalendarApiErrorCode.FUTURE_DATE_NOT_ALLOWED);
         }
+        */
         return userCalendarRetriever.findTopicByDate(date);
     }
 
