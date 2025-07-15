@@ -12,6 +12,11 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=blue
+      - TZ=Asia/Seoul
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     networks:
       - hilingual-network
 
@@ -26,6 +31,11 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=green
+      - TZ=Asia/Seoul
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     networks:
       - hilingual-network
 
