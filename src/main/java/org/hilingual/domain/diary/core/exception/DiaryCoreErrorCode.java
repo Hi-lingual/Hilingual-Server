@@ -12,6 +12,9 @@ public enum DiaryCoreErrorCode implements ErrorCode {
 
     // 404
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, 40004, "id에 해당하는 일기가 존재하지 않습니다."),
+
+    // 409
+    ALREADY_WRITTEN_DIARY(HttpStatus.CONFLICT, 40901, "해당 날짜에 이미 작성된 일기가 있습니다."),
     ;
 
     public final HttpStatus httpStatus;

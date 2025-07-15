@@ -2,15 +2,17 @@ package org.hilingual.domain.usercalendar.core.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.hilingual.common.domain.Topic;
-import org.hilingual.domain.diary.core.domain.Diary;
 import org.hilingual.domain.diary.core.repository.DiaryRepository;
+import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarDiarySummaryResponse;
 import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarTopicResponse;
 import org.hilingual.domain.usercalendar.api.exception.UserCalendarDiaryNotFoundException;
+import org.hilingual.domain.usercalendar.core.domain.UserCalendar;
 import org.hilingual.domain.usercalendar.core.exception.UserCalendarCoreErrorCode;
 import org.hilingual.domain.usercalendar.core.exception.UserCalendarTopicNotFoundException;
 import org.hilingual.domain.usercalendar.core.repository.UserCalendarRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -23,7 +25,19 @@ import java.util.List;
 public class UserCalendarRetriever {
 
     private final DiaryRepository diaryRepository;
+    private final UserCalendarRepository userCalendarRepository;
     private final org.hilingual.common.repository.TopicRepository topicRepository;
+
+    @Transactional
+    public void markWrittenDate(User user, LocalDate writtenDate) {
+        userCalendarRepository.findByUserAndDate(user, writtenDate)
+                .ifPresentOrElse(
+                        UserCalendar::markWritten,
+                        () -> userCalendarRepository.save(
+                                UserCalendar.create(writtenDate, true, user)
+                        )
+                );
+    }
 
     public UserCalendarDiarySummaryResponse findDiaryByDate(final Long userId, final LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay(); // 00:00
@@ -73,7 +87,6 @@ public class UserCalendarRetriever {
             return (int) Math.ceil(secondsRemaining / 60.0);
         }
     }
-    private final UserCalendarRepository userCalendarRepository;
 
     public List<LocalDate> findWrittenDatesByMonth(final Long userId, final int year, final int month) {
         return userCalendarRepository.findWrittenDatesByUserIdAndYearAndMonth(userId, year, month);

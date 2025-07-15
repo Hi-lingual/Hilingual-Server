@@ -1,14 +1,18 @@
 package org.hilingual.domain.usercalendar.core.repository;
 
+import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.usercalendar.core.domain.UserCalendar;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-public interface UserCalendarRepository extends Repository<UserCalendar, LocalDate> {
+public interface UserCalendarRepository extends JpaRepository<UserCalendar, LocalDate> {
+
+    Optional<UserCalendar> findByUserAndDate(User user, LocalDate date);
 
     @Query("""
         SELECT uc.date FROM UserCalendar uc

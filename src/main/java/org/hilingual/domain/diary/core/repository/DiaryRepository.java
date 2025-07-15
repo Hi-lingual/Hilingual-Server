@@ -1,6 +1,7 @@
 package org.hilingual.domain.diary.core.repository;
 
 import org.hilingual.domain.diary.core.domain.Diary;
+import org.hilingual.domain.user.core.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
+
+    boolean existsByUserAndWrittenDate(User user, LocalDate writtenDate);
+
     @Query("""
     SELECT d FROM Diary d
     WHERE d.user.id = :userId

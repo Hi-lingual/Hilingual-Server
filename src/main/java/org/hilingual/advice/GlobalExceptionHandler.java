@@ -8,6 +8,7 @@ import org.hilingual.common.exception.code.ErrorCode;
 import org.hilingual.common.exception.code.GlobalErrorCode;
 import org.hilingual.domain.diary.api.exception.DiaryBaseException;
 import org.hilingual.domain.recommend.api.exception.RecommendBaseException;
+import org.hilingual.domain.user.api.exception.UserBaseException;
 import org.hilingual.domain.usercalendar.api.exception.UserCalendarBaseException;
 import org.hilingual.domain.token.api.exception.JwtBaseException;
 import org.hilingual.external.openai.exception.OpenAiBaseException;
@@ -31,6 +32,15 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(UserBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleUserBaseException(UserBaseException e) {
+        log.error("[UserBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
 
     @ExceptionHandler(RecommendBaseException.class)
     public ResponseEntity<BaseResponseDto<Void>> handleRecommendBaseException(RecommendBaseException e) {
@@ -183,7 +193,5 @@ public class GlobalExceptionHandler {
                 .status(GlobalErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
                 .body(BaseResponseDto.fail(GlobalErrorCode.INTERNAL_SERVER_ERROR));
     }
-
-
 
 }
