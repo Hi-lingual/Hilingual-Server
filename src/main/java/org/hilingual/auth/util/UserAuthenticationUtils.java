@@ -5,7 +5,6 @@ import org.hilingual.domain.token.core.exception.UnauthorizedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-
 public class UserAuthenticationUtils {
 
     private UserAuthenticationUtils() {
@@ -13,9 +12,21 @@ public class UserAuthenticationUtils {
 
     public static Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getPrincipal() == null) {
+
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
             throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
         }
-        return (Long) authentication.getPrincipal();
+
+        if (authentication.getPrincipal() instanceof Long) {
+            return (Long) authentication.getPrincipal();
+        } else if (authentication.getPrincipal() instanceof String) {
+            try {
+                return Long.parseLong(authentication.getPrincipal().toString());
+            } catch (NumberFormatException e) {
+                throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
+            }
+        }
+
+        throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
     }
 }
