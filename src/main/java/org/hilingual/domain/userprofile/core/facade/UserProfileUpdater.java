@@ -17,7 +17,6 @@ public class UserProfileUpdater {
     private final UserProfileRetriever userProfileRetriever;
     private final DiaryRetriever diaryRetriever;
 
-    private static final ZoneId ZONE_ID = ZoneId.of("Asia/Seoul");
     private static final long STREAK_WINDOW_HOURS = 48L;
 
     @Transactional
@@ -28,7 +27,7 @@ public class UserProfileUpdater {
 
         profile.updateTotalDiaries(diaryTimestamps.size());
 
-        LocalDateTime now = LocalDateTime.now(ZONE_ID);
+        LocalDateTime now = LocalDateTime.now();
 
         if (hasWrittenInLast48Hours(diaryTimestamps, now)) {
             profile.updateStreak(profile.getStreak() + 1);
