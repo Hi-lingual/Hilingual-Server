@@ -1,12 +1,11 @@
 package org.hilingual.domain.diaryfeedback.api.service.diff;
 
 import org.hilingual.domain.diary.api.dto.res.DiaryDetails;
-import org.hilingual.domain.diaryfeedback.api.service.diff.data.WordExtractor;
+import org.hilingual.domain.diaryfeedback.api.service.diff.builder.DiffRangeBuilder;
+import org.hilingual.domain.diaryfeedback.api.service.diff.calculator.DiffCalculator;
+import org.hilingual.domain.diaryfeedback.api.service.diff.data.DiffOperation;
 import org.hilingual.domain.diaryfeedback.api.service.diff.data.WordInfo;
-import org.hilingual.domain.diaryfeedback.api.service.diff.extractor.DiffRangeExtractor;
-import org.hilingual.domain.diaryfeedback.api.service.diff.logic.DiffOperation;
-import org.hilingual.domain.diaryfeedback.api.service.diff.logic.DiffOperationMerger;
-import org.hilingual.domain.diaryfeedback.api.service.diff.logic.DiffProcessor;
+import org.hilingual.domain.diaryfeedback.api.service.diff.parser.TextParser;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,16 +14,16 @@ import java.util.List;
 @Service
 public class DiaryDiffService {
 
-    private final WordExtractor wordExtractor;
-    private final DiffProcessor diffProcessor;
-    private final DiffOperationMerger diffOperationMerger;
-    private final DiffRangeExtractor diffRangeExtractor;
+    private final TextParser textParser;
+    private final DiffCalculator diffCalculator;
+    private final DiffRangeBuilder diffRangeBuilder;
 
-    public DiaryDiffService() {
-        this.wordExtractor = new WordExtractor();
-        this.diffProcessor= new DiffProcessor();
-        this.diffOperationMerger = new DiffOperationMerger();
-        this.diffRangeExtractor = new DiffRangeExtractor();
+    public DiaryDiffService(TextParser textParser,
+                            DiffCalculator diffCalculator,
+                            DiffRangeBuilder diffRangeBuilder) {
+        this.textParser = textParser;
+        this.diffCalculator = diffCalculator;
+        this.diffRangeBuilder = diffRangeBuilder;
     }
 
     public List<DiaryDetails.DiffRange> extractDiffRanges(String originalText, String rewriteText) {
@@ -32,12 +31,11 @@ public class DiaryDiffService {
             return new ArrayList<>();
         }
 
-        List<WordInfo> originalWords = wordExtractor.extractWordsWithPosition(originalText);
-        List<WordInfo> rewriteWords = wordExtractor.extractWordsWithPosition(rewriteText);
+        List<WordInfo> originalWords = textParser.extractWordsWithPosition(originalText);
+        List<WordInfo> rewriteWords = textParser.extractWordsWithPosition(rewriteText);
 
-        List<DiffOperation> operations = diffProcessor.computeDiff(originalWords, rewriteWords);
-        List<DiffOperation> groupedOperations = diffOperationMerger.groupConsecutiveChanges(operations);
+        List<DiffOperation> operations = diffCalculator.computeDiff(originalWords, rewriteWords);
 
-        return diffRangeExtractor.extractDiffRanges(groupedOperations, rewriteText);
+        return diffRangeBuilder.buildDiffRanges(operations, rewriteText);
     }
 }
