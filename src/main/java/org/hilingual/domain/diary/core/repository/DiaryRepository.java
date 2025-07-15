@@ -38,4 +38,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     WHERE d.user.id = :userId
 """)
     Optional<LocalDateTime> findLatestCreatedAtByUserId(@Param("userId") Long userId);
+
+    Optional<Diary> findFirstByUserIdAndWrittenDate(Long userId, LocalDate writtenDate);
+
 }
