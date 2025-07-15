@@ -1,5 +1,6 @@
 package org.hilingual.domain.voca.core.facade;
 
+import jakarta.annotation.PostConstruct;
 import org.hilingual.domain.voca.api.dto.res.VocaItemResponse;
 import org.hilingual.domain.voca.api.dto.res.VocaListResponse;
 import org.hilingual.domain.voca.api.dto.res.WordGroup;
@@ -16,12 +17,10 @@ import java.util.*;
 @Component
 public class VocaGroupFactory {
 
-    private static final ZoneId SEOUL_ZONE = ZoneId.of("Asia/Seoul");
-
     public VocaListResponse create(final List<Voca> vocas, final int sort) {
         return switch (sort) {
-            case 1 -> groupByFirstLetter(vocas);
-            case 2 -> groupByDateGroup(vocas);
+            case 1 -> groupByDateGroup(vocas);
+            case 2 -> groupByFirstLetter(vocas);
             default -> throw new VocaInvalidSortTypeException(VocaApiErrorCode.INVALID_SORT_TYPE);
         };
     }
@@ -46,8 +45,8 @@ public class VocaGroupFactory {
     }
 
     private VocaListResponse groupByDateGroup(final List<Voca> vocas) {
-        LocalDate today = LocalDate.now(SEOUL_ZONE);
-        LocalDateTime todayStart = LocalDateTime.of(today, java.time.LocalTime.MIDNIGHT);
+        LocalDate today = LocalDate.now();
+        LocalDateTime todayStart = today.atStartOfDay();
         LocalDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay();
         LocalDateTime thirtyDaysAgo = today.minusDays(29).atStartOfDay();
 

@@ -24,8 +24,8 @@ public class VocaRetriever {
 
     public VocaListResponse findGroupedVoca(final Long userId, final int sort) {
         final List<Voca> vocas = switch (sort) {
-            case 1 -> vocaRepository.findAllByUserIdOrderByPhraseAsc(userId);
-            case 2 -> vocaRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+            case 1 -> vocaRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+            case 2 -> vocaRepository.findAllByUserIdOrderByPhraseAsc(userId);
             default -> throw new VocaInvalidSortTypeException(VocaApiErrorCode.INVALID_SORT_TYPE);
         };
 

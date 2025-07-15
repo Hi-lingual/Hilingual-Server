@@ -71,8 +71,8 @@ public class UserCalendarRetriever {
 
     private int calculateRemainingMinutesUntilDeadline(final LocalDate topicDate) {
 
-        final ZoneId seoulZone = ZoneId.of("Asia/Seoul");
-        final LocalDateTime now = LocalDateTime.now(seoulZone);
+        final LocalDateTime now = LocalDateTime.now();
+
 
         // 작성 가능 시각: 주제 날짜 + 2일 00시 = 48시간 후
         final LocalDateTime deadline = topicDate.plusDays(2).atStartOfDay();
