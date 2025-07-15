@@ -13,7 +13,10 @@ import java.time.LocalDate;
 import static org.hilingual.domain.usercalendar.core.domain.UserCalendarTableConstants.*;
 
 @Entity
-@Table(name = TABLE_USER_CALENDAR)
+@Table(
+        name = TABLE_USER_CALENDAR,
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "date"})
+)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -29,4 +32,12 @@ public class UserCalendar extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_USER_ID, nullable = false)
     private User user;
+
+    public void markWritten(){
+        this.isWritten = true;
+    }
+
+    public static UserCalendar create(LocalDate date, Boolean isWritten, User user) {
+        return new UserCalendar(date, isWritten, user);
+    }
 }

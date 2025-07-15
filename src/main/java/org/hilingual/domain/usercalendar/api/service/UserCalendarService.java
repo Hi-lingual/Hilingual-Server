@@ -1,6 +1,7 @@
 package org.hilingual.domain.usercalendar.api.service;
 
 import lombok.RequiredArgsConstructor;
+import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarDiarySummaryResponse;
 import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarMonthlyResponse;
 import org.hilingual.domain.usercalendar.api.dto.res.UserCalendarTopicResponse;
@@ -19,6 +20,10 @@ import java.util.List;
 public class UserCalendarService {
 
     private final UserCalendarRetriever userCalendarRetriever;
+
+    public void markWrittenDate(final User user, final LocalDate writtenDate){
+        userCalendarRetriever.markWrittenDate(user, writtenDate);
+    };
 
     public UserCalendarDiarySummaryResponse getDiarySummary(final LocalDate date, final Long userId) {
         if (date.isAfter(LocalDate.now())) {
