@@ -20,8 +20,8 @@ public class VocaGroupFactory {
 
     public VocaListResponse create(final List<Voca> vocas, final int sort) {
         return switch (sort) {
-            case 1 -> groupByFirstLetter(vocas);
-            case 2 -> groupByDateGroup(vocas);
+            case 1 -> groupByDateGroup(vocas);
+            case 2 -> groupByFirstLetter(vocas);
             default -> throw new VocaInvalidSortTypeException(VocaApiErrorCode.INVALID_SORT_TYPE);
         };
     }
