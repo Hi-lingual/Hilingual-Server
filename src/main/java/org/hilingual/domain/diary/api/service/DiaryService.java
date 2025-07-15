@@ -14,6 +14,7 @@ import org.hilingual.domain.recommend.core.domain.Recommend;
 import org.hilingual.domain.recommend.api.service.RecommendService;
 import org.hilingual.domain.user.api.service.UserService;
 import org.hilingual.domain.user.core.domain.User;
+import org.hilingual.domain.usercalendar.api.service.UserCalendarService;
 import org.hilingual.external.openai.OpenAiService;
 import org.hilingual.external.s3.S3Service;
 import org.springframework.stereotype.Service;
@@ -44,10 +45,15 @@ public class DiaryService {
     private final DiaryRetriever diaryRetriever;
     private final DiaryValidator diaryValidator;
 
+    private final UserCalendarService userCalendarService;
+
     private static final String S3_BASE_URL = "https://hilingual-bucket.s3.ap-northeast-2.amazonaws.com/";
 
     @Transactional
     public DiaryDto getFeedbacks(Long userId, String originalText, LocalDate writtenDate, MultipartFile imageFile) {
+        User user = userService.findById(userId);
+        diaryRetriever.validateDiaryNotExists(user, writtenDate);
+
         String imageUrl = null;
         if (imageFile != null && !imageFile.isEmpty()) {
             imageUrl = s3Service.uploadImage("diaries", imageFile);
@@ -59,8 +65,8 @@ public class DiaryService {
         List<Map<String, Object>> feedbackList = (List<Map<String, Object>>) aiResponse.get("feedbackList");
         List<Map<String, Object>> phraseList = (List<Map<String, Object>>) aiResponse.get("phraseList");
 
-        User user = userService.findById(userId);
         Diary diary = diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate);
+        userCalendarService.markWrittenDate(user, writtenDate);
 
         feedbackList.stream()
                 .map(f -> DiaryFeedback.create(
