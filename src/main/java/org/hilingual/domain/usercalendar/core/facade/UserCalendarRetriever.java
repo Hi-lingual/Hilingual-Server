@@ -40,23 +40,15 @@ public class UserCalendarRetriever {
     }
 
     public UserCalendarDiarySummaryResponse findDiaryByDate(final Long userId, final LocalDate date) {
-        LocalDateTime startOfDay = date.atStartOfDay(); // 00:00
-        LocalDateTime endOfDay = date.plusDays(1).atStartOfDay(); // 다음날 00:00
-
-        return diaryRepository.findByUserIdAndCreatedAtBetween(userId, startOfDay, endOfDay)
-                .stream()
-                .findFirst()
-                .map(d ->
-                        UserCalendarDiarySummaryResponse.of(
-                                d.getId(),
-                                d.getCreatedAt(),
-                                d.getImageUrl(),
-                                d.getOriginalText()
-                        )
-                )
+        return diaryRepository.findFirstByUserIdAndWrittenDate(userId, date)
+                .map(diary -> UserCalendarDiarySummaryResponse.of(
+                        diary.getId(),
+                        diary.getCreatedAt(),
+                        diary.getImageUrl(),
+                        diary.getOriginalText()))
                 .orElseThrow(() ->
-                        new UserCalendarDiaryNotFoundException(UserCalendarCoreErrorCode.DIARY_NOT_FOUND)
-                );
+                        new UserCalendarDiaryNotFoundException(
+                                UserCalendarCoreErrorCode.DIARY_NOT_FOUND));
     }
 
     public UserCalendarTopicResponse findTopicByDate(final LocalDate date) {
