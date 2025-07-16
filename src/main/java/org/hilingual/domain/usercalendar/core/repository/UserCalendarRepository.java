@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserCalendarRepository extends JpaRepository<UserCalendar, LocalDate> {
+public interface UserCalendarRepository extends JpaRepository<UserCalendar, Long> {
 
     Optional<UserCalendar> findByUserAndDate(User user, LocalDate date);
 
@@ -23,7 +23,7 @@ public interface UserCalendarRepository extends JpaRepository<UserCalendar, Loca
     """)
     List<LocalDate> findWrittenDatesByUserIdAndYearAndMonth(
             @Param("userId") Long userId,
-            @Param("year") int year,
-            @Param("month") int month
+            @Param("year")   int  year,
+            @Param("month")  int  month
     );
 }

@@ -23,7 +23,10 @@ import static org.hilingual.domain.usercalendar.core.domain.UserCalendarTableCon
 public class UserCalendar extends BaseTimeEntity {
 
     @Id
-    @Column(name = COLUMN_DATE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = COLUMN_DATE, nullable = false)
     private LocalDate date;
 
     @Column(name = COLUMN_IS_WRITTEN, nullable = false)
@@ -38,6 +41,6 @@ public class UserCalendar extends BaseTimeEntity {
     }
 
     public static UserCalendar create(LocalDate date, Boolean isWritten, User user) {
-        return new UserCalendar(date, isWritten, user);
+        return new UserCalendar(null, date, isWritten, user); // id=null
     }
 }
