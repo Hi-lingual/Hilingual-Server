@@ -1,6 +1,8 @@
 package org.hilingual.domain.voca.api.service;
 
 import lombok.RequiredArgsConstructor;
+import org.hilingual.domain.recommend.core.domain.Recommend;
+import org.hilingual.domain.recommend.core.facade.RecommendRetriever;
 import org.hilingual.domain.voca.api.dto.res.VocaDetailResponse;
 import org.hilingual.domain.voca.api.dto.res.VocaListResponse;
 import org.hilingual.domain.voca.api.dto.res.VocaSearchListResponse;
@@ -16,6 +18,7 @@ import java.util.List;
 public class VocaService {
 
     private final VocaRetriever vocaRetriever;
+    private final RecommendRetriever recommendRetriever;
 
 
     // 단어장 목록 조회
@@ -31,8 +34,8 @@ public class VocaService {
 
     //특정 단어 세부 조회
     public VocaDetailResponse getVocaDetails(final Long userId, final Long phraseId) {
-        final Voca voca = vocaRetriever.findByUserIdAndPhraseId(userId, phraseId);
-        return VocaDetailResponse.from(voca);
+        final Recommend recommend = recommendRetriever.findByUserIdAndPhraseId(userId, phraseId);
+        return VocaDetailResponse.from(recommend);
     }
 
 }
