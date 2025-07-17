@@ -21,7 +21,7 @@ public class UserService {
     }
 
     public BaseResponseDto<NicknameAvailableResponse> getNicknameAvailable(String nickname) {
-        if (!nickname.matches("^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$")) {
+        if (!nickname.matches("^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]+$")) {
             return unavailableNickname(UserSuccessCode.NICKNAME_SPECIAL_SYMBOLS);
         }
         if (nickname.length() < 2 || nickname.length() > 10) {
