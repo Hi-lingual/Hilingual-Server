@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -61,7 +62,6 @@ public class UserProfileUpdater {
             }
         }
         // 그 외 날짜: 변경 없음
-
         profile.updateStreak(newStreak);
         userProfileRepository.save(profile);
     }
@@ -72,18 +72,17 @@ public class UserProfileUpdater {
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     @Transactional
     public void resetStreakIfBroken() {
-        LocalDate today      = LocalDate.now(ZoneId.of("Asia/Seoul"));
-        LocalDate yesterday  = today.minusDays(1);
-        LocalDate dayBefore  = today.minusDays(2);
+        LocalDate today     = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDate dayBefore = today.minusDays(2);
 
-        var all = userProfileRepository.findAll();
+        List<UserProfile> all = userProfileRepository.findAll();
         for (UserProfile profile : all) {
-            boolean hasY = userCalendarRepository
-                    .existsByUserAndDate(profile.getUser(), yesterday);
-            boolean hasD = userCalendarRepository
+            // 그제 작성 여부를 확인
+            boolean hasDayBefore = userCalendarRepository
                     .existsByUserAndDate(profile.getUser(), dayBefore);
 
-            if (!hasY || !hasD) {
+            // 그제가 비어 있으면 streak 리셋, 아니면 유지
+            if (!hasDayBefore) {
                 profile.updateStreak(0);
             }
         }
