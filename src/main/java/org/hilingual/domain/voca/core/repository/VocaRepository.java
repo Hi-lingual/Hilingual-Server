@@ -47,14 +47,5 @@ public interface VocaRepository extends JpaRepository<Voca, Long> {
             @Param("keyword") String keyword
     );
 
-    @Query("""
-    SELECT v FROM Voca v
-    JOIN FETCH v.recommend r
-    JOIN FETCH r.diary d
-    WHERE r.id = :phraseId
-      AND v.user.id = :userId
-""")
-    Optional<Voca> findByPhraseIdAndUserId(@Param("phraseId") Long phraseId,
-                                           @Param("userId")  Long userId);
 }
 

@@ -1,6 +1,6 @@
 package org.hilingual.domain.voca.api.dto.res;
 
-import org.hilingual.domain.voca.core.domain.Voca;
+import org.hilingual.domain.recommend.core.domain.Recommend;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -17,17 +17,17 @@ public record VocaDetailResponse(
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yy.MM.dd");
 
-    public static VocaDetailResponse from(final Voca voca) {
+    public static VocaDetailResponse from(final Recommend recommend) {
         return new VocaDetailResponse(
-                voca.getRecommend().getId(),
-                voca.getRecommend().getPhrase(),
-                parsePhraseTypes(voca.getRecommend().getPhraseType()),
-                voca.getRecommend().getExplanation(),
-                voca.getRecommend()
+                recommend.getId(),
+                recommend.getPhrase(),
+                parsePhraseTypes(recommend.getPhraseType()),
+                recommend.getExplanation(),
+                recommend
                         .getDiary()
                         .getWrittenDate()
                         .format(FORMATTER),
-                voca.getRecommend().getIsBookmarked()
+                recommend.getIsBookmarked()
         );
     }
 
