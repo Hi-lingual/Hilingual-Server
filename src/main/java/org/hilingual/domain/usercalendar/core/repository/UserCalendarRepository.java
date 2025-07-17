@@ -12,6 +12,8 @@ import java.util.Optional;
 
 public interface UserCalendarRepository extends JpaRepository<UserCalendar, Long> {
 
+    boolean existsByUserAndDate(User user, LocalDate date);
+
     Optional<UserCalendar> findByUserAndDate(User user, LocalDate date);
 
     @Query("""
