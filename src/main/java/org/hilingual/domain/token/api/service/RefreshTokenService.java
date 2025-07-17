@@ -148,24 +148,49 @@ public class RefreshTokenService {
 
     @Transactional
     public RefreshJwtTokenResponse reissue(String refreshToken) {
-        jwtProvider.validateToken(refreshToken);
-
-        if (!jwtProvider.isRefreshToken(refreshToken)) {
-            throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
-        }
-
-        Long userId = jwtProvider.getUserId(refreshToken);
-
         Optional<RefreshToken> tokenOptional = find(refreshToken);
         if (tokenOptional.isEmpty()) {
+            log.warn("[Reissue] Redis에서 유효한 리프레시 토큰을 찾을 수 없음: {}", refreshToken);
             throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
         }
+
+        RefreshToken storedToken = tokenOptional.get();
+        Long storedUserId = storedToken.getUserId();
+
+        // Refresh Token 자체의 유효성 검증
+        try {
+            jwtProvider.validateToken(refreshToken);
+        } catch (UnauthorizedException e) {
+            log.warn("[Reissue] Refresh Token 자체 유효성 검증 실패 (JWT 만료 등): {}", refreshToken);
+            delete(refreshToken);
+            throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
+        }
+
+        // 토큰 타입 확인
+        if (!jwtProvider.isRefreshToken(refreshToken)) {
+            log.warn("[Reissue] 제공된 토큰은 리프레시 토큰 타입이 아님: {}", refreshToken);
+            throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
+        }
+
+        // JWT에서 사용자 ID 추출
+        Long userIdFromJwt = jwtProvider.getUserId(refreshToken);
+        if (!storedUserId.equals(userIdFromJwt)) {
+            log.error("[Reissue] Redis 저장된 userId와 JWT에서 추출된 userId 불일치. Redis userId: {}, JWT userId: {}", storedUserId, userIdFromJwt);
+            // 불일치 발생 시 해당 토큰을 모두 삭제하고 에러 반환
+            delete(refreshToken);
+            throw new UnauthorizedException(GlobalErrorCode.UNAUTHORIZED);
+        }
+
+        // 이전 토큰 삭제
         delete(refreshToken);
+        log.info("[Reissue] 이전 리프레시 토큰 삭제 완료: {}", refreshToken);
 
-        String newAccessToken  = jwtProvider.generateAccessToken(userId);
-        String newRefreshToken = jwtProvider.generateRefreshToken(userId);
+        // 새로운 Access/Refresh Token 발급 및 저장
+        String newAccessToken = jwtProvider.generateAccessToken(storedUserId);
+        String newRefreshToken = jwtProvider.generateRefreshToken(storedUserId);
 
-        save(userId, newRefreshToken);
+        save(storedUserId, newRefreshToken);
+        log.info("[Reissue] 새로운 토큰 발급 및 저장 완료. userId: {}", storedUserId);
 
         return RefreshJwtTokenResponse.of(newAccessToken, newRefreshToken);
     }
