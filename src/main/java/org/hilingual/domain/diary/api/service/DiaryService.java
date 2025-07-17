@@ -66,7 +66,6 @@ public class DiaryService {
         List<Map<String, Object>> phraseList = (List<Map<String, Object>>) aiResponse.get("phraseList");
 
         Diary diary = diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate);
-        userCalendarService.markWrittenDate(user, writtenDate);
 
         feedbackList.stream()
                 .map(f -> DiaryFeedback.create(
