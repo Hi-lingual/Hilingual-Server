@@ -103,7 +103,7 @@ public class DiaryService {
                 ? S3_BASE_URL + imageUrlKey
                 : null;
 
-        String date = diary.getCreatedAt()
+        String date = diary.getWrittenDate()
                 .format(DateTimeFormatter.ofPattern("M월 d일 EEEE", Locale.KOREAN));
 
         List<DiaryDetails.DiffRange> diffRanges = diaryDiffService.extractDiffRanges(originalText, rewriteText);
