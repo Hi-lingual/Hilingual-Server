@@ -12,7 +12,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import static org.hilingual.domain.token.api.constants.TokenConstants.REFRESH_TOKENS_SET_SUFFIX;
+import static org.hilingual.domain.token.api.constants.TokenConstants.USER_REFRESH_TOKENS_SET_KEY_PREFIX;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +27,12 @@ public class RefreshTokenService {
 
     public String save(Long userId, String refreshToken) {
         long expiration = jwtProvider.getRefreshExpirationMilliseconds();
+        String userKey = getUserRefreshTokensSetKey(userId);
+
+        // JWT 문자열 키, userId 값, TTL 설정
         redisTemplate.opsForValue().set(refreshToken, String.valueOf(userId), expiration, TimeUnit.MILLISECONDS);
+        // 해당하는 유저ID의 리프레시 토큰 Set에 현재 리프레시 토큰 추가
+        redisTemplate.opsForSet().add(userKey, refreshToken);
 
         log.info("[Redis] 리프레시 토큰 저장 : Key='{}', Value='{}', TTL={}ms, userId={}",
                 refreshToken, userId, expiration, userId);
@@ -45,6 +54,13 @@ public class RefreshTokenService {
             jwtProvider.validateToken(refreshToken);
             long expirationTimestamp = jwtProvider.getExpiration(refreshToken).toEpochMilli();
 
+            String userKeyList = getUserRefreshTokensSetKey(storedUserId);
+            if (Boolean.FALSE.equals(redisTemplate.opsForSet().isMember(userKeyList, refreshToken))) {
+                log.warn("[Redis] String 키는 존재하나, 유저의 Set에 토큰 없음. 일관성 오류: userId={}, refreshToken={}", storedUserId, refreshToken);
+                redisTemplate.delete(refreshToken);
+                return Optional.empty();
+            }
+
             log.info("[Redis] 리프레시 토큰 조회: Key='{}', Stored UserId='{}', Token Expiration={}",
                     refreshToken, storedUserId, Instant.ofEpochMilli(expirationTimestamp));
 
@@ -54,14 +70,80 @@ public class RefreshTokenService {
                     .build());
         } catch (UnauthorizedException e) {
             log.warn("[Redis] 리프레시 토큰 유효성 검증 실패 또는 만료: {}", refreshToken);
+            // String 키 삭제
             redisTemplate.delete(refreshToken);
+            // Set에서도 해당 토큰 제거
+            // JWT로부터 userId를 다시 추출해서 Set에서 제거
+            try {
+                Long userIdFromToken = jwtProvider.getUserId(refreshToken);
+                if (userIdFromToken != null) {
+                    deleteFromUserSet(userIdFromToken, refreshToken);
+                    log.info("[Redis] 유효성 검증 실패로 Set 멤버 제거: userId={}, refreshToken={}", userIdFromToken, refreshToken);
+                }
+            } catch (UnauthorizedException ex) {
+                log.debug("[Redis] 유효성 검증 실패 처리 중 JWT userId 추출 실패: {}", refreshToken);
+            }
             return Optional.empty();
         }
     }
 
     public void delete(String refreshToken) {
+        // 키에서 userId 가져오기
+        String tempUserId = redisTemplate.opsForValue().get(refreshToken);
+
+        // refreshToken 삭제
         redisTemplate.delete(refreshToken);
-        log.info("[Redis] 리프레쉬 토큰 삭제: Key={}", refreshToken);
+
+        // 해당 유저의 refreshToken Set에서 현재 refreshToken 삭제
+        if (tempUserId != null) {
+            Long userId = Long.parseLong(tempUserId);
+            deleteFromUserSet(userId, refreshToken);
+            log.info("[Redis] 리프레쉬 토큰 삭제: Key={}, UserSetKey='{}'", refreshToken, getUserRefreshTokensSetKey(userId));
+        } else {
+            log.info("[Redis] 리프레쉬 토큰 삭제 (String 키에서 userId를 찾을 수 없음): Key={}", refreshToken);
+            // userId를 String 키에서 얻지 못했지만, 혹시 Set에 남아있을 수 있으므로
+            // JWT 자체에서 userId를 얻어 Set에서 제거 시도 (선택 사항)
+            try {
+                Long userIdFromToken = jwtProvider.getUserId(refreshToken);
+                if (userIdFromToken != null) {
+                    deleteFromUserSet(userIdFromToken, refreshToken);
+                    log.info("[Redis] Redis String 키에 userId가 없었지만, JWT에서 추출하여 Set에서 토큰 제거: userId={}, refreshToken={}", userIdFromToken, refreshToken);
+                }
+            } catch (UnauthorizedException e) {
+                // JWT 자체가 유효하지 않아 userId를 얻을 수 없는 경우 무시
+                log.debug("[Redis] 삭제 처리 중 JWT userId 추출 실패: {}", refreshToken);
+            }
+        }
+    }
+
+    // 특정 유저의 모든 리프레시 토큰 삭제 (로그아웃 등)
+    public void deleteAllRefreshTokensByUserId(Long userId) {
+        String userSetKey = getUserRefreshTokensSetKey(userId);
+        Set<String> refreshTokens = redisTemplate.opsForSet().members(userSetKey);
+
+        if (refreshTokens != null && !refreshTokens.isEmpty()) {
+            // 해당 유저의 모든 리프레시 토큰 String 키 삭제
+            refreshTokens.forEach(token -> {
+                redisTemplate.delete(token);
+                log.info("[Redis] 유저({})의 개별 리프레시 토큰(String) 삭제: {}", userId, token);
+            });
+            // 유저의 Set 키 자체를 삭제
+            redisTemplate.delete(userSetKey);
+            log.info("[Redis] 유저({})의 모든 리프레시 토큰(Set) 삭제: {}", userId, userSetKey);
+        } else {
+            log.info("[Redis] 유저({})에 대한 리프레시 토큰이 Set에 없습니다.", userId);
+        }
+    }
+
+    // 특정 유저의 Set에서 리프레시 토큰 멤버 삭제 (내부용)
+    private void deleteFromUserSet(Long userId, String refreshToken) {
+        String userSetKey = getUserRefreshTokensSetKey(userId);
+        redisTemplate.opsForSet().remove(userSetKey, refreshToken);
+    }
+
+    // 유저의 Refresh Token Set 키 생성 유틸리티
+    private String getUserRefreshTokensSetKey(Long userId) {
+        return USER_REFRESH_TOKENS_SET_KEY_PREFIX + userId + REFRESH_TOKENS_SET_SUFFIX;
     }
 
     @Transactional
