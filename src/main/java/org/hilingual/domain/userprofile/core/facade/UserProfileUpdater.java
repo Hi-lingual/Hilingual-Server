@@ -51,7 +51,8 @@ public class UserProfileUpdater {
             // 1) 오늘 쓰는 순간 → 어제 썼다면 +1, 아니면 유지
             if (hasYesterday) {
                 newStreak++;
-            }
+            } else if (profile.getStreak() == 0) {
+                newStreak = 1; // 최초작성이거나 작성 재개
         }
         else if (writtenDate.equals(yesterday)) {
             // 2) 어제 보충 쓰는 순간 → 무조건 +1
@@ -59,7 +60,10 @@ public class UserProfileUpdater {
             //    + 오늘도 이미 쓰여 있으면 추가 +1
             if (hasToday) {
                 newStreak++;
+            } if (profile.getStreak() == 0) {
+            newStreak = 1;} // 최초작성이거나 작성 재개
             }
+
         }
         // 그 외 날짜: 변경 없음
         profile.updateStreak(newStreak);
