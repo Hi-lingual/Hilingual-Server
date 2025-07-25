@@ -2,54 +2,35 @@ package org.hilingual.external.openai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hilingual.external.openai.client.OpenAIClient;
+import org.hilingual.external.openai.dto.GptRequest;
+import org.hilingual.external.openai.dto.GptResponse;
 import org.hilingual.external.openai.exception.GptResponseParsingException;
 import org.hilingual.external.openai.exception.GptServerEmptyContentException;
 import org.hilingual.external.openai.exception.GptServerInvalidResponseException;
 import org.hilingual.external.openai.exception.OpenAiErrorCode;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class OpenAiService {
+public class OpenAIService {
 
-    private final RestTemplate restTemplate;
-    private final HttpHeaders httpHeaders;
+    private final OpenAIClient openAIClient;
     private final ObjectMapper objectMapper;
 
-    private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
-
     public Map<String, Object> getDiaryFeedback(String prompt, String originalText) {
+        GptRequest request = GptRequest.of(prompt, originalText);
+        GptResponse response = openAIClient.callChatCompletion(request);
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "gpt-4o");
-        requestBody.put("messages", List.of(
-                Map.of("role", "system", "content", prompt),
-                Map.of("role", "user", "content", originalText)
-        ));
-        requestBody.put("temperature", 0.3);
-        requestBody.put("max_tokens", 1200);
-
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, httpHeaders);
-
-        ResponseEntity<Map> response = restTemplate.exchange(
-                OPENAI_URL,
-                HttpMethod.POST,
-                entity,
-                Map.class
-        );
-
-        Map<String, Object> body = response.getBody();
-        if (body == null || !body.containsKey("choices")) {
+        if (response.choices() == null || response.choices().isEmpty()) {
             throw new GptServerInvalidResponseException(OpenAiErrorCode.GPT_SERVER_INVALID_RESPONSE);
         }
 
-        Map<String, Object> message = (Map<String, Object>) ((List<Map<String, Object>>) body.get("choices")).get(0).get("message");
-        String contentJson = (String) message.get("content");
-
+        String contentJson = response.choices().get(0).message().content();
         if (contentJson == null) {
             throw new GptServerEmptyContentException(OpenAiErrorCode.GPT_SERVER_EMPTY_CONTENT);
         }
@@ -63,6 +44,7 @@ public class OpenAiService {
         try {
             return objectMapper.readValue(contentJson, Map.class);
         } catch (Exception e) {
+            log.warn("서버에서 GPT 응답 파싱에 실패했습니다 : {}", contentJson);
             throw new GptResponseParsingException(OpenAiErrorCode.GPT_RESPONSE_PARSING_ERROR);
         }
     }
