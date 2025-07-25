@@ -15,7 +15,7 @@ import org.hilingual.domain.recommend.api.service.RecommendService;
 import org.hilingual.domain.user.api.service.UserService;
 import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.usercalendar.api.service.UserCalendarService;
-import org.hilingual.external.openai.OpenAiService;
+import org.hilingual.external.openai.OpenAIService;
 import org.hilingual.external.s3.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +33,7 @@ import java.util.Map;
 public class DiaryService {
 
     private final S3Service s3Service;
-    private final OpenAiService openAiService;
+    private final OpenAIService openAiService;
 
     private final DiaryFeedbackService diaryFeedbackService;
     private final RecommendService recommendService;
