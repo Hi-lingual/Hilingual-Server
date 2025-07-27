@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class OpenAiBaseException extends HilingualBaseException {
+public abstract class OpenAIBaseException extends HilingualBaseException {
 
     private final ErrorCode errorCode;
 

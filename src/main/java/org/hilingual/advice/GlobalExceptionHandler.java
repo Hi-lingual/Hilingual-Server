@@ -11,7 +11,7 @@ import org.hilingual.domain.recommend.api.exception.RecommendBaseException;
 import org.hilingual.domain.user.api.exception.UserBaseException;
 import org.hilingual.domain.usercalendar.api.exception.UserCalendarBaseException;
 import org.hilingual.domain.token.api.exception.JwtBaseException;
-import org.hilingual.external.openai.exception.OpenAiBaseException;
+import org.hilingual.external.openai.exception.OpenAIBaseException;
 import org.hilingual.external.s3.exception.S3BaseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -125,8 +125,8 @@ public class GlobalExceptionHandler {
                 .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
     }
 
-    @ExceptionHandler(OpenAiBaseException.class)
-    public ResponseEntity<BaseResponseDto<Void>> handleOpenAiBaseException(OpenAiBaseException e) {
+    @ExceptionHandler(OpenAIBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleOpenAiBaseException(OpenAIBaseException e) {
         log.error("[OpenAiBaseException] message: {}", e.getMessage(), e);
 
         return ResponseEntity

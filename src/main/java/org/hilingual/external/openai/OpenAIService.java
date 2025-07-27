@@ -9,7 +9,7 @@ import org.hilingual.external.openai.dto.GptResponse;
 import org.hilingual.external.openai.exception.GptResponseParsingException;
 import org.hilingual.external.openai.exception.GptServerEmptyContentException;
 import org.hilingual.external.openai.exception.GptServerInvalidResponseException;
-import org.hilingual.external.openai.exception.OpenAiErrorCode;
+import org.hilingual.external.openai.exception.OpenAIErrorCode;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -27,12 +27,12 @@ public class OpenAIService {
         GptResponse response = openAIClient.callChatCompletion(request);
 
         if (response.choices() == null || response.choices().isEmpty()) {
-            throw new GptServerInvalidResponseException(OpenAiErrorCode.GPT_SERVER_INVALID_RESPONSE);
+            throw new GptServerInvalidResponseException(OpenAIErrorCode.GPT_SERVER_INVALID_RESPONSE);
         }
 
         String contentJson = response.choices().get(0).message().content();
         if (contentJson == null) {
-            throw new GptServerEmptyContentException(OpenAiErrorCode.GPT_SERVER_EMPTY_CONTENT);
+            throw new GptServerEmptyContentException(OpenAIErrorCode.GPT_SERVER_EMPTY_CONTENT);
         }
 
         if (contentJson.startsWith("```")) {
@@ -45,7 +45,7 @@ public class OpenAIService {
             return objectMapper.readValue(contentJson, Map.class);
         } catch (Exception e) {
             log.warn("서버에서 GPT 응답 파싱에 실패했습니다 : {}", contentJson);
-            throw new GptResponseParsingException(OpenAiErrorCode.GPT_RESPONSE_PARSING_ERROR);
+            throw new GptResponseParsingException(OpenAIErrorCode.GPT_RESPONSE_PARSING_ERROR);
         }
     }
 }
