@@ -16,6 +16,7 @@ import org.hilingual.domain.user.api.service.UserService;
 import org.hilingual.domain.user.core.domain.User;
 import org.hilingual.domain.usercalendar.api.service.UserCalendarService;
 import org.hilingual.external.openai.OpenAIService;
+import org.hilingual.external.openai.dto.res.GptFeedbackResponse;
 import org.hilingual.external.s3.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -59,31 +59,20 @@ public class DiaryService {
             imageUrl = s3Service.uploadImage("diaries", imageFile);
         }
 
-        Map<String, Object> aiResponse = openAiService.getDiaryFeedback(DiaryFeedbackPrompt.PROMPT, originalText);
+        GptFeedbackResponse aiResponse = openAiService.getDiaryFeedback(DiaryFeedbackPrompt.PROMPT, originalText);
 
-        String rewriteText = (String) aiResponse.get("rewriteText");
-        List<Map<String, Object>> feedbackList = (List<Map<String, Object>>) aiResponse.get("feedbackList");
-        List<Map<String, Object>> phraseList = (List<Map<String, Object>>) aiResponse.get("phraseList");
+        String rewriteText = aiResponse.rewriteText();
+        List<GptFeedbackResponse.Feedback> feedbackList = aiResponse.feedbackList();
+        List<GptFeedbackResponse.Phrase> phraseList = aiResponse.phraseList();
 
         Diary diary = diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate);
 
         feedbackList.stream()
-                .map(f -> DiaryFeedback.create(
-                        diary,
-                        (String) f.get("original"),
-                        (String) f.get("rewrite"),
-                        (String) f.get("explain")
-                ))
+                .map(f -> DiaryFeedback.create(diary, f.original(), f.rewrite(), f.explain()))
                 .forEach(diaryFeedbackService::saveFeedback);
 
         phraseList.stream()
-                .map(p -> Recommend.create(
-                        diary,
-                        (String) p.get("phrase"),
-                        String.join(",", (List<String>) p.getOrDefault("phraseType", List.of())),
-                        (String) p.get("explanation"),
-                        (String) p.get("reason")
-                ))
+                .map(p -> Recommend.create(diary, p.phrase(), String.join(",", p.phraseType()), p.explanation(), p.reason()))
                 .forEach(recommendService::saveRecommend);
 
         return new DiaryDto(diary.getId());

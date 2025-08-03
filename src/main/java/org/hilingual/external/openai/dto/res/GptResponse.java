@@ -1,4 +1,4 @@
-package org.hilingual.external.openai.dto;
+package org.hilingual.external.openai.dto.res;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
