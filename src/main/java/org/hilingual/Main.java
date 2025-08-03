@@ -2,7 +2,7 @@ package org.hilingual;
 
 
 import io.github.cdimascio.dotenv.Dotenv;
-import org.hilingual.external.openai.OpenAiProperties;
+import org.hilingual.external.openai.OpenAIProperties;
 import org.hilingual.external.s3.AWSProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaAuditing
 @EnableScheduling
 @SpringBootApplication
-@EnableConfigurationProperties({AWSProperties.class, OpenAiProperties.class})
+@EnableConfigurationProperties({AWSProperties.class, OpenAIProperties.class})
 public class Main {
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.configure()

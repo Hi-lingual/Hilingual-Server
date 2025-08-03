@@ -3,8 +3,8 @@ package org.hilingual.external.openai.exception;
 import org.hilingual.common.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public class OpenAiApiException extends OpenAiBaseException{
-    protected OpenAiApiException(ErrorCode errorCode) {
+public class OpenAIApiException extends OpenAIBaseException {
+    protected OpenAIApiException(ErrorCode errorCode) {
         super(errorCode);
     }
 

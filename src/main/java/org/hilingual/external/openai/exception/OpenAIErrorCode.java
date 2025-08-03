@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum OpenAiErrorCode implements ErrorCode {
+public enum OpenAIErrorCode implements ErrorCode {
 
     // 500
     GPT_RESPONSE_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50002, "서버에서 GPT 응답 파싱에 실패했습니다."),
