@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [develop, prod]   # 두 브랜치로 향하는 PR만 검사
 
+permissions:
+  checks: write
+
 jobs:
   verify:
     runs-on: ubuntu-latest
