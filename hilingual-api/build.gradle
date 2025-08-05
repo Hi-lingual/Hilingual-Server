@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'application'
+}
+
+application {
+    mainClass = 'org.sopt.HilingualApplication'
+}
+
+bootRun {
+    mainClass = 'org.sopt.HilingualApplication'
+}
+
+dependencies {
+    implementation project(':hilingual-domain')
+    implementation project(':hilingual-common')
+    implementation project(':hilingual-auth')
+    implementation project(':hilingual-external')
+
+    // Configuration
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // Dotenv
+    implementation 'io.github.cdimascio:dotenv-java:3.2.0'
+
+    // Spring Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Open Feign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0'
+}
+
+bootJar { enabled = true } // dependencies 와 class 파일 모두 묶어서 빌드
+jar { enabled = false } // class 만 묶어서 빌드
