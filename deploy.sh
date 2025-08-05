@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e                                  # 명령 실패 시 즉시 종료
 
+## 테스트용 주석 변경 ##
 ######## 0) 지금 어떤 색 컨테이너가 떠 있는지 확인 ############
 #  └─ 둘 다 없으면 “첫 배포” 라고 간주
 if  docker ps --format '{{.Names}}' | grep -q hilingual-blue ; then
