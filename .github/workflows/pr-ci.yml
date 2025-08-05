@@ -2,44 +2,40 @@ name: PR CI           # Pull-Request 품질 게이트
 
 on:
   pull_request:
-    branches: [develop, prod]   # 두 브랜치로 향하는 PR만 검사
+    branches: [develop, prod]
 
 permissions:
   checks: write
+  pull-requests: write   # ← 새로 추가
 
 jobs:
   verify:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) 머지 커밋 기준으로 코드 체크아웃
       - uses: actions/checkout@v4
 
-      # 2) JDK 17 + Gradle 캐시
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-          cache: gradle          # ~/.gradle cache 자동 처리
+          cache: gradle
 
-      # 3-A) 단위 테스트 실행
       - name: Gradle Test
         run: |
           chmod +x ./gradlew
-          ./gradlew --info test          
+          ./gradlew --info test
 
-      # 3-B) JUnit XML 리포트를 PR 탭에 예쁘게 표시
       - name: Publish Unit-Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: ${{ always() }}
+        if: always()
         with:
           files: build/test-results/**/*.xml
+          # comment_mode: off   # 코멘트 불필요하면 주석 해제
 
-      # 4) 테스트 통과 했을 때만 JAR 빌드
       - name: Gradle Build (skip tests)
-        if: ${{ success() }}              # 위 단계가 성공한 경우에만 컴파일
-        run: |
-          ./gradlew clean assemble    
+        if: ${{ success() }}
+        run: ./gradlew clean assemble
 
       - name: 📢 Discord notify
         if: always()
