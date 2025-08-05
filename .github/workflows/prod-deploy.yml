@@ -25,12 +25,21 @@ jobs:
           java-version: 17
           cache: gradle
 
-      - name: Build (skip tests)
+      - name: Build JAR                # 러너에서 JAR 생성
         run: |
           chmod +x ./gradlew
           ./gradlew clean build -x test
 
-      - name: 🔐 Deploy via SSH through Bastion
+      - name: 📦 Copy JAR to Bastion   # 러너 → Bastion 전송
+        uses: appleboy/scp-action@v0.1.6
+        with:
+          host:     ${{ secrets.BASTION_IP }}
+          username: ubuntu
+          key:      ${{ secrets.SSH_KEY }}
+          source:   "build/libs/*.jar"
+          target:   "~/project/build/libs/"
+
+      - name: 🔐 Deploy via Bastion    # deploy.sh 실행
         uses: appleboy/ssh-action@v1.0.3
         env:
           APP_HOST:   ${{ env.APP_HOST }}

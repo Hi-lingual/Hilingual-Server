@@ -26,6 +26,15 @@ jobs:
         run: |
           chmod +x ./gradlew && ./gradlew clean build -x test
 
+      - name: 📦 Copy JAR to Bastion
+        uses: appleboy/scp-action@v0.1.6
+        with:
+          host:        ${{ secrets.BASTION_IP }}
+          username:    ubuntu
+          key:         ${{ secrets.SSH_KEY }}
+          source:      "build/libs/*.jar"
+          target:      "~/project/build/libs/"
+
       - name: 🔐 Deploy via Bastion    # ⑥ Bastion 경유 SSH 배포
         uses: appleboy/ssh-action@v1.0.3
         env:
@@ -38,9 +47,6 @@ jobs:
           proxy_host:    ${{ secrets.BASTION_IP }}  # (Jump Host = 동일)
           proxy_username: ubuntu
           proxy_key:     ${{ secrets.SSH_KEY }}
-          scp:           true
-          source:        "build/libs/*.jar"
-          target:        "~/project/build/libs/"
           script_stop:   true                       # 서버 오류 시 Job Fail
           script: |
             set -e
@@ -62,8 +68,3 @@ jobs:
           title:        "${{ github.workflow }} – ${{ job.status }}"
           description:  "**Ref**: ${{ github.ref_name }}\n**SHA**: ${{ github.sha }}"
           color:        ${{ job.status == 'success' && '0x57F287' || '0xED4245' }}
-            
-            
-            
-
-
