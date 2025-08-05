@@ -19,5 +19,11 @@ services:
       TZ: Asia/Seoul
     networks: [app-net]
 
+  redis:
+    image: redis:7-alpine
+    container_name: hilingual-redis
+    restart: unless-stopped
+    networks: [ app-net ]
+
 networks:
   app-net: {}                      # 별도 설정 없이 기본 bridge 네트워크 생성
