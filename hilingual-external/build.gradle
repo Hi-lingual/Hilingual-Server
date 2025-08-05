@@ -1,0 +1,13 @@
+dependencies {
+    implementation project(":hilingual-common")
+
+    // Multipart file
+    implementation("software.amazon.awssdk:bom:2.21.0")
+    implementation("software.amazon.awssdk:s3:2.21.0")
+
+    // Open Feign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0'
+}
+
+bootJar { enabled = false }
+jar { enabled = true }
