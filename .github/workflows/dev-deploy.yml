@@ -22,7 +22,7 @@ jobs:
           java-version: 17
           cache: gradle
 
-      - name: Build JAR   # ⑤ 컴파일·패키징
+      - name: Build JAR   # ⑤ 컴파일
         run: |
           chmod +x ./gradlew && ./gradlew clean build -x test
 
