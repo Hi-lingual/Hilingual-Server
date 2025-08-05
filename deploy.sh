@@ -5,11 +5,11 @@ set -e                                 # 명령 오류 시 즉시 스크립트 �
 if docker ps | grep -q hilingual-blue.*Up ; then
   NEW="green"; PORT_NEW=8082           # 이번에 올릴 색/포트
   OLD="blue";  PORT_OLD=8081           # 이전 버전 색/포트
-  docker compose up -d spring-green    # green 컨테이너만 백그라운드 기동
+  docker-compose up -d spring-green    # green 컨테이너만 백그라운드 기동
 else
   NEW="blue";  PORT_NEW=8081
   OLD="green"; PORT_OLD=8082
-  docker compose up -d spring-blue
+  docker-compose up -d spring-blue
 fi
 
 ### 1) 새 컨테이너 헬스체크
@@ -27,13 +27,13 @@ if [ -z "$ROLLBACK" ]; then
   echo "[NGINX] switch → ${NEW}"
   # TARGET_UPSTREAM 변수만 바꿔서 Nginx 컨테이너 1초 재기동 (무중단)
   $SSH "TARGET_UPSTREAM=${APP_HOST}:${PORT_NEW} \
-        docker compose -f ~/nginx/docker-compose.yml \
+        docker-compose -f ~/nginx/docker-compose.yml \
         up -d --no-deps --force-recreate nginx"
-  docker compose stop spring-${OLD}    # 이전 버전 자원 반환
+  docker-compose stop spring-${OLD}    # 이전 버전 자원 반환
 else
   echo "[NGINX] rollback → ${OLD}"
   $SSH "TARGET_UPSTREAM=${APP_HOST}:${PORT_OLD} \
-        docker compose -f ~/nginx/docker-compose.yml \
+        docker-compose -f ~/nginx/docker-compose.yml \
         up -d --no-deps --force-recreate nginx"
   exit 1                               # GitHub Actions Job 을 실패로 마킹
 fi
