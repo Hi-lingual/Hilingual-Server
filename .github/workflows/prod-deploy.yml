@@ -59,9 +59,10 @@ jobs:
             set -e
             cd ~/project
             if [ ! -d .git ]; then
-              git clone --depth 1 https://github.com/${{ github.repository }} .
+              git init
+              git remote add origin https://github.com/${{ github.repository }}
             fi
-            git fetch --all
+            git fetch --depth 1 origin
             git reset --hard ${{ github.sha }}
             chmod +x deploy.sh
             ./deploy.sh
