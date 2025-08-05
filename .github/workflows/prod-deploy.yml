@@ -49,7 +49,7 @@ jobs:
           APP_HOST:   ${{ env.APP_HOST }}
           NGINX_HOST: ${{ env.NGINX_HOST }}
         with:
-          host:           ${{ env.APP_HOST }}    # ← prod App EC2
+          host:           ${{ env.APP_HOST }}    # prod App EC2
           username:       ubuntu
           key:            ${{ secrets.SSH_KEY }}
           proxy_host:     ${{ secrets.BASTION_IP }}
