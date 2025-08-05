@@ -1,10 +1,7 @@
 FROM openjdk:17-jdk-slim
 
-
-# ARG JAR_FILE=build/libs/*-SNAPSHOT.jar
-
-# ★ 변수 대신 와일드카드를 직접 사용
-COPY build/libs/*SNAPSHOT.jar app.jar
+# build/libs/ 안의 어떤 JAR 버전이든 하나만 복사
+COPY build/libs/*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]

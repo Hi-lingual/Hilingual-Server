@@ -64,6 +64,10 @@ jobs:
             fi
             git fetch --depth 1 origin
             git reset --hard ${{ github.sha }}
+            
+            mkdir -p build/libs
+            cp ~/project/build/libs/*.jar ./build/libs/
+            
             chmod +x deploy.sh
             ./deploy.sh
 
