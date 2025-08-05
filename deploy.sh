@@ -21,7 +21,7 @@ else                                    # green 이거나 첫 배포
 fi
 
 ######## 1) 새 컨테이너 기동 ##################################
-docker-compose up -d spring-${NEW}
+docker compose up -d spring-${NEW}
 
 ######## 2) 헬스체크 (최대 100 초) ###############################
 for i in {1..20}; do
@@ -41,7 +41,7 @@ switch_upstream () {
   local TARGET=$1                      # ${APP_HOST}:${PORT}
   if [ -f "${SSH_KEY}" ] ; then        # 키가 있을 때만 실행
     $SSH "TARGET_UPSTREAM=${TARGET} \
-          docker-compose -f ~/nginx/docker-compose.yml \
+          docker compose -f ~/nginx/docker-compose.yml \
           up -d --no-deps --force-recreate nginx"
   else
     echo "⚠️  ${SSH_KEY} 가 없어 Nginx 스위치를 건너뜁니다."
@@ -54,7 +54,7 @@ if [ -z "$ROLLBACK" ]; then
 
   # 첫 배포가 아니면 이전 색 컨테이너 종료
   if [ -n "$CURRENT" ] ; then
-    docker-compose stop spring-${OLD}
+    docker compose stop spring-${OLD}
   fi
 else
   echo "[NGINX] rollback → ${OLD}"

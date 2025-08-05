@@ -8,6 +8,8 @@ services:
     environment:                   # 런타임 변수
       SPRING_PROFILES_ACTIVE: blue # @Profile("blue")
       TZ: Asia/Seoul               # timezone 통일
+    env_file:
+      - .env
     networks: [app-net]            # bridge 네트워크 설정
 
   spring-green:                    # 🟢 새 버전을 띄울 때 사용하는 쌍둥이 서비스
@@ -17,6 +19,8 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: green
       TZ: Asia/Seoul
+    env_file:
+      - .env
     networks: [app-net]
 
   redis:
