@@ -38,6 +38,9 @@ jobs:
           proxy_host:    ${{ secrets.BASTION_IP }}  # (Jump Host = 동일)
           proxy_username: ubuntu
           proxy_key:     ${{ secrets.SSH_KEY }}
+          scp:           true
+          source:        "build/libs/*.jar"
+          target:        "~/project/build/libs/"
           script_stop:   true                       # 서버 오류 시 Job Fail
           script: |
             set -e
