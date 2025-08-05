@@ -1,0 +1,66 @@
+name: DEV Deploy
+
+on:                                    # ① 트리거 조건 : develop에 push
+  push:
+    branches: [develop]
+
+env:                                   # ② 워크플로 전역 환경변수
+  APP_HOST: 10.0.2.177                 # 개발용 App EC2 Private IP
+  NGINX_HOST: 10.0.1.18                # 공통 Nginx EC2 Private IP
+  TZ: Asia/Seoul                       # Runner 로그 타임존
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest             # GitHub Hosted Runner
+
+    steps:
+      - uses: actions/checkout@v4      # ③ 레포지토리 코드 체크아웃
+
+      - uses: actions/setup-java@v4    # ④ JDK 설치 + Gradle 캐시
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      - name: Build JAR   # ⑤ 컴파일·패키징
+        run: |
+          chmod +x ./gradlew && ./gradlew clean build -x test
+
+      - name: 🔐 Deploy via Bastion    # ⑥ Bastion 경유 SSH 배포
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          APP_HOST: ${{ env.APP_HOST }}        # deploy.sh 에 전달될 변수
+          NGINX_HOST: ${{ env.NGINX_HOST }}
+        with:
+          host:          ${{ secrets.BASTION_IP }}  # Bastion EIP
+          username:      ubuntu
+          key:           ${{ secrets.SSH_KEY }}     # Repo Secret
+          proxy_host:    ${{ secrets.BASTION_IP }}  # (Jump Host = 동일)
+          proxy_username: ubuntu
+          proxy_key:     ${{ secrets.SSH_KEY }}
+          script_stop:   true                       # 서버 오류 시 Job Fail
+          script: |
+            set -e
+            cd ~/project
+            if [ ! -d .git ]; then
+              git clone --depth 1 https://github.com/${{ github.repository }} .
+            fi
+            git fetch --all
+            git reset --hard ${{ github.sha }}
+            cp build/libs/*.jar ./build/libs/
+            chmod +x deploy.sh
+            ./deploy.sh
+
+      - name: 📢 Discord notify
+        if: always()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook:      ${{ secrets.DISCORD_WEBHOOK }}
+          title:        "${{ github.workflow }} – ${{ job.status }}"
+          description:  "**Ref**: ${{ github.ref_name }}\n**SHA**: ${{ github.sha }}"
+          color:        ${{ job.status == 'success' && '0x57F287' || '0xED4245' }}
+            
+            
+            
+
+

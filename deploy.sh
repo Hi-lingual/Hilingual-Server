@@ -1,52 +1,39 @@
 #!/bin/bash
+set -e                                 # 명령 오류 시 즉시 스크립트 종료하도록 설정
 
-EXIST_BLUE=$(docker ps | grep "hilingual-blue" | grep Up)
-
-if [ -z "$EXIST_BLUE" ]; then
-    docker compose up -d spring-blue
-    BEFORE_COLOR="green"
-    BEFORE_PORT=8081
-    AFTER_COLOR="blue"
-    AFTER_PORT=8080
+### 0) 현재 떠 있는 색깔 판별, app-blue 컨테이너가 up이면 다음 배포색은 green
+if docker ps | grep -q hilingual-blue.*Up ; then
+  NEW="green"; PORT_NEW=8082           # 이번에 올릴 색/포트
+  OLD="blue";  PORT_OLD=8081           # 이전 버전 색/포트
+  docker compose up -d spring-green    # green 컨테이너만 백그라운드 기동
 else
-    docker compose up -d spring-green
-    BEFORE_COLOR="blue"
-    BEFORE_PORT=8080
-    AFTER_COLOR="green"
-    AFTER_PORT=8081
+  NEW="blue";  PORT_NEW=8081
+  OLD="green"; PORT_OLD=8082
+  docker compose up -d spring-blue
 fi
 
-echo "[INFO] ${AFTER_COLOR} 서버 기동 완료, 헬스체크 중..."
-for cnt in {1..10}; do
-    UP=$(curl -s http://localhost:${AFTER_PORT}/actuator/health | grep UP)
-    if [ -z "$UP" ]; then
-        echo "[INFO] 응답 없음 (${cnt}/10), 재시도..."
-        sleep 5
-    else
-        echo "[INFO] 서버 응답 확인됨."
-        break
-    fi
+### 1) 새 컨테이너 헬스체크
+for i in {1..10}; do                   # 최대 10×5s = 50초 기다림
+  curl -fs http://localhost:${PORT_NEW}/actuator/health | grep -q UP && break
+  echo "  …${i}/10"                    # 아직 안 뜨면 진행상황 로그
+  sleep 5
 done
+[ $i -eq 10 ] && { echo "Health FAIL"; ROLLBACK=1; }   # 10회 모두 실패 → 롤백 플래그
 
-if [ $cnt -eq 10 ]; then
-    echo "[ERROR] 서버 실행 실패. 롤백을 시작합니다..."
+### 2) Nginx EC2 원격으로 upstream 전환 (또는 롤백)
+SSH="ssh -i ~/.ssh/hilingual_actions -o StrictHostKeyChecking=no ubuntu@${NGINX_HOST}"
 
-    echo "[INFO] 실패한 ${AFTER_COLOR} 컨테이너는 중지하지 않고 유지합니다."
-    echo "[INFO] 이전(${BEFORE_COLOR}) 서버로 롤백합니다..."
-    docker compose up -d spring-${BEFORE_COLOR}
-
-    # ✅ nginx만 이전 TARGET_UPSTREAM 값으로 재기동
-    echo "[INFO] Nginx 롤백 환경변수 주입 중..."
-    TARGET_UPSTREAM="hilingual-${BEFORE_COLOR}:${BEFORE_PORT}" docker compose up -d --no-deps --force-recreate nginx
-
-    echo "[INFO] 롤백 완료. 이전 서버(${BEFORE_COLOR})로 복구됨."
-    exit 1
+if [ -z "$ROLLBACK" ]; then
+  echo "[NGINX] switch → ${NEW}"
+  # TARGET_UPSTREAM 변수만 바꿔서 Nginx 컨테이너 1초 재기동 (무중단)
+  $SSH "TARGET_UPSTREAM=${APP_HOST}:${PORT_NEW} \
+        docker compose -f ~/nginx/docker-compose.yml \
+        up -d --no-deps --force-recreate nginx"
+  docker compose stop spring-${OLD}    # 이전 버전 자원 반환
+else
+  echo "[NGINX] rollback → ${OLD}"
+  $SSH "TARGET_UPSTREAM=${APP_HOST}:${PORT_OLD} \
+        docker compose -f ~/nginx/docker-compose.yml \
+        up -d --no-deps --force-recreate nginx"
+  exit 1                               # GitHub Actions Job 을 실패로 마킹
 fi
-
-echo "[INFO] Nginx 대상 변경: ${AFTER_COLOR}"
-
-# ✅ nginx만 재기동 (ENV 직접 주입)
-TARGET_UPSTREAM="hilingual-${AFTER_COLOR}:${AFTER_PORT}" docker compose up -d --no-deps --force-recreate nginx
-
-echo "[INFO] 이전 서버 종료: $BEFORE_COLOR"
-docker compose stop spring-${BEFORE_COLOR}

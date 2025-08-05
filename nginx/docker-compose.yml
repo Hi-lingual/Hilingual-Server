@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  nginx:
+    image: nginx:latest                # 표준 Nginx 이미지 사용
+    container_name: hilingual-nginx
+    ports: ["80:80"]                   # 퍼블릭 80 포트를 열어 앱에 proxy 설정
+    volumes:
+      # 템플릿 conf → 컨테이너 내부 경로
+      - ./nginx.template.conf:/etc/nginx/nginx.template.conf
+      # 첫 기동 시 설정 치환 & Nginx 실행 스크립트
+      - ./start-nginx.sh:/docker-entrypoint.d/start-nginx.sh
+    environment:
+      - TARGET_UPSTREAM=${TARGET_UPSTREAM}  # upstream할 타겟 IP와 PORT
