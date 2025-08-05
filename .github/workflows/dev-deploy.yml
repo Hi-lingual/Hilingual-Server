@@ -53,6 +53,7 @@ jobs:
           script_stop:   true                       # 서버 오류 시 Job Fail
           script: |
             set -e
+            mkdir -p /home/ubuntu/artifacts
             cd ~/project
             if [ ! -d .git ]; then
               git init

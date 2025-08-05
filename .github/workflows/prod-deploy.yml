@@ -57,6 +57,7 @@ jobs:
           script_stop:    true
           script: |
             set -e
+            mkdir -p /home/ubuntu/artifacts
             cd ~/project
             if [ ! -d .git ]; then
               git init
