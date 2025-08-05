@@ -37,6 +37,8 @@ jobs:
           key:         ${{ secrets.SSH_KEY }}
           source:      "build/libs/*.jar"
           target:      "/home/ubuntu/artifacts/"
+          strip_components: 2
+
 
       - name: 🔐 Deploy via Bastion    # ⑥ Bastion 경유 SSH 배포
         uses: appleboy/ssh-action@v1.0.3
