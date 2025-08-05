@@ -31,7 +31,7 @@ jobs:
         if: always()
         with:
           files: build/test-results/**/*.xml
-          # comment_mode: off   # 코멘트 불필요하면 주석 해제
+          comment_mode: off
 
       - name: Gradle Build (skip tests)
         if: ${{ success() }}
