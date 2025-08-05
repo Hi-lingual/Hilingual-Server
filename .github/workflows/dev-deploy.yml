@@ -26,21 +26,30 @@ jobs:
         run: |
           chmod +x ./gradlew && ./gradlew clean build -x test
 
+      - name: 📦 Copy JAR to Bastion
+        uses: appleboy/scp-action@v0.1.6
+        with:
+          host:        ${{ env.APP_HOST }}
+          proxy_host:  ${{ secrets.BASTION_IP }}
+          proxy_username: ubuntu
+          proxy_key: ${{ secrets.SSH_KEY }}
+          username:    ubuntu
+          key:         ${{ secrets.SSH_KEY }}
+          source:      "build/libs/*.jar"
+          target:      "~/project/build/libs/"
+
       - name: 🔐 Deploy via Bastion    # ⑥ Bastion 경유 SSH 배포
         uses: appleboy/ssh-action@v1.0.3
         env:
-          APP_HOST: ${{ env.APP_HOST }}        # deploy.sh 에 전달될 변수
+          APP_HOST:   ${{ env.APP_HOST }}        # deploy.sh 에 전달될 변수
           NGINX_HOST: ${{ env.NGINX_HOST }}
         with:
-          host:          ${{ secrets.BASTION_IP }}  # Bastion EIP
+          host:          ${{ env.APP_HOST }}  #  dev App EC2
           username:      ubuntu
           key:           ${{ secrets.SSH_KEY }}     # Repo Secret
           proxy_host:    ${{ secrets.BASTION_IP }}  # (Jump Host = 동일)
           proxy_username: ubuntu
           proxy_key:     ${{ secrets.SSH_KEY }}
-          scp:           true
-          source:        "build/libs/*.jar"
-          target:        "~/project/build/libs/"
           script_stop:   true                       # 서버 오류 시 Job Fail
           script: |
             set -e
@@ -50,7 +59,6 @@ jobs:
             fi
             git fetch --all
             git reset --hard ${{ github.sha }}
-            cp build/libs/*.jar ./build/libs/
             chmod +x deploy.sh
             ./deploy.sh
 
@@ -62,8 +70,3 @@ jobs:
           title:        "${{ github.workflow }} – ${{ job.status }}"
           description:  "**Ref**: ${{ github.ref_name }}\n**SHA**: ${{ github.sha }}"
           color:        ${{ job.status == 'success' && '0x57F287' || '0xED4245' }}
-            
-            
-            
-
-
