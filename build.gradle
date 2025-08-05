@@ -74,6 +74,10 @@ dependencies {
 
     // Open Feign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0'
+
+    // Postgresql
+    implementation("org.postgresql:postgresql:42.7.3")
+
 }
 
 test {
