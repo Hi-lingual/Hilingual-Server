@@ -28,7 +28,7 @@ jobs:
 
       - name: Publish Unit-Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+        if: ${{ always() && hashFiles('build/test-results/test/**/*.xml') != '' }}
         with:
           files: build/test-results/**/*.xml
           comment_mode: off
