@@ -35,7 +35,6 @@ jobs:
           host:          ${{ secrets.BASTION_IP }}  # Bastion EIP
           username:      ubuntu
           key:           ${{ secrets.SSH_KEY }}     # Repo Secret
-          passphrase:     ${{ secrets.SSH_PASSPHRASE }}
           proxy_host:    ${{ secrets.BASTION_IP }}  # (Jump Host = 동일)
           proxy_username: ubuntu
           proxy_key:     ${{ secrets.SSH_KEY }}
