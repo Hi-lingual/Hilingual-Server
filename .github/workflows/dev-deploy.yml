@@ -36,7 +36,7 @@ jobs:
           username:    ubuntu
           key:         ${{ secrets.SSH_KEY }}
           source:      "build/libs/*.jar"
-          target:      "/home/ubuntu/project/build/libs/"
+          target:      "/home/ubuntu/artifacts/"
 
       - name: 🔐 Deploy via Bastion    # ⑥ Bastion 경유 SSH 배포
         uses: appleboy/ssh-action@v1.0.3
@@ -60,6 +60,10 @@ jobs:
             fi
             git fetch --depth 1 origin
             git reset --hard ${{ github.sha }}
+            
+            mkdir -p build/libs
+            mv /home/ubuntu/artifacts/*.jar build/libs/
+            
             chmod +x deploy.sh
             ./deploy.sh
 
