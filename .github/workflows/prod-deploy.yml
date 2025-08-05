@@ -33,7 +33,10 @@ jobs:
       - name: 📦 Copy JAR to Bastion   # 러너 → Bastion 전송
         uses: appleboy/scp-action@v0.1.6
         with:
-          host:     ${{ secrets.BASTION_IP }}
+          host:     ${{ env.APP_HOST }} # ← prod App EC2
+          proxy_host:  ${{ secrets.BASTION_IP }} # ← Bastion
+          proxy_username: ubuntu
+          proxy_key: ${{ secrets.SSH_KEY }}
           username: ubuntu
           key:      ${{ secrets.SSH_KEY }}
           source:   "build/libs/*.jar"
@@ -45,7 +48,7 @@ jobs:
           APP_HOST:   ${{ env.APP_HOST }}
           NGINX_HOST: ${{ env.NGINX_HOST }}
         with:
-          host:           ${{ secrets.BASTION_IP }}
+          host:           ${{ env.APP_HOST }}    # ← prod App EC2
           username:       ubuntu
           key:            ${{ secrets.SSH_KEY }}
           proxy_host:     ${{ secrets.BASTION_IP }}
@@ -60,7 +63,6 @@ jobs:
             fi
             git fetch --all
             git reset --hard ${{ github.sha }}
-            cp build/libs/*.jar ./build/libs/
             chmod +x deploy.sh
             ./deploy.sh
 
