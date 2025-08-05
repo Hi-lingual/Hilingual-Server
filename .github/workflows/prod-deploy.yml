@@ -30,7 +30,7 @@ jobs:
           chmod +x ./gradlew
           ./gradlew clean build -x test
 
-      - name: 📦 Copy JAR to Bastion   # 러너 → Bastion 전송
+      - name: 📦 Copy JAR to Target   # 러너 → Target 전송
         uses: appleboy/scp-action@v0.1.6
         with:
           host:     ${{ env.APP_HOST }} # ← prod App EC2
@@ -40,7 +40,7 @@ jobs:
           username: ubuntu
           key:      ${{ secrets.SSH_KEY }}
           source:   "build/libs/*.jar"
-          target:   "~/project/build/libs/"
+          target:   "/home/ubuntu/project/build/libs/"
 
       - name: 🔐 Deploy via Bastion    # deploy.sh 실행
         uses: appleboy/ssh-action@v1.0.3
@@ -64,10 +64,6 @@ jobs:
             fi
             git fetch --depth 1 origin
             git reset --hard ${{ github.sha }}
-            
-            mkdir -p build/libs
-            cp ~/project/build/libs/*.jar ./build/libs/
-            
             chmod +x deploy.sh
             ./deploy.sh
 
