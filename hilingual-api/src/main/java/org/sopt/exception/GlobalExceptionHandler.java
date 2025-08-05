@@ -1,0 +1,196 @@
+package org.sopt.exception;
+
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
+import org.sopt.aws.s3.exception.S3BaseException;
+import org.sopt.diary.exception.DiaryBaseException;
+import org.sopt.recommend.exception.RecommendBaseException;
+import org.sopt.user.exception.UserBaseException;
+import org.sopt.usercalendar.exception.UserCalendarBaseException;
+import org.sopt.recommend.exception.VocaBaseException;
+import org.sopt.dto.BaseResponseDto;
+import org.sopt.exception.code.ErrorCode;
+import org.sopt.exception.code.GlobalErrorCode;
+import org.sopt.jwt.exception.JwtBaseException;
+import org.sopt.openai.exception.OpenAIBaseException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(UserBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleUserBaseException(UserBaseException e) {
+        log.error("[UserBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(RecommendBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleRecommendBaseException(RecommendBaseException e) {
+        log.error("[RecommendBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
+        log.error("MissingRequestHeaderException occurred: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
+    }
+
+    @ExceptionHandler(AuthBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleAuthBaseException(AuthBaseException e) {
+        log.error("[AuthApiBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(JwtBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleJwtBaseException(JwtBaseException e) {
+        log.error("[JwtBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(DiaryBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleDiaryBaseException(DiaryBaseException e) {
+        log.error("[DiaryBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(S3BaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleS3BaseException(S3BaseException e) {
+        log.error("[S3BaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleConstraintViolation(ConstraintViolationException e) {
+        log.warn("[ConstraintViolationException] {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
+    }
+
+    //  JSON 요청 바디가 비어있거나, 잘못된 형식일 때
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        log.error("[HttpMessageNotReadableException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
+    }
+
+    // 지원하지 않는 Content-Type으로 요청할 때
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException e) {
+        log.error("[HttpMediaTypeNotSupportedException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
+    }
+
+    @ExceptionHandler(OpenAIBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleOpenAiBaseException(OpenAIBaseException e) {
+        log.error("[OpenAiBaseException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(UserCalendarBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleUserCalendarBaseException(UserCalendarBaseException e) {
+        log.error("[UserCalendarBaseException] message: {}", e.getMessage(), e);
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(VocaBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleVocaBaseException(VocaBaseException e) {
+        log.error("[VocaBaseException] message: {}", e.getMessage(), e);
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(BaseResponseDto.fail(e.getErrorCode()));
+    }
+
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<BaseResponseDto<Map<String, String>>> handleValidationException(MethodArgumentNotValidException e) {
+        log.error("[ValidationException] message: {}", e.getMessage(), e);
+
+        Map<String, String> errors = new HashMap<>();
+        e.getBindingResult().getFieldErrors().forEach(err ->
+                errors.put(err.getField(), err.getDefaultMessage())
+        );
+
+        return ResponseEntity
+                .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
+    }
+
+    @ExceptionHandler(value = {NoHandlerFoundException.class, HttpRequestMethodNotSupportedException.class})
+    public ResponseEntity<BaseResponseDto<Void>> handleNoPageFoundException(Exception e) {
+        log.error("[NoHandlerFoundException] message: {}", e.getMessage(), e);
+
+        ErrorCode errorCode = e instanceof HttpRequestMethodNotSupportedException
+                ? GlobalErrorCode.METHOD_NOT_ALLOWED
+                : GlobalErrorCode.NOT_FOUND_END_POINT;
+
+        return ResponseEntity
+                .status(errorCode.getHttpStatus())
+                .body(BaseResponseDto.fail(errorCode));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleMissingParam(MissingServletRequestParameterException e) {
+        return ResponseEntity
+                .status(GlobalErrorCode.NOT_FOUND_END_POINT.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.NOT_FOUND_END_POINT));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleException(Exception e) {
+        log.error("[UnhandledException] message: {}", e.getMessage(), e);
+
+        return ResponseEntity
+                .status(GlobalErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
+                .body(BaseResponseDto.fail(GlobalErrorCode.INTERNAL_SERVER_ERROR));
+    }
+
+}
