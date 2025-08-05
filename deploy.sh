@@ -1,39 +1,63 @@
 #!/bin/bash
-set -e                                 # 명령 오류 시 즉시 스크립트 종료하도록 설정
+set -e                                  # 명령 실패 시 즉시 종료
 
-### 0) 현재 떠 있는 색깔 판별, app-blue 컨테이너가 up이면 다음 배포색은 green
-if docker ps | grep -q hilingual-blue.*Up ; then
-  NEW="green"; PORT_NEW=8082           # 이번에 올릴 색/포트
-  OLD="blue";  PORT_OLD=8081           # 이전 버전 색/포트
-  docker-compose up -d spring-green    # green 컨테이너만 백그라운드 기동
+######## 0) 지금 어떤 색 컨테이너가 떠 있는지 확인 ############
+#  └─ 둘 다 없으면 “첫 배포” 라고 간주
+if  docker ps --format '{{.Names}}' | grep -q hilingual-blue ; then
+  CURRENT="blue"
+elif docker ps --format '{{.Names}}' | grep -q hilingual-green ; then
+  CURRENT="green"
 else
-  NEW="blue";  PORT_NEW=8081
-  OLD="green"; PORT_OLD=8082
-  docker-compose up -d spring-blue
+  CURRENT=""                            # ← 첫 배포
 fi
 
-### 1) 새 컨테이너 헬스체크
-for i in {1..10}; do                   # 최대 10×5s = 50초 기다림
-  curl -fs http://localhost:${PORT_NEW}/actuator/health | grep -q UP && break
-  echo "  …${i}/10"                    # 아직 안 뜨면 진행상황 로그
+# 이번에 띄울 색·포트 결정
+if [ "$CURRENT" = "blue" ]; then
+  NEW="green"; PORT_NEW=8082
+  OLD="blue" ; PORT_OLD=8081
+else                                    # green 이거나 첫 배포
+  NEW="blue" ; PORT_NEW=8081
+  OLD="green"; PORT_OLD=8082
+fi
+
+######## 1) 새 컨테이너 기동 ##################################
+docker-compose up -d spring-${NEW}
+
+######## 2) 헬스체크 (최대 100 초) ###############################
+for i in {1..20}; do
+  curl -fs http://localhost:${PORT_NEW}/actuator/health 2>/dev/null | grep -q '"status":"UP"' && break
+  echo "  …${i}/20"
   sleep 5
 done
-[ $i -eq 10 ] && { echo "Health FAIL"; ROLLBACK=1; }   # 10회 모두 실패 → 롤백 플래그
+[ $i -eq 20 ] && { echo "Health FAIL"; ROLLBACK=1; }
 
-### 2) Nginx EC2 원격으로 upstream 전환 (또는 롤백)
-SSH="ssh -i ~/.ssh/hilingual_actions -o StrictHostKeyChecking=no ubuntu@${NGINX_HOST}"
+######## 3) Nginx EC2 upstream 전환(또는 롤백) #################
+# 첫 배포 + ssh 키 미배치 상황을 고려해 “없으면 건너뜀”
+SSH_KEY=~/.ssh/hilingual_actions
+SSH_HOST="ubuntu@${NGINX_HOST}"
+SSH="ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_HOST}"
+
+switch_upstream () {
+  local TARGET=$1                      # ${APP_HOST}:${PORT}
+  if [ -f "${SSH_KEY}" ] ; then        # 키가 있을 때만 실행
+    $SSH "TARGET_UPSTREAM=${TARGET} \
+          docker-compose -f ~/nginx/docker-compose.yml \
+          up -d --no-deps --force-recreate nginx"
+  else
+    echo "⚠️  ${SSH_KEY} 가 없어 Nginx 스위치를 건너뜁니다."
+  fi
+}
 
 if [ -z "$ROLLBACK" ]; then
   echo "[NGINX] switch → ${NEW}"
-  # TARGET_UPSTREAM 변수만 바꿔서 Nginx 컨테이너 1초 재기동 (무중단)
-  $SSH "TARGET_UPSTREAM=${APP_HOST}:${PORT_NEW} \
-        docker-compose -f ~/nginx/docker-compose.yml \
-        up -d --no-deps --force-recreate nginx"
-  docker-compose stop spring-${OLD}    # 이전 버전 자원 반환
+  switch_upstream "${APP_HOST}:${PORT_NEW}"
+
+  # 첫 배포가 아니면 이전 색 컨테이너 종료
+  if [ -n "$CURRENT" ] ; then
+    docker-compose stop spring-${OLD}
+  fi
 else
   echo "[NGINX] rollback → ${OLD}"
-  $SSH "TARGET_UPSTREAM=${APP_HOST}:${PORT_OLD} \
-        docker-compose -f ~/nginx/docker-compose.yml \
-        up -d --no-deps --force-recreate nginx"
-  exit 1                               # GitHub Actions Job 을 실패로 마킹
+  switch_upstream "${APP_HOST}:${PORT_OLD}"
+  exit 1                                 # GitHub Actions job 을 실패로 종료
 fi
