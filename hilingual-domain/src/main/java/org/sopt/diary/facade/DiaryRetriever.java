@@ -2,7 +2,7 @@ package org.sopt.diary.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.diary.domain.Diary;
-import org.sopt.diary.exception.AlreadyWrittenDiaryException;
+import org.sopt.diary.exception.DiaryAlreadyWrittenException;
 import org.sopt.diary.exception.DiaryCoreErrorCode;
 import org.sopt.diary.exception.DiaryNotFoundException;
 import org.sopt.diary.repository.DiaryRepository;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +21,7 @@ public class DiaryRetriever {
 
     public void validateDiaryNotExists(User user, LocalDate writtenDate) {
         if (diaryRepository.existsByUserAndWrittenDate(user, writtenDate)) {
-            throw new AlreadyWrittenDiaryException(DiaryCoreErrorCode.ALREADY_WRITTEN_DIARY);
+            throw new DiaryAlreadyWrittenException(DiaryCoreErrorCode.ALREADY_WRITTEN_DIARY);
         }
     }
 

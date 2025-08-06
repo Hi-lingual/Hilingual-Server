@@ -3,7 +3,7 @@ package org.sopt.exception;
 import org.sopt.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public class GoogleAuthUnAuthorizedException extends AuthBaseException {
+public class GoogleAuthUnAuthorizedException extends AuthApiException {
     public GoogleAuthUnAuthorizedException(ErrorCode errorCode) { super(errorCode); }
 
     @Override

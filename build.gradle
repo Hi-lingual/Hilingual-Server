@@ -64,4 +64,4 @@ subprojects {
 }
 
 bootJar { enabled = false }
-jar { enabled = true }
+jar { enabled = true } // class 만 묶어서 빌드
