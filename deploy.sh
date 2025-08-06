@@ -1,52 +1,64 @@
 #!/bin/bash
+set -e                                  # 명령 실패 시 즉시 종료
 
-EXIST_BLUE=$(docker ps | grep "hilingual-blue" | grep Up)
-
-if [ -z "$EXIST_BLUE" ]; then
-    docker compose up -d spring-blue
-    BEFORE_COLOR="green"
-    BEFORE_PORT=8081
-    AFTER_COLOR="blue"
-    AFTER_PORT=8080
+## 테스트용 주석 변경!!! ##
+######## 0) 지금 어떤 색 컨테이너가 떠 있는지 확인 ############
+#  └─ 둘 다 없으면 “첫 배포” 라고 간주
+if  docker ps --format '{{.Names}}' | grep -q hilingual-blue ; then
+  CURRENT="blue"
+elif docker ps --format '{{.Names}}' | grep -q hilingual-green ; then
+  CURRENT="green"
 else
-    docker compose up -d spring-green
-    BEFORE_COLOR="blue"
-    BEFORE_PORT=8080
-    AFTER_COLOR="green"
-    AFTER_PORT=8081
+  CURRENT=""                            # ← 첫 배포
 fi
 
-echo "[INFO] ${AFTER_COLOR} 서버 기동 완료, 헬스체크 중..."
-for cnt in {1..10}; do
-    UP=$(curl -s http://localhost:${AFTER_PORT}/actuator/health | grep UP)
-    if [ -z "$UP" ]; then
-        echo "[INFO] 응답 없음 (${cnt}/10), 재시도..."
-        sleep 5
-    else
-        echo "[INFO] 서버 응답 확인됨."
-        break
-    fi
+# 이번에 띄울 색·포트 결정
+if [ "$CURRENT" = "blue" ]; then
+  NEW="green"; PORT_NEW=8082
+  OLD="blue" ; PORT_OLD=8081
+else                                    # green 이거나 첫 배포
+  NEW="blue" ; PORT_NEW=8081
+  OLD="green"; PORT_OLD=8082
+fi
+
+######## 1) 새 컨테이너 기동 ##################################
+docker compose up -d spring-${NEW}
+
+######## 2) 헬스체크 (최대 100 초) ###############################
+for i in {1..20}; do
+  curl -fs http://localhost:${PORT_NEW}/actuator/health 2>/dev/null | grep -q '"status":"UP"' && break
+  echo "  …${i}/20"
+  sleep 5
 done
+[ $i -eq 20 ] && { echo "Health FAIL"; ROLLBACK=1; }
 
-if [ $cnt -eq 10 ]; then
-    echo "[ERROR] 서버 실행 실패. 롤백을 시작합니다..."
+######## 3) Nginx EC2 upstream 전환(또는 롤백) #################
+# 첫 배포 + ssh 키 미배치 상황을 고려해 “없으면 건너뜀”
+SSH_KEY=~/.ssh/hilingual_actions
+SSH_HOST="ubuntu@${NGINX_HOST}"
+SSH="ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_HOST}"
 
-    echo "[INFO] 실패한 ${AFTER_COLOR} 컨테이너는 중지하지 않고 유지합니다."
-    echo "[INFO] 이전(${BEFORE_COLOR}) 서버로 롤백합니다..."
-    docker compose up -d spring-${BEFORE_COLOR}
+switch_upstream () {
+  local TARGET=$1                      # ${APP_HOST}:${PORT}
+  if [ -f "${SSH_KEY}" ] ; then        # 키가 있을 때만 실행
+    $SSH "TARGET_UPSTREAM=${TARGET} \
+          docker compose -f ~/nginx/docker-compose.yml \
+          up -d --no-deps --force-recreate nginx"
+  else
+    echo "⚠️  ${SSH_KEY} 가 없어 Nginx 스위치를 건너뜁니다."
+  fi
+}
 
-    # ✅ nginx만 이전 TARGET_UPSTREAM 값으로 재기동
-    echo "[INFO] Nginx 롤백 환경변수 주입 중..."
-    TARGET_UPSTREAM="hilingual-${BEFORE_COLOR}:${BEFORE_PORT}" docker compose up -d --no-deps --force-recreate nginx
+if [ -z "$ROLLBACK" ]; then
+  echo "[NGINX] switch → ${NEW}"
+  switch_upstream "${APP_HOST}:${PORT_NEW}"
 
-    echo "[INFO] 롤백 완료. 이전 서버(${BEFORE_COLOR})로 복구됨."
-    exit 1
+  # 첫 배포가 아니면 이전 색 컨테이너 종료
+  if [ -n "$CURRENT" ] ; then
+    docker compose stop spring-${OLD}
+  fi
+else
+  echo "[NGINX] rollback → ${OLD}"
+  switch_upstream "${APP_HOST}:${PORT_OLD}"
+  exit 1                                 # GitHub Actions job 을 실패로 종료
 fi
-
-echo "[INFO] Nginx 대상 변경: ${AFTER_COLOR}"
-
-# ✅ nginx만 재기동 (ENV 직접 주입)
-TARGET_UPSTREAM="hilingual-${AFTER_COLOR}:${AFTER_PORT}" docker compose up -d --no-deps --force-recreate nginx
-
-echo "[INFO] 이전 서버 종료: $BEFORE_COLOR"
-docker compose stop spring-${BEFORE_COLOR}

@@ -1,57 +1,33 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  spring-blue:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: hilingual-blue
-    ports:
-      - "8080:8080"
+  spring-blue:                     # 🔵 기존 컨테이너(또는 새 컨테이너) 후보
+    build: .                       # 현재 디렉토리의 Dockerfile 로 이미지 생성하겠음
+    container_name: hilingual-blue # 컨테이너 이름
+    ports: ["8081:8080"]           # (호스트 8081) → (컨테이너 8080)
+    environment:                   # 런타임 변수
+      SPRING_PROFILES_ACTIVE: blue # @Profile("blue")
+      TZ: Asia/Seoul               # timezone 통일
     env_file:
       - .env
-    environment:
-      - SPRING_PROFILES_ACTIVE=blue
-      - TZ=Asia/Seoul
-      - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-    networks:
-      - hilingual-network
+    networks: [app-net]            # bridge 네트워크 설정
 
-  spring-green:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  spring-green:                    # 🟢 새 버전을 띄울 때 사용하는 쌍둥이 서비스
+    build: .                       # 컨테이너 이름
     container_name: hilingual-green
-    ports:
-      - "8081:8080"
+    ports: ["8082:8080"]           # (호스트 8082) → (컨테이너 8080)
+    environment:
+      SPRING_PROFILES_ACTIVE: green
+      TZ: Asia/Seoul
     env_file:
       - .env
-    environment:
-      - SPRING_PROFILES_ACTIVE=green
-      - TZ=Asia/Seoul
-      - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-    networks:
-      - hilingual-network
+    networks: [app-net]
 
-  nginx:
-    image: nginx:latest
-    container_name: hilingual-nginx
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.template.conf:/etc/nginx/nginx.template.conf
-      - ./nginx/start-nginx.sh:/docker-entrypoint.d/start-nginx.sh
-    environment:
-      - TARGET_UPSTREAM=${TARGET_UPSTREAM}
-    networks:
-      - hilingual-network
+  redis:
+    image: redis:7-alpine
+    container_name: hilingual-redis
+    restart: unless-stopped
+    networks: [ app-net ]
 
 networks:
-  hilingual-network:
-    driver: bridge
+  app-net: {}                      # 별도 설정 없이 기본 bridge 네트워크 생성

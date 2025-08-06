@@ -1,0 +1,83 @@
+name: PROD Deploy
+
+on:                                    # 운영 브랜치 push
+  push:
+    branches: [prod]
+
+env:
+  APP_HOST: 10.0.2.63                  # 운영 App EC2
+  NGINX_HOST: 10.0.1.18
+  TZ: Asia/Seoul
+
+concurrency:                           # 같은 브랜치 두 번 배포 중복 금지
+  group: prod-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production            # GitHub “production” Environment
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      - name: Build JAR                # 러너에서 JAR 생성
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build -x test
+
+      - name: 📦 Copy JAR to Target   # 러너 → Target 전송
+        uses: appleboy/scp-action@v0.1.6
+        with:
+          host:     ${{ env.APP_HOST }} # ← prod App EC2
+          proxy_host:  ${{ secrets.BASTION_IP }} # ← Bastion
+          proxy_username: ubuntu
+          proxy_key: ${{ secrets.SSH_KEY }}
+          username: ubuntu
+          key:      ${{ secrets.SSH_KEY }}
+          source:   "build/libs/*.jar"
+          target:      "/home/ubuntu/artifacts/"
+          strip_components: 2
+
+      - name: 🔐 Deploy via Bastion    # deploy.sh 실행
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          APP_HOST:   ${{ env.APP_HOST }}
+          NGINX_HOST: ${{ env.NGINX_HOST }}
+        with:
+          host:           ${{ env.APP_HOST }}    # prod App EC2
+          username:       ubuntu
+          key:            ${{ secrets.SSH_KEY }}
+          proxy_host:     ${{ secrets.BASTION_IP }}
+          proxy_username: ubuntu
+          proxy_key:      ${{ secrets.SSH_KEY }}
+          script_stop:    true
+          script: |
+            set -e
+            mkdir -p /home/ubuntu/artifacts
+            cd ~/project
+            if [ ! -d .git ]; then
+              git init
+              git remote add origin https://github.com/${{ github.repository }}
+            fi
+            git fetch --depth 1 origin
+            git reset --hard ${{ github.sha }}
+            
+            mkdir -p build/libs
+            mv /home/ubuntu/artifacts/*.jar build/libs/
+            
+            chmod +x deploy.sh
+            ./deploy.sh
+
+      - name: 📢 Discord notify
+        if: always()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook:      ${{ secrets.DISCORD_WEBHOOK }}
+          title:        "${{ github.workflow }} – ${{ job.status }}"
+          description:  "**Ref**: ${{ github.ref_name }}\n**SHA**: ${{ github.sha }}"
+          color:        ${{ job.status == 'success' && '0x57F287' || '0xED4245' }}
