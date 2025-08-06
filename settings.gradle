@@ -1,8 +1,18 @@
 pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+
     plugins {
-        id 'org.jetbrains.kotlin.jvm' version '1.9.23'
+        id "com.autonomousapps.dependency-analysis" version "1.29.0"
     }
 }
 
-rootProject.name = 'HILINGUAL-SERVER'
+rootProject.name = 'hilingual-server'
 
+include 'hilingual-api'
+include 'hilingual-domain'
+include 'hilingual-common'
+include 'hilingual-auth'
+include 'hilingual-external'
