@@ -6,6 +6,7 @@ import org.sopt.jwt.auth.filter.CustomJwtAuthenticationEntryPoint;
 import org.sopt.jwt.auth.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -36,7 +37,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(customJwtAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/prometheus").denyAll()
+                        .requestMatchers(HttpMethod.GET, "/actuator/prometheus").permitAll()
                         .requestMatchers(SecurityConstants.AUTH_WHITE_LIST).permitAll()
                         .anyRequest().authenticated()
                 )
