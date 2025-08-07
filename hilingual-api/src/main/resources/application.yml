@@ -78,10 +78,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health, info, prometheus
   endpoint:
     health:
       show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name:hilingual}
+
 
 aws-property:
   access-key: ${AWS_ACCESS_KEY}
