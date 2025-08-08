@@ -47,7 +47,7 @@ switch_upstream () {
   if [ -f "${SSH_KEY}" ]; then
     $SSH bash -lc "
       set -e
-      C='sudo --preserve-env=TARGET_UPSTREAM docker compose -p hilingual -f ~/nginx/docker-compose.yml'
+      C='sudo --preserve-env=TARGET_UPSTREAM docker compose -p hilingual -f /home/ubuntu/nginx/docker-compose.yml'
       # Nginx 컨테이너 보장
       \$C up -d --remove-orphans nginx
 
