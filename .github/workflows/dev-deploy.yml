@@ -100,7 +100,7 @@ jobs:
           proxy_host:    ${{ secrets.BASTION_IP }}  # (Jump Host = 동일)
           proxy_username: ubuntu
           proxy_key:     ${{ secrets.SSH_KEY }}
-          script_stop:   true                       # 서버 오류 시 Job Fail
+          script_stop:   true                       # 서버 오류 시 Job Fail.
           script: |
             set -e
             mkdir -p /home/ubuntu/artifacts
