@@ -58,7 +58,7 @@ jobs:
             mkdir -p ~/nginx
             chmod +x ~/nginx/start-nginx.sh
             cd ~/nginx
-            TARGET_UPSTREAM=${{ env.APP_HOST }}:8081 docker compose up -d --force-recreate nginx
+            TARGET_UPSTREAM=${{ env.APP_HOST }}:8081 docker-compose up -d --force-recreate nginx
 
       - name: 📦 Copy JAR to Target   # 러너 → Target 전송
         uses: appleboy/scp-action@v0.1.6
