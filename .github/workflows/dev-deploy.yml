@@ -132,6 +132,9 @@ jobs:
             ${{ secrets.SSH_KEY }}
             EOF
             
+            # 🔧 잡음 제거 (Drone 등에서 섞여든 행, BOM 등)
+            LC_ALL=C sed -i -e '1s/^\xEF\xBB\xBF//' -e '/^DRONE_/d' ~/.ssh/hilingual_actions
+            
             # 🔒 BEGIN~END 블록만 남기고 나머지 잡음 제거 (재발 방지 핵심)
             awk 'f||/-----BEGIN .* PRIVATE KEY-----/{f=1;print} /-----END .* PRIVATE KEY-----/{exit}' \
               ~/.ssh/hilingual_actions > ~/.ssh/hilingual_actions.clean && mv ~/.ssh/hilingual_actions.clean ~/.ssh/hilingual_actions
