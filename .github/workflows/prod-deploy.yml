@@ -58,7 +58,19 @@ jobs:
             mkdir -p ~/nginx
             chmod +x ~/nginx/start-nginx.sh
             cd ~/nginx
-            TARGET_UPSTREAM=${{ env.APP_HOST }}:8081 docker-compose up -d --force-recreate nginx
+
+            # v1 compose + env 치환
+              export TARGET_UPSTREAM="${{ env.APP_HOST }}:8081"
+
+            # 이미 nginx 컨테이너가 떠 있으면 재시작 말고 reload만
+            cid=$(docker-compose ps -q nginx || true)
+            if [ -n "$cid" ] && docker ps -q --no-trunc | grep -q "$cid"; then
+              # (옵션) 템플릿을 쓰면 여기서 최신 conf 생성
+              ./start-nginx.sh || true
+              docker exec "$cid" nginx -s reload
+            else
+              docker-compose up -d --force-recreate nginx
+            fi
 
       - name: 📦 Copy JAR to Target   # 러너 → Target 전송
         uses: appleboy/scp-action@v0.1.6
