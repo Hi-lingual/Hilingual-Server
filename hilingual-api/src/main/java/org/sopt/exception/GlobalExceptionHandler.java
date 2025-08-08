@@ -2,17 +2,10 @@ package org.sopt.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt.aws.s3.exception.S3BaseException;
-import org.sopt.diary.exception.DiaryBaseException;
-import org.sopt.recommend.exception.RecommendBaseException;
-import org.sopt.user.exception.UserBaseException;
-import org.sopt.usercalendar.exception.UserCalendarBaseException;
-import org.sopt.recommend.exception.VocaBaseException;
+import org.sopt.exception.base.HilingualBaseException;
 import org.sopt.dto.BaseResponseDto;
 import org.sopt.exception.code.ErrorCode;
 import org.sopt.exception.code.GlobalErrorCode;
-import org.sopt.jwt.exception.JwtBaseException;
-import org.sopt.openai.exception.OpenAIBaseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -32,18 +25,9 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserBaseException.class)
-    public ResponseEntity<BaseResponseDto<Void>> handleUserBaseException(UserBaseException e) {
-        log.error("[UserBaseException] message: {}", e.getMessage(), e);
-
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(BaseResponseDto.fail(e.getErrorCode()));
-    }
-
-    @ExceptionHandler(RecommendBaseException.class)
-    public ResponseEntity<BaseResponseDto<Void>> handleRecommendBaseException(RecommendBaseException e) {
-        log.error("[RecommendBaseException] message: {}", e.getMessage(), e);
+    @ExceptionHandler(HilingualBaseException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleHilingualBaseException(HilingualBaseException e) {
+        log.error("[HilingualBaseException] message: {}", e.getMessage(), e);
 
         return ResponseEntity
                 .status(e.getStatus())
@@ -57,42 +41,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
                 .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
-    }
-
-    @ExceptionHandler(AuthBaseException.class)
-    public ResponseEntity<BaseResponseDto<Void>> handleAuthBaseException(AuthBaseException e) {
-        log.error("[AuthApiBaseException] message: {}", e.getMessage(), e);
-
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(BaseResponseDto.fail(e.getErrorCode()));
-    }
-
-    @ExceptionHandler(JwtBaseException.class)
-    public ResponseEntity<BaseResponseDto<Void>> handleJwtBaseException(JwtBaseException e) {
-        log.error("[JwtBaseException] message: {}", e.getMessage(), e);
-
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(BaseResponseDto.fail(e.getErrorCode()));
-    }
-
-    @ExceptionHandler(DiaryBaseException.class)
-    public ResponseEntity<BaseResponseDto<Void>> handleDiaryBaseException(DiaryBaseException e) {
-        log.error("[DiaryBaseException] message: {}", e.getMessage(), e);
-
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(BaseResponseDto.fail(e.getErrorCode()));
-    }
-
-    @ExceptionHandler(S3BaseException.class)
-    public ResponseEntity<BaseResponseDto<Void>> handleS3BaseException(S3BaseException e) {
-        log.error("[S3BaseException] message: {}", e.getMessage(), e);
-
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(BaseResponseDto.fail(e.getErrorCode()));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -123,32 +71,6 @@ public class GlobalExceptionHandler {
                 .status(GlobalErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
                 .body(BaseResponseDto.fail(GlobalErrorCode.INVALID_INPUT_VALUE));
     }
-
-    @ExceptionHandler(OpenAIBaseException.class)
-    public ResponseEntity<BaseResponseDto<Void>> handleOpenAiBaseException(OpenAIBaseException e) {
-        log.error("[OpenAiBaseException] message: {}", e.getMessage(), e);
-
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(BaseResponseDto.fail(e.getErrorCode()));
-    }
-
-    @ExceptionHandler(UserCalendarBaseException.class)
-    public ResponseEntity<BaseResponseDto<Void>> handleUserCalendarBaseException(UserCalendarBaseException e) {
-        log.error("[UserCalendarBaseException] message: {}", e.getMessage(), e);
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(BaseResponseDto.fail(e.getErrorCode()));
-    }
-
-    @ExceptionHandler(VocaBaseException.class)
-    public ResponseEntity<BaseResponseDto<Void>> handleVocaBaseException(VocaBaseException e) {
-        log.error("[VocaBaseException] message: {}", e.getMessage(), e);
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(BaseResponseDto.fail(e.getErrorCode()));
-    }
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<BaseResponseDto<Map<String, String>>> handleValidationException(MethodArgumentNotValidException e) {

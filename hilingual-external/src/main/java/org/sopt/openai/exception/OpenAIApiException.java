@@ -1,9 +1,10 @@
 package org.sopt.openai.exception;
 
+import org.sopt.exception.base.HilingualBaseException;
 import org.sopt.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public class OpenAIApiException extends OpenAIBaseException {
+public class OpenAIApiException extends HilingualBaseException {
     protected OpenAIApiException(ErrorCode errorCode) {
         super(errorCode);
     }
