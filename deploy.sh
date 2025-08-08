@@ -25,25 +25,47 @@ fi
 docker compose up -d spring-${NEW}
 
 ######## 2) 헬스체크 (최대 100 초) ###############################
+SUCCESS=0
 for i in {1..20}; do
-  curl -fs http://localhost:${PORT_NEW}/actuator/health 2>/dev/null | grep -q '"status":"UP"' && break
+  if curl -fs "http://localhost:${PORT_NEW}/actuator/health" 2>/dev/null | grep -q '"status":"UP"'; then
+    SUCCESS=1
+    break
+  fi
   echo "  …${i}/20"
   sleep 5
 done
-[ $i -eq 20 ] && { echo "Health FAIL"; ROLLBACK=1; }
+[ "$SUCCESS" -eq 1 ] || { echo "Health FAIL"; ROLLBACK=1; }
 
 ######## 3) Nginx EC2 upstream 전환(또는 롤백) #################
 # 첫 배포 + ssh 키 미배치 상황을 고려해 “없으면 건너뜀”
 SSH_KEY=~/.ssh/hilingual_actions
 SSH_HOST="ubuntu@${NGINX_HOST}"
-SSH="ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_HOST}"
+SSH="ssh -i ${SSH_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=no ${SSH_HOST}"
 
 switch_upstream () {
-  local TARGET=$1                      # ${APP_HOST}:${PORT}
-  if [ -f "${SSH_KEY}" ] ; then        # 키가 있을 때만 실행
-    $SSH "TARGET_UPSTREAM=${TARGET} \
-          docker compose -f ~/nginx/docker-compose.yml \
-          up -d --no-deps --force-recreate nginx"
+  local TARGET="$1"
+  if [ -f "${SSH_KEY}" ]; then
+    $SSH bash -lc "
+      set -e
+      C='sudo --preserve-env=TARGET_UPSTREAM docker compose -p hilingual -f ~/nginx/docker-compose.yml'
+      # Nginx 컨테이너 보장
+      \$C up -d --remove-orphans nginx
+
+      # 컨테이너 CID를 라벨로 안정적으로 조회
+      i=0; cid=''
+      while [ \$i -lt 30 ]; do
+        cid=\$(sudo docker ps -q \
+          -f 'label=com.docker.compose.project=hilingual' \
+          -f 'label=com.docker.compose.service=nginx')
+        [ -n \"\$cid\" ] && break
+        i=\$((i+1)); sleep 1
+      done
+      [ -n \"\$cid\" ] || { echo 'nginx container not found'; exit 1; }
+
+      # 컨테이너 내부에서 envsubst + 검증 + 리로드
+      sudo docker exec -e TARGET_UPSTREAM='${TARGET}' \"\$cid\" \
+        /bin/sh -lc \"envsubst '\\\$TARGET_UPSTREAM' < /etc/nginx/nginx.template.conf > /etc/nginx/conf.d/default.conf && nginx -t && nginx -s reload\"
+    "
   else
     echo "⚠️  ${SSH_KEY} 가 없어 Nginx 스위치를 건너뜁니다."
   fi

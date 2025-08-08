@@ -115,21 +115,37 @@ jobs:
       - name: 🔑 Prepare upstream-switch key on App EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host:           ${{ env.APP_HOST }}
-          username:       ubuntu
-          key:            ${{ secrets.SSH_KEY }}
-          proxy_host:     ${{ secrets.BASTION_IP }}
+          host: ${{ env.APP_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          proxy_host: ${{ secrets.BASTION_IP }}
           proxy_username: ubuntu
-          proxy_key:      ${{ secrets.SSH_KEY }}
-          script_stop:    true
+          proxy_key: ${{ secrets.SSH_KEY }}
+          script_stop: true
           script: |
             set -e
             mkdir -p ~/.ssh
             chmod 700 ~/.ssh
+
+            # 프라이빗 키 저장
             cat > ~/.ssh/hilingual_actions <<'EOF'
             ${{ secrets.SSH_KEY }}
             EOF
+            
+            # 🔒 BEGIN~END 블록만 남기고 나머지 잡음 제거 (재발 방지 핵심)
+            awk 'f||/-----BEGIN .* PRIVATE KEY-----/{f=1;print} /-----END .* PRIVATE KEY-----/{exit}' \
+              ~/.ssh/hilingual_actions > ~/.ssh/hilingual_actions.clean && mv ~/.ssh/hilingual_actions.clean ~/.ssh/hilingual_actions
+
+            # 윈도우 개행 제거 + 권한
+            sed -i 's/\r$//' ~/.ssh/hilingual_actions
             chmod 600 ~/.ssh/hilingual_actions
+
+            # 키 유효성 검사 (깨진 키면 즉시 실패 지점 명확화)
+            ssh-keygen -y -f ~/.ssh/hilingual_actions >/dev/null || { echo "Invalid SSH private key in secrets.SSH_KEY"; exit 1; }
+
+            # bastion에서 Nginx로 넘어갈 때 호스트 키 확인 프롬프트 방지
+            ssh-keyscan -H ${{ env.NGINX_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+      
 
       - name: 🔐 Deploy via Bastion    # ⑥ Bastion 경유 SSH 배포
         uses: appleboy/ssh-action@v1.0.3
