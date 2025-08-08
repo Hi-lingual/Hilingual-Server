@@ -53,19 +53,22 @@ jobs:
             set -e
             cd ~/nginx
             export TARGET_UPSTREAM="${{ env.APP_HOST }}:8081"
-
-            # 컨테이너가 떠 있으면 무중단 reload, 없으면 먼저 up
-            cid=$(docker-compose ps -q nginx || true)
-            if [ -z "$cid" ] || ! docker ps -q --no-trunc | grep -q "$cid"; then
-              # 첫 기동 시 포트 80 충돌 방지
+              
+            C="docker compose"
+              
+            # 컨테이너가 이미 떠 있으면 무중단 reload, 없으면 먼저 up
+            cid=$($C ps -q nginx || true)
+            if [ -n "$cid" ] && docker ps -q --no-trunc | grep -q "$cid"; then
+              docker exec -e TARGET_UPSTREAM="$TARGET_UPSTREAM" "$cid" \
+                /bin/sh -lc "envsubst '\$TARGET_UPSTREAM' < /etc/nginx/nginx.template.conf > /etc/nginx/conf.d/default.conf && nginx -t && nginx -s reload"
+            else
+              # 첫 기동 시 호스트 nginx(apt) 충돌 방지
               sudo systemctl stop nginx 2>/dev/null || true
-              docker-compose up -d --force-recreate --remove-orphans nginx
-              cid=$(docker-compose ps -q nginx)
+              $C up -d --remove-orphans nginx
+              cid=$($C ps -q nginx)
+              docker exec -e TARGET_UPSTREAM="$TARGET_UPSTREAM" "$cid" \
+                /bin/sh -lc "envsubst '\$TARGET_UPSTREAM' < /etc/nginx/nginx.template.conf > /etc/nginx/conf.d/default.conf && nginx -t && nginx -s reload"
             fi
-
-            # 컨테이너 안에서 템플릿 치환 후 검증/리로드
-            docker exec -e TARGET_UPSTREAM="$TARGET_UPSTREAM" "$cid" \
-              /bin/sh -lc "envsubst '\$TARGET_UPSTREAM' < /etc/nginx/nginx.template.conf > /etc/nginx/conf.d/default.conf && nginx -t && nginx -s reload"
       
 
       - name: 📦 Copy JAR to Target
