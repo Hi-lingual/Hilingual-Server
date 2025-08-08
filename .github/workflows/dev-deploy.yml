@@ -26,6 +26,36 @@ jobs:
         run: |
           chmod +x ./gradlew && ./gradlew clean build -x test
 
+      - name: 📦 Copy NGINX bundle to Nginx EC2
+        uses: appleboy/scp-action@v0.1.6
+        with:
+          host:        ${{ env.NGINX_HOST }}
+          proxy_host:  ${{ secrets.BASTION_IP }}
+          proxy_username: ubuntu
+          proxy_key:   ${{ secrets.SSH_KEY }}
+          username:    ubuntu
+          key:         ${{ secrets.SSH_KEY }}
+          source:      "nginx/*"
+          target:      "/home/ubuntu/nginx/"
+          strip_components: 1
+
+      - name: 🔧 Start/Reload Nginx on Nginx EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.NGINX_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          proxy_host: ${{ secrets.BASTION_IP }}
+          proxy_username: ubuntu
+          proxy_key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            mkdir -p ~/nginx
+            chmod +x ~/nginx/start-nginx.sh
+            cd ~/nginx
+            TARGET_UPSTREAM=${{ env.APP_HOST }}:8081 docker compose up -d --force-recreate nginx
+
       - name: 📦 Copy JAR to Target
         uses: appleboy/scp-action@v0.1.6
         with:
@@ -39,6 +69,24 @@ jobs:
           target:      "/home/ubuntu/artifacts/"
           strip_components: 2
 
+      - name: 🔑 Prepare upstream-switch key on App EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:           ${{ env.APP_HOST }}
+          username:       ubuntu
+          key:            ${{ secrets.SSH_KEY }}
+          proxy_host:     ${{ secrets.BASTION_IP }}
+          proxy_username: ubuntu
+          proxy_key:      ${{ secrets.SSH_KEY }}
+          script_stop:    true
+          script: |
+            set -e
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+            cat > ~/.ssh/hilingual_actions <<'EOF'
+            ${{ secrets.SSH_KEY }}
+            EOF
+            chmod 600 ~/.ssh/hilingual_actions
 
       - name: 🔐 Deploy via Bastion    # ⑥ Bastion 경유 SSH 배포
         uses: appleboy/ssh-action@v1.0.3
