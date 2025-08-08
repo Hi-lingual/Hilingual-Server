@@ -144,6 +144,7 @@ jobs:
           proxy_username: ubuntu
           proxy_key:     ${{ secrets.SSH_KEY }}
           script_stop:   true                       # 서버 오류 시 Job Fail.
+          envs: APP_HOST,NGINX_HOST
           script: |
             set -e
             mkdir -p /home/ubuntu/artifacts

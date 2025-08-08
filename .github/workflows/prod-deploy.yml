@@ -147,6 +147,7 @@ jobs:
           proxy_username: ubuntu
           proxy_key:      ${{ secrets.SSH_KEY }}
           script_stop:    true
+          envs: APP_HOST,NGINX_HOST
           script: |
             set -e
             mkdir -p /home/ubuntu/artifacts
