@@ -35,6 +35,9 @@ public class User extends BaseTimeEntity {
     @Column(name = COLUMN_PROVIDER_ID, nullable = false, length = 255)
     private String providerId; // 유저 고유 ID
 
+    @Column(name = COLUMN_REGISTER_STATUS, nullable = false)
+    private Integer registerStatus; // 1: 소셜로그인 완료, 2: 인증 완료, 3: 가입정보 입력 완료
+
     @Column(name = COLUMN_IS_COMPLETED, nullable = false)
     @ColumnDefault("false")
     @Builder.Default
@@ -48,7 +51,10 @@ public class User extends BaseTimeEntity {
     @Column(name = COLUMN_DELETED_AT)
     private LocalDateTime deletedAt;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = COLUMN_USER, cascade = CascadeType.ALL)
     private UserProfile userProfile;
+
+    @Column(name = UserTableConstants.COLUMN_NOTIFY_STATUS, nullable = false)
+    private Boolean notiStatus = false;
 
 }
