@@ -1,0 +1,17 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /var/log/promtail-positions.yml   # ← compose와 동일하게
+
+clients:
+  - url: http://10.0.2.54:3100/loki/api/v1/push   # 모니터링 서버 Loki(3100)
+
+scrape_configs:
+  - job_name: spring-app
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: spring-app
+          __path__: /var/log/spring/**/*.log     # ← 하위(blue/green) 폴더까지 포함
