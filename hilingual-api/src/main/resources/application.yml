@@ -71,8 +71,8 @@ logging:
 
 jwt:
   secret-key: ${SECRET_KEY}
-  access-expiration-seconds: ${ACCESS_EXPIRATION}
-  refresh-expiration-seconds: ${REFRESH_EXPIRATION}
+  access-token-expire-time: ${ACCESS_EXPIRATION}
+  refresh-token-expire-time: ${REFRESH_EXPIRATION}
 
 management:
   endpoints:
