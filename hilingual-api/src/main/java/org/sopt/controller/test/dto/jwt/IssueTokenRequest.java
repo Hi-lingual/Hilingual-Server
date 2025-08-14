@@ -1,0 +1,11 @@
+package org.sopt.controller.test.dto.jwt;
+
+import jakarta.validation.constraints.NotNull;
+import org.sopt.jwt.auth.authentication.UserRole;
+import org.sopt.jwt.auth.domain.AuthProvider;
+
+public record IssueTokenRequest(
+        @NotNull Long userId,
+        @NotNull UserRole role,
+        @NotNull AuthProvider provider
+) {}
