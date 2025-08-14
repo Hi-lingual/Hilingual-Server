@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.controller.recommend.dto.BookmarkReq;
 import org.sopt.controller.recommend.dto.RecommendListRes;
 import org.sopt.controller.recommend.service.RecommendService;
-import org.sopt.jwt.auth.util.UserAuthenticationUtils;
+import org.sopt.jwt.annotation.UserId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,18 +21,18 @@ public class RecommendController {
 
     @GetMapping("/{diaryId}/recommended")
     public ResponseEntity<RecommendListRes> getRecommendList(
+            @UserId Long userId,
             @PathVariable @Validated @Min(1) Long diaryId
     ){
-        Long userId = UserAuthenticationUtils.getCurrentUserId();
         return ResponseEntity.ok(recommendService.getRecommendList(userId, diaryId));
     }
 
     @PatchMapping("/{phraseId}")
     public ResponseEntity<Void> bookMark(
+            @UserId Long userId,
             @PathVariable @Validated @Min(1) Long phraseId,
             @RequestBody @NotNull BookmarkReq bookmarkRequest
     ){
-        Long userId = UserAuthenticationUtils.getCurrentUserId();
         return ResponseEntity.ok(recommendService.bookMark(userId, phraseId, bookmarkRequest.isBookmarked()));
     }
 }
