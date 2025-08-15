@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.sopt.common.config.BaseTimeEntity;
+import org.sopt.user.domain.type.RegisterStatus;
+import org.sopt.user.domain.type.RegisterStatusConverter;
 import org.sopt.userprofile.domain.UserProfile;
 
 import java.time.LocalDateTime;
@@ -35,13 +37,14 @@ public class User extends BaseTimeEntity {
     @Column(name = COLUMN_PROVIDER_ID, nullable = false, length = 255)
     private String providerId; // 유저 고유 ID
 
+    @Convert(converter = RegisterStatusConverter.class)
     @Column(name = COLUMN_REGISTER_STATUS, nullable = false)
-    private Integer registerStatus; // 1: 소셜로그인 완료, 2: 인증 완료, 3: 가입정보 입력 완료
+    private RegisterStatus registerStatus;
 
     @Column(name = COLUMN_IS_COMPLETED, nullable = false)
     @ColumnDefault("false")
     @Builder.Default
-    private Boolean isCompleted = false;
+    private Boolean isCompleted = false; // TODO 소셜로그인 붙이며 registerStatus 활용하는 로직으로 변경
 
     @Column(name = COLUMN_IS_DELETED, nullable = false)
     @ColumnDefault("false")
@@ -51,10 +54,10 @@ public class User extends BaseTimeEntity {
     @Column(name = COLUMN_DELETED_AT)
     private LocalDateTime deletedAt;
 
+    // User - UserProfile 양방향 매핑
     @OneToOne(mappedBy = COLUMN_USER, cascade = CascadeType.ALL)
     private UserProfile userProfile;
 
     @Column(name = UserTableConstants.COLUMN_NOTIFY_STATUS, nullable = false)
-    private Boolean notiStatus = false;
-
+    private Boolean notifyStatus = false;
 }
