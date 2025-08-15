@@ -1,10 +1,12 @@
-package org.sopt.alarm.domain;
+package org.sopt.noticedelivery.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.sopt.feedalarm.domain.AlarmTableConstants;
+import org.sopt.notice.domain.Notice;
 import org.sopt.user.domain.User;
 
 import java.time.LocalDateTime;

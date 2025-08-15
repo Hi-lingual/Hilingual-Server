@@ -1,4 +1,4 @@
-package org.sopt.alarm.domain;
+package org.sopt.feedalarm.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

@@ -1,4 +1,4 @@
-package org.sopt.user.domain.type;
+package org.sopt.user.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

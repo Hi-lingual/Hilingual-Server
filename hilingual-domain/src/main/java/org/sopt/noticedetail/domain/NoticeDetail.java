@@ -1,10 +1,12 @@
-package org.sopt.alarm.domain;
+package org.sopt.noticedetail.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.sopt.feedalarm.domain.AlarmTableConstants;
+import org.sopt.notice.domain.Notice;
 
 @Entity
 @Table(name = AlarmTableConstants.TABLE_NOTICE_DETAIL)

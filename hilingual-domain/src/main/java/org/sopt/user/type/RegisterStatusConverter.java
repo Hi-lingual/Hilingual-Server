@@ -1,4 +1,4 @@
-package org.sopt.user.domain.type;
+package org.sopt.user.type;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

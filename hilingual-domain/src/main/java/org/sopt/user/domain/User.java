@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.sopt.common.config.BaseTimeEntity;
-import org.sopt.user.domain.type.RegisterStatus;
-import org.sopt.user.domain.type.RegisterStatusConverter;
+import org.sopt.user.type.RegisterStatus;
+import org.sopt.user.type.RegisterStatusConverter;
 import org.sopt.userprofile.domain.UserProfile;
 
 import java.time.LocalDateTime;

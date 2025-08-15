@@ -5,8 +5,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sopt.alarmpreference.domain.type.AlarmType;
-import org.sopt.alarmpreference.domain.type.AlarmTypeConverter;
+import org.sopt.alarmpreference.type.AlarmType;
+import org.sopt.alarmpreference.type.AlarmTypeConverter;
 import org.sopt.user.domain.User;
 
 @Entity

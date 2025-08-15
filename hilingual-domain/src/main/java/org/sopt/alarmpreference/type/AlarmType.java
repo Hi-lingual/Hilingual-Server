@@ -1,4 +1,4 @@
-package org.sopt.alarmpreference.domain.type;
+package org.sopt.alarmpreference.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

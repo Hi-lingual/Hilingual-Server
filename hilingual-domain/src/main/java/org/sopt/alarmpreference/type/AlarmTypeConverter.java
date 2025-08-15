@@ -1,4 +1,4 @@
-package org.sopt.alarmpreference.domain.type;
+package org.sopt.alarmpreference.type;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
