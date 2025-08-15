@@ -1,11 +1,6 @@
 package org.sopt.alarm.domain;
 
 public class AlarmTableConstants {
-    public static final String TABLE_ALRAM_PREFERENCE = "AlarmPreference";
-    public static final String COLUMN_ID = "id";
-    public static final String COLUMN_USER_ID = "user_id";
-    public static final String COLUMN_ALARM_TYPE = "alarm_type";
-    public static final String COLUMN_IS_ENABLED = "is_enabled";
 
     public static final String TABLE_FEED_ALARM = "FeedAlarm";
     public static final String COLUMN_TYPE = "type";
