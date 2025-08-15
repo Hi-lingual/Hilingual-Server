@@ -5,56 +5,47 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.sopt.common.config.BaseTimeEntity;
+import org.sopt.feedalarm.type.FeedAlarmType;
+import org.sopt.feedalarm.type.TargetType;
+import org.sopt.feedalarm.type.TargetTypeConverter;
 import org.sopt.user.domain.User;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = AlarmTableConstants.TABLE_FEED_ALARM)
+@Table(name = FeedAlarmTableConstants.TABLE_FEED_ALARM)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class FeedAlarm {
+public class FeedAlarm extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = AlarmTableConstants.COLUMN_ID)
+    @Column(name = FeedAlarmTableConstants.COLUMN_ID)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = AlarmTableConstants.COLUMN_USER_ID, nullable = false)
+    @JoinColumn(name = FeedAlarmTableConstants.COLUMN_USER_ID, nullable = false)
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = AlarmTableConstants.COLUMN_TYPE, nullable = false, length = 30)
-    private Type type;
+    @Convert(converter = FeedAlarmType.class)
+    @Column(name = FeedAlarmTableConstants.COLUMN_TYPE, nullable = false)
+    private FeedAlarmType type;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = AlarmTableConstants.COLUMN_TARGET_TYPE, nullable = false, length = 30)
+    @Convert(converter = TargetTypeConverter.class)
+    @Column(name = FeedAlarmTableConstants.COLUMN_TARGET_TYPE, nullable = false)
     private TargetType targetType;
 
-    @Column(name = AlarmTableConstants.COLUMN_TARGET_ID, nullable = false)
+    @Column(name = FeedAlarmTableConstants.COLUMN_TARGET_ID, nullable = false)
     private Long targetId;
 
-    @Column(name = AlarmTableConstants.COLUMN_ACTOR_ID, nullable = false)
+    @Column(name = FeedAlarmTableConstants.COLUMN_ACTOR_ID, nullable = false)
     private Long actorId;
 
-    @Column(name = AlarmTableConstants.COLUMN_TITLE, nullable = false, length = 100)
+    @Column(name = FeedAlarmTableConstants.COLUMN_TITLE, nullable = false, length = 100)
     private String title;
 
-    @Column(name = AlarmTableConstants.COLUMN_CREATED_AT, nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = AlarmTableConstants.COLUMN_READ_AT)
+    @Column(name = FeedAlarmTableConstants.COLUMN_READ_AT)
     private LocalDateTime readAt;
-
-    public enum Type {
-        LIKE_DIARY,
-        FOLLOW_USER
-    }
-
-    public enum TargetType {
-        DIARY,
-        USER
-    }
 }
