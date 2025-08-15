@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.common.config.BaseTimeEntity;
 import org.sopt.feedalarm.type.FeedAlarmType;
+import org.sopt.feedalarm.type.FeedAlarmTypeConverter;
 import org.sopt.feedalarm.type.TargetType;
 import org.sopt.feedalarm.type.TargetTypeConverter;
 import org.sopt.user.domain.User;
@@ -29,7 +30,7 @@ public class FeedAlarm extends BaseTimeEntity {
     @JoinColumn(name = FeedAlarmTableConstants.COLUMN_USER_ID, nullable = false)
     private User user;
 
-    @Convert(converter = FeedAlarmType.class)
+    @Convert(converter = FeedAlarmTypeConverter.class)
     @Column(name = FeedAlarmTableConstants.COLUMN_TYPE, nullable = false)
     private FeedAlarmType type;
 
