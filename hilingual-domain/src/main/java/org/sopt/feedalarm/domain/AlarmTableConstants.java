@@ -11,10 +11,6 @@ public class AlarmTableConstants {
     public static final String COLUMN_CREATED_AT = "created_at";
     public static final String COLUMN_READ_AT = "read_at";
 
-    public static final String TABLE_NOTICE_DETAIL = "NoticeDetail";
-    public static final String COLUMN_NOTICE_ID = "noti_id";
-    public static final String COLUMN_CONTENT = "content";
-
 
     public static final String TABLE_NOTICE_DELIVERY = "NoticeDelivery";
 

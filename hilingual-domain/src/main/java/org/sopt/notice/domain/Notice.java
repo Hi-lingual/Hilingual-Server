@@ -35,6 +35,7 @@ public class Notice extends BaseTimeEntity {
     @Column(name = NoticeTableConstants.COLUMN_READ_AT)
     private LocalDateTime readAt;
 
-    @OneToOne(mappedBy = NoticeTableConstants.COLUMN_NOTICE, cascade = CascadeType.ALL)
-    private NoticeDetail noticeDetails;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = NoticeTableConstants.COLUMN_NOTICE_DETAIL_ID, nullable = false)
+    private NoticeDetail noticeDetail;
 }
