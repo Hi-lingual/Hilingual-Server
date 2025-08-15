@@ -3,7 +3,7 @@ package org.sopt.notice.type;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply = true)
+@Converter(autoApply = false)
 public class CategoryConverter implements AttributeConverter<Category, Integer> {
     @Override
     public Integer convertToDatabaseColumn(Category attribute) {

@@ -3,7 +3,7 @@ package org.sopt.user.type;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply = true)
+@Converter(autoApply = false)
 public class RegisterStatusConverter implements AttributeConverter<RegisterStatus, Integer> {
 
     @Override

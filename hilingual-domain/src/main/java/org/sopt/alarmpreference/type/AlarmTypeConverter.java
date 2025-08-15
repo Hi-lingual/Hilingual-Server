@@ -3,7 +3,7 @@ package org.sopt.alarmpreference.type;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply = true)
+@Converter(autoApply = false)
 public class AlarmTypeConverter implements AttributeConverter<AlarmType, Integer> {
 
     @Override
