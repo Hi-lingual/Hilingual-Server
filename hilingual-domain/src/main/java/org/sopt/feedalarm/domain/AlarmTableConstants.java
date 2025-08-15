@@ -1,4 +1,4 @@
-package org.sopt.alarm.domain;
+package org.sopt.feedalarm.domain;
 
 public class AlarmTableConstants {
 
@@ -14,12 +14,6 @@ public class AlarmTableConstants {
     public static final String TABLE_NOTICE_DETAIL = "NoticeDetail";
     public static final String COLUMN_NOTICE_ID = "noti_id";
     public static final String COLUMN_CONTENT = "content";
-
-    public static final String TABLE_NOTICE = "Notice";
-    public static final String COLUMN_CATEGORY = "category";
-    public static final String COLUMN_IS_ACTIVE = "is_active";
-    public static final String COLUMN_NOTICE = "notice";
-    public static final String COLUMN_DELIVERED_AT = "delivered_at";
 
 
     public static final String TABLE_NOTICE_DELIVERY = "NoticeDelivery";
