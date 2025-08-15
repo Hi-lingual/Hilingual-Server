@@ -9,7 +9,14 @@ import org.sopt.diary.domain.Diary;
 import org.sopt.user.domain.User;
 
 @Entity
-@Table(name = LikedDiaryTableConstants.TABLE_LIKED_DIARY)
+@Table(
+        name = LikedDiaryTableConstants.TABLE_LIKED_DIARY,
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {LikedDiaryTableConstants.COLUMN_USER_ID, LikedDiaryTableConstants.COLUMN_DIARY_ID}
+                )
+        }
+)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
