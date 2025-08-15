@@ -4,9 +4,14 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.sopt.common.config.BaseTimeEntity;
+import org.sopt.noticedelivery.domain.NoticeDelivery;
+import org.sopt.user.type.RegisterStatus;
+import org.sopt.user.type.RegisterStatusConverter;
 import org.sopt.userprofile.domain.UserProfile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.sopt.user.domain.UserTableConstants.*;
 
@@ -35,10 +40,14 @@ public class User extends BaseTimeEntity {
     @Column(name = COLUMN_PROVIDER_ID, nullable = false, length = 255)
     private String providerId; // 유저 고유 ID
 
+    @Convert(converter = RegisterStatusConverter.class)
+    @Column(name = COLUMN_REGISTER_STATUS, nullable = false)
+    private RegisterStatus registerStatus;
+
     @Column(name = COLUMN_IS_COMPLETED, nullable = false)
     @ColumnDefault("false")
     @Builder.Default
-    private Boolean isCompleted = false;
+    private Boolean isCompleted = false; // TODO 소셜로그인 붙이며 registerStatus 활용하는 로직으로 변경
 
     @Column(name = COLUMN_IS_DELETED, nullable = false)
     @ColumnDefault("false")
@@ -48,7 +57,14 @@ public class User extends BaseTimeEntity {
     @Column(name = COLUMN_DELETED_AT)
     private LocalDateTime deletedAt;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    // User - UserProfile 양방향 매핑
+    @OneToOne(mappedBy = COLUMN_USER, cascade = CascadeType.ALL)
     private UserProfile userProfile;
 
+    // User - NoticeDelivery 양방향 매핑
+    @OneToMany(mappedBy = COLUMN_USER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NoticeDelivery> deliveries = new ArrayList<>();
+
+    @Column(name = UserTableConstants.COLUMN_NOTIFY_STATUS, nullable = false)
+    private Boolean notifyStatus = false;
 }

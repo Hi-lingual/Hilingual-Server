@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class HilingualApplication {
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.configure()
-                .directory("./")
+                .directory("src/main/resources")
                 .ignoreIfMissing()
                 .load();
 
