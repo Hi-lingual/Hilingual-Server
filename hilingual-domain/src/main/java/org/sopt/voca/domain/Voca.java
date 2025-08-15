@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.sopt.common.config.BaseTimeEntity;
 import org.sopt.recommend.domain.Recommend;
 import org.sopt.user.domain.User;
+import org.sopt.voca.type.SaveRoot;
+import org.sopt.voca.type.SaveRootConverter;
 
 @Entity
 @Table(name = VocaTableConstants.TABLE_VOCA)
@@ -20,6 +22,10 @@ public class Voca extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = VocaTableConstants.COLUMN_ID)
     private Long id;
+
+    @Convert(converter = SaveRootConverter.class)
+    @Column(name = VocaTableConstants.COLUMN_SAVED_AT, nullable = false)
+    private SaveRoot saveAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = VocaTableConstants.COLUMN_USER_ID, nullable = false)
