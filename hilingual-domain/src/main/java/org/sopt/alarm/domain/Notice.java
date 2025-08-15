@@ -26,7 +26,7 @@ public class Notice {
     @Column(name = AlarmTableConstants.COLUMN_TITLE, nullable = false, length = 100)
     private String title;
 
-    @Column(name = AlarmTableConstants.COLUMN_IS_ACTIVEE, nullable = false)
+    @Column(name = AlarmTableConstants.COLUMN_IS_ACTIVE, nullable = false)
     private Boolean isActive;
 
     @Column(name = AlarmTableConstants.COLUMN_CREATED_AT, nullable = false)

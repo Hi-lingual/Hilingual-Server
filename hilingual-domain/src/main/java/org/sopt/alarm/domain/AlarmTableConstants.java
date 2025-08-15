@@ -22,7 +22,7 @@ public class AlarmTableConstants {
 
     public static final String TABLE_NOTICE = "Notice";
     public static final String COLUMN_CATEGORY = "category";
-    public static final String COLUMN_IS_ACTIVEE = "is_active";
+    public static final String COLUMN_IS_ACTIVE = "is_active";
     public static final String COLUMN_NOTICE = "notice";
     public static final String COLUMN_DELIVERED_AT = "delivered_at";
 
