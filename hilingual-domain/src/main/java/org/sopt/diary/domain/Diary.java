@@ -11,6 +11,7 @@ import org.sopt.recommend.domain.Recommend;
 import org.sopt.user.domain.User;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -37,6 +38,15 @@ public class Diary extends BaseTimeEntity {
     @Column(name = DiaryTableConstants.COLUMN_WRITTEN_DATE)
     private LocalDate writtenDate;
 
+    @Column(name = DiaryTableConstants.COLUMN_IS_PUBLIC, nullable = false)
+    private Boolean isPublic = Boolean.FALSE;
+
+    @Column(name = DiaryTableConstants.COLUMN_IS_LIKED, nullable = false)
+    private Integer isLiked = 0;
+
+    @Column(name = DiaryTableConstants.COLUMN_SHARED_TIME)
+    private LocalDateTime sharedTime;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = DiaryTableConstants.COLUMN_USER_ID, nullable = false)
     private User user;
@@ -48,7 +58,7 @@ public class Diary extends BaseTimeEntity {
     private List<Recommend> recommends;
 
     public static Diary create(User user, String originalText, String rewriteText, String imageUrl, LocalDate writtenDate) {
-        return new Diary(null, originalText, rewriteText, imageUrl, writtenDate, user, null, null);
+        return new Diary(null, originalText, rewriteText, imageUrl, writtenDate, null, null, null, user, null, null);
     }
 
 }
