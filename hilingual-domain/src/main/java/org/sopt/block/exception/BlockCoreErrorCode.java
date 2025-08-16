@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 public enum BlockCoreErrorCode implements ErrorCode {
 
     // 409
-    UNBLOCKABLE_USER(HttpStatus.CONFLICT, 40901, "차단할 수 없는 사용자입니다.."),
-    ALREADY_BLOCKED_USER(HttpStatus.CONFLICT, 40901, "이미 차단한 사용자입니다."),
+    UNBLOCKABLE_USER(HttpStatus.CONFLICT, 40902, "차단할 수 없는 사용자입니다."),
+    ALREADY_BLOCKED_USER(HttpStatus.CONFLICT, 40903, "이미 차단한 사용자입니다."),
     ;
 
     public final HttpStatus httpStatus;
