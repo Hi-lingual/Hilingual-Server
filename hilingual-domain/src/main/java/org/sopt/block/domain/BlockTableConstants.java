@@ -1,4 +1,4 @@
-package org.sopt.block;
+package org.sopt.block.domain;
 
 public class BlockTableConstants {
     public static final String TABLE_BLOCK = "Block";

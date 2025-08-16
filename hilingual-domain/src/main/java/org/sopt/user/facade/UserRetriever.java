@@ -21,6 +21,11 @@ public class UserRetriever {
                 .orElseThrow(() -> new UserNotFoundException(UserCoreErrorCode.USER_NOT_FOUND));
     }
 
+    public User findByUserIdWithLock(final long userId) {
+        return userRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new UserNotFoundException(UserCoreErrorCode.USER_NOT_FOUND));
+    }
+
     public boolean isNicknameExists(String nickname) {
         return userProfileRepository.existsByNickname(nickname);
     }

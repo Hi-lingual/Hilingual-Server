@@ -15,6 +15,10 @@ public class UserFacade {
         return userRetriever.findByUserId(userId);
     }
 
+    public User getUserByIdWithLock(final long userId){
+        return userRetriever.findByUserIdWithLock(userId);
+    }
+
     public void save(final User user){
         userSaver.save(user);
     }

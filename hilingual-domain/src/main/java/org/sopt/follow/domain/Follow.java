@@ -1,4 +1,4 @@
-package org.sopt.follow;
+package org.sopt.follow.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

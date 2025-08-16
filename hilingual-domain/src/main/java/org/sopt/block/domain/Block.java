@@ -1,4 +1,4 @@
-package org.sopt.block;
+package org.sopt.block.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -8,7 +8,17 @@ import lombok.NoArgsConstructor;
 import org.sopt.user.domain.User;
 
 @Entity
-@Table(name = BlockTableConstants.TABLE_BLOCK)
+@Table(
+        name = BlockTableConstants.TABLE_BLOCK,
+        uniqueConstraints = {
+        @UniqueConstraint(
+                columnNames = {
+                        BlockTableConstants.COLUMN_BLOCKER_ID,
+                        BlockTableConstants.COLUMN_BLOCKED_ID
+                }
+        )
+}
+)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
