@@ -4,7 +4,7 @@ spring:
       add-mappings: true
 
   application:
-    name: securityTest
+    name: hilingual
 
   datasource:
     url: ${DB_URL}
@@ -85,6 +85,12 @@ management:
   metrics:
     tags:
       application: ${spring.application.name:hilingual}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.9, 0.95, 0.99
+
 
 
 aws-property:
