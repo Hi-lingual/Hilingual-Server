@@ -25,8 +25,10 @@ public class BlockController {
 
     @DeleteMapping("/{userId}/unblock")
     public ResponseEntity<Void> unblockUser(
-            @PathVariable("userId") @NotNull Long userId
+            @PathVariable("userId") @NotNull Long unblockedId
     ) {
-        return ResponseEntity.ok(blockService.unblockUser(userId));
+        Long blockerId = 1L;
+        // TODO Long blockerId = UserAuthenticationUtils.getCurrentUserId();
+        return ResponseEntity.ok(blockService.unblockUser(blockerId, unblockedId));
     }
 }

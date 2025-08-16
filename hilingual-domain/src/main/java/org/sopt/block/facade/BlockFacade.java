@@ -1,8 +1,10 @@
 package org.sopt.block.facade;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.block.domain.Block;
 import org.sopt.block.exception.AlreadyBlockedUserException;
 import org.sopt.block.exception.BlockCoreErrorCode;
+import org.sopt.block.exception.BlockedNotFoundException;
 import org.sopt.block.exception.UnblockableUserException;
 import org.sopt.user.domain.User;
 import org.springframework.stereotype.Component;
@@ -28,5 +30,13 @@ public class BlockFacade {
         }
 
         blockSaver.save(blocker, blocked);
+    }
+
+    @Transactional
+    public void unblock(User blocker, User unblocked) {
+        Block relation = blockRetriever.findRelation(blocker, unblocked)
+                .orElseThrow(() -> new BlockedNotFoundException(BlockCoreErrorCode.BLOCKED_NOT_FOUND));
+
+        blockSaver.delete(relation);
     }
 }

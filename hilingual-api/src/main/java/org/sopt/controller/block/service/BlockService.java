@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.block.facade.BlockFacade;
 import org.sopt.controller.block.exception.BlockApiErrorCode;
 import org.sopt.controller.block.exception.CannotSelfBlockException;
+import org.sopt.controller.block.exception.CannotSelfUnblockException;
 import org.sopt.jwt.auth.util.UserAuthenticationUtils;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
@@ -37,8 +38,16 @@ public class BlockService {
         return null;
     }
 
-    public Void unblockUser(final Long userId) {
+    @Transactional
+    public Void unblockUser(Long blockerId, Long unblockedId) {
+        if(blockerId.equals(unblockedId)) {
+            throw new CannotSelfUnblockException(BlockApiErrorCode.CANNOT_SELF_UNBLOCK);
+        }
 
+        User blocker = userFacade.getUserById(blockerId);
+        User unblocked = userFacade.getUserById(unblockedId);
+
+        blockFacade.unblock(blocker, unblocked);
         return null;
     }
 }

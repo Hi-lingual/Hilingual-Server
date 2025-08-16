@@ -24,4 +24,9 @@ public class BlockSaver {
             throw new AlreadyBlockedUserException(BlockCoreErrorCode.ALREADY_BLOCKED_USER);
         }
     }
+
+    @Transactional
+    public void delete(Block block) {
+        blockRepository.delete(block);
+    }
 }
