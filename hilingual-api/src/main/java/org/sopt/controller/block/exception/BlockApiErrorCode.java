@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 public enum BlockApiErrorCode implements ErrorCode {
     // 400
     CANNOT_SELF_BLOCK(HttpStatus.BAD_REQUEST, 40015, "자기 자신은 차단할 수 없습니다."),
+    CANNOT_SELF_UNBLOCK(HttpStatus.BAD_REQUEST, 40015, "자기 자신은 차단 해제할 수 없습니다.")
     ;
 
     public final HttpStatus httpStatus;
