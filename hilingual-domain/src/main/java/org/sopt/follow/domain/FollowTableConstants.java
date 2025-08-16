@@ -1,4 +1,4 @@
-package org.sopt.follow;
+package org.sopt.follow.domain;
 
 public class FollowTableConstants {
     public static final String TABLE_FOLLOW = "Follow";
