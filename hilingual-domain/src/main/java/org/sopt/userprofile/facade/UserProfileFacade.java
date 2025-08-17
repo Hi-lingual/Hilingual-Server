@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.dto.UserProfileRes;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -34,6 +35,11 @@ public class UserProfileFacade {
 
     public List<UserProfile> findAll() {
         return userProfileRetriever.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserProfile> getProfilesByUserIds(List<Long> userIds) {
+        return userProfileRetriever.findByUserIds(userIds);
     }
 
     /**

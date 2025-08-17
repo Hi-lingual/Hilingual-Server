@@ -6,6 +6,7 @@ import org.sopt.block.repository.BlockRepository;
 import org.sopt.user.domain.User;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -24,5 +25,9 @@ public class BlockRetriever {
 
     public Optional<Block> findRelation(User blocker, User blocked) {
         return blockRepository.findByBlockerAndBlocked(blocker, blocked);
+    }
+
+    public List<Long> findBlockedUserId(Long blockerId) {
+        return blockRepository.findBlockedUsers(blockerId);
     }
 }
