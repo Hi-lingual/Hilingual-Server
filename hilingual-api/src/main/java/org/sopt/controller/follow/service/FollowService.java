@@ -2,7 +2,9 @@ package org.sopt.controller.follow.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.follow.dto.FollowerDtoRes;
+import org.sopt.controller.follow.dto.FollowerListDtoRes;
 import org.sopt.controller.follow.dto.FollowingDtoRes;
+import org.sopt.controller.follow.dto.FollowingListDtoRes;
 import org.sopt.controller.userprofile.dto.UserProfileSummaryDtoRes;
 import org.sopt.follow.dto.FolloweeIdAndIsFollowed;
 import org.sopt.follow.dto.FollowerIdAndIsFollowing;
@@ -26,7 +28,7 @@ public class FollowService {
     private final FollowFacade followFacade;
 
     @Transactional(readOnly = true)
-    public List<FollowerDtoRes> getFollowerList(Long userId) {
+    public FollowerListDtoRes getFollowerList(Long userId) {
         userFacade.getUserById(userId);
 
         // 팔로워 ID, 팔로잉 여부 목록 조회
@@ -44,16 +46,17 @@ public class FollowService {
                 .collect(Collectors.toMap(UserProfileSummaryDtoRes::userId, Function.identity()));
 
         // 팔로워 목록과 프로필 정보 결합
-        return followers.stream()
+        return new FollowerListDtoRes(followers.stream()
                 .map(follower -> {
                     UserProfileSummaryDtoRes profile = profilesMap.get(follower.getFollowerId());
                     return FollowerDtoRes.of(profile, follower.getIsFollowing());
                 })
-                .toList();
+                .toList()
+        );
     }
 
     @Transactional(readOnly = true)
-    public List<FollowingDtoRes> getFollowingList(Long userId) {
+    public FollowingListDtoRes getFollowingList(Long userId) {
         userFacade.getUserById(userId);
 
         List<FolloweeIdAndIsFollowed> followings = followFacade.getFolloweeListAndIsFollowed(userId);
@@ -67,12 +70,13 @@ public class FollowService {
                 .map(UserProfileSummaryDtoRes::from)
                 .collect(Collectors.toMap(UserProfileSummaryDtoRes::userId, Function.identity()));
 
-        return followings.stream()
+        return new FollowingListDtoRes(followings.stream()
                 .map(following -> {
                     UserProfileSummaryDtoRes profile = profilesMap.get(following.getFolloweeId());
                     return FollowingDtoRes.of(profile, following.getIsFollowed());
                 })
-                .toList();
+                .toList()
+        );
     }
 }
 
