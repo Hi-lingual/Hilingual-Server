@@ -27,7 +27,7 @@ public class Block {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = BlockTableConstants.COLUMN_BLOCK_ID)
-    private Long blockId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = BlockTableConstants.COLUMN_BLOCKER_ID, nullable = false)
