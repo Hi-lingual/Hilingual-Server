@@ -2,14 +2,16 @@ package org.sopt.controller.block.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.block.facade.BlockFacade;
+import org.sopt.controller.block.dto.BlockedUserProfileDtoRes;
 import org.sopt.controller.block.exception.BlockApiErrorCode;
 import org.sopt.controller.block.exception.CannotSelfBlockException;
 import org.sopt.controller.block.exception.CannotSelfUnblockException;
-import org.sopt.jwt.auth.util.UserAuthenticationUtils;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +51,15 @@ public class BlockService {
 
         blockFacade.unblock(blocker, unblocked);
         return null;
+    }
+
+    public List<BlockedUserProfileDtoRes> getBlockedUserList(Long userId) {
+        // 유저 존재 여부 확인(없을 시 UserRetriever에서 not found 예외 처리)
+        userFacade.getUserById(userId);
+
+        return blockFacade.getBlockedUserProfiles(userId)
+                .stream()
+                .map(BlockedUserProfileDtoRes::from)
+                .toList();
     }
 }
