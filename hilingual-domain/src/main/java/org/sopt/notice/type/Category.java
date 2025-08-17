@@ -2,6 +2,8 @@ package org.sopt.notice.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.sopt.notice.exception.InvalidCategoryTypeException;
+import org.sopt.notice.exception.NoticeCoreErrorCode;
 
 import java.util.Arrays;
 
@@ -17,6 +19,6 @@ public enum Category {
         return Arrays.stream(values())
                 .filter(status -> status.code == code)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid code: " + code));
+                .orElseThrow(() -> new InvalidCategoryTypeException(NoticeCoreErrorCode.INVALID_CATEGORY_TYPE));
     }
 }
