@@ -2,6 +2,7 @@ package org.sopt.controller.follow.api;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.follow.dto.FollowerDtoRes;
+import org.sopt.controller.follow.dto.FollowingDtoRes;
 import org.sopt.controller.follow.service.FollowService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,5 +26,14 @@ public class FollowController {
         // TODO 수정
         Long mockUserId = 1L;
         return ResponseEntity.ok(followService.getFollowerList(mockUserId));
+    }
+
+    @GetMapping("/{userId}/followings")
+    public ResponseEntity<List<FollowingDtoRes>> getFollowingList(
+            @PathVariable Long userId
+    ) {
+        // TODO 수정
+        Long mockUserId = 1L;
+        return ResponseEntity.ok(followService.getFollowingList(mockUserId));
     }
 }

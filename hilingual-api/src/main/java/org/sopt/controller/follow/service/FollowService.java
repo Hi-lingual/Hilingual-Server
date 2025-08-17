@@ -2,7 +2,9 @@ package org.sopt.controller.follow.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.follow.dto.FollowerDtoRes;
+import org.sopt.controller.follow.dto.FollowingDtoRes;
 import org.sopt.controller.userprofile.dto.UserProfileSummaryDtoRes;
+import org.sopt.follow.dto.FolloweeIdAndIsFollowed;
 import org.sopt.follow.dto.FollowerIdAndIsFollowing;
 import org.sopt.follow.facade.FollowFacade;
 import org.sopt.user.facade.UserFacade;
@@ -46,6 +48,29 @@ public class FollowService {
                 .map(follower -> {
                     UserProfileSummaryDtoRes profile = profilesMap.get(follower.getFollowerId());
                     return FollowerDtoRes.of(profile, follower.getIsFollowing());
+                })
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<FollowingDtoRes> getFollowingList(Long userId) {
+        userFacade.getUserById(userId);
+
+        List<FolloweeIdAndIsFollowed> followings = followFacade.getFolloweeListAndIsFollowed(userId);
+
+        List<Long> followeeIds = followings.stream()
+                .map(FolloweeIdAndIsFollowed::getFolloweeId)
+                .toList();
+
+        Map<Long, UserProfileSummaryDtoRes> profilesMap = userProfileFacade.getProfilesByUserIds(followeeIds)
+                .stream()
+                .map(UserProfileSummaryDtoRes::from)
+                .collect(Collectors.toMap(UserProfileSummaryDtoRes::userId, Function.identity()));
+
+        return followings.stream()
+                .map(following -> {
+                    UserProfileSummaryDtoRes profile = profilesMap.get(following.getFolloweeId());
+                    return FollowingDtoRes.of(profile, following.getIsFollowed());
                 })
                 .toList();
     }
