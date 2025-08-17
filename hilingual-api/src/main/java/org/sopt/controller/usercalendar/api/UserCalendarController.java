@@ -1,7 +1,7 @@
 package org.sopt.controller.usercalendar.api;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.jwt.auth.util.UserAuthenticationUtils;
+import org.sopt.jwt.annotation.UserId;
 import org.sopt.usercalendar.dto.UserCalendarDiarySummaryRes;
 import org.sopt.usercalendar.dto.UserCalendarMonthlyRes;
 import org.sopt.usercalendar.dto.UserCalendarTopicRes;
@@ -24,9 +24,9 @@ public class UserCalendarController {
 
     @GetMapping("/{date}")
     public ResponseEntity<UserCalendarDiarySummaryRes> getDiarySummaryByDate(
+            @UserId Long userId,
             @PathVariable final String date
     ) {
-        Long userId = UserAuthenticationUtils.getCurrentUserId();
         final LocalDate parsedDate;
 
         try {
@@ -53,10 +53,10 @@ public class UserCalendarController {
 
     @GetMapping("/month")
     public ResponseEntity<UserCalendarMonthlyRes> getMonthlyCalendar(
+            @UserId Long userId,
             @RequestParam final int year,
             @RequestParam final int month
     ) {
-        Long userId = UserAuthenticationUtils.getCurrentUserId();
 
         if (month < 1 || month > 12) {
             throw new InvalidMonthException(UserCalendarApiErrorCode.INVALID_MONTH);

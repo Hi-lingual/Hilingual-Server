@@ -2,13 +2,13 @@ package org.sopt.controller.voca.api;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.voca.dto.res.VocaDetailResponse;
+import org.sopt.jwt.annotation.UserId;
 import org.sopt.voca.dto.VocaListRes;
 import org.sopt.controller.voca.dto.res.VocaSearchListResponse;
 import org.sopt.controller.voca.exception.VocaApiErrorCode;
 import org.sopt.controller.voca.exception.VocaInvalidKeywordException;
 import org.sopt.controller.voca.exception.VocaInvalidSortTypeException;
 import org.sopt.controller.voca.service.VocaService;
-import org.sopt.jwt.auth.util.UserAuthenticationUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +22,9 @@ public class VocaController {
     // 단어장 목록 조회
     @GetMapping
     public ResponseEntity<VocaListRes> getVocaList(
+            @UserId Long userId,
             @RequestParam(value = "sort", required = false, defaultValue = "1") final String sortStr
     ) {
-        Long userId = UserAuthenticationUtils.getCurrentUserId();
         int sort = parseAndValidateSortType(sortStr);
         return ResponseEntity.ok(vocaService.getVocaList(userId, sort));
     }
@@ -32,9 +32,9 @@ public class VocaController {
     // 단어장 검색
     @GetMapping("/search")
     public ResponseEntity<VocaSearchListResponse> searchVocaList(
+            @UserId Long userId,
             @RequestParam final String keyword
     ) {
-        Long userId = UserAuthenticationUtils.getCurrentUserId();
         final String trimmedKeyword = keyword.trim();
         validateKeyword(trimmedKeyword);
 
@@ -44,9 +44,9 @@ public class VocaController {
     // 특정 단어 세부 조회
     @GetMapping("/{phraseId}")
     public ResponseEntity<VocaDetailResponse> getVocaDetails(
+            @UserId Long userId,
             @PathVariable final Long phraseId
     ) {
-        Long userId = UserAuthenticationUtils.getCurrentUserId();
         return ResponseEntity.ok(vocaService.getVocaDetails(userId, phraseId));
     }
 
