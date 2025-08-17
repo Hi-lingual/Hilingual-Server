@@ -1,6 +1,7 @@
 package org.sopt.follow.facade;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.follow.dto.FolloweeIdAndIsFollowed;
 import org.sopt.follow.dto.FollowerIdAndIsFollowing;
 import org.sopt.follow.repository.FollowRepository;
 import org.springframework.stereotype.Component;
@@ -15,5 +16,9 @@ public class FollowRetriever {
 
     public List<FollowerIdAndIsFollowing> getFollowerListAndIsFollowing(Long userId) {
         return followRepository.findFollowerAndIsFollowingByUserId(userId);
+    }
+
+    public List<FolloweeIdAndIsFollowed> getFolloweeListAndIsFollowed(Long userId) {
+        return followRepository.findFolloweeAndIsFollowedByUserId(userId);
     }
 }
