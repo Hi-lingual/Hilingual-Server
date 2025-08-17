@@ -20,7 +20,6 @@ public class BlockFacade {
 
     private final BlockRetriever blockRetriever;
     private final BlockSaver blockSaver;
-    private final BlockRepository blockRepository;
 
     @Transactional
     public void block(User blocker, User blocked) {
@@ -46,10 +45,7 @@ public class BlockFacade {
     }
 
     @Transactional(readOnly = true)
-    public List<UserProfile> getBlockedUserProfiles(Long blockerId) {
-        List<User> blockedUsers = blockRetriever.findBlockedUsers(blockerId);
-        return blockedUsers.stream()
-                .map(User::getUserProfile)
-                .toList();
+    public List<Long> getBlockedUserId(Long blockerId) {
+        return blockRetriever.findBlockedUserId(blockerId);
     }
 }

@@ -27,7 +27,7 @@ public class BlockRetriever {
         return blockRepository.findByBlockerAndBlocked(blocker, blocked);
     }
 
-    public List<User> findBlockedUsers(Long blockerId) {
+    public List<Long> findBlockedUserId(Long blockerId) {
         return blockRepository.findBlockedUsers(blockerId);
     }
 }
