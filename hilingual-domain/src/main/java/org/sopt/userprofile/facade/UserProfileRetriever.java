@@ -18,7 +18,6 @@ import java.util.Optional;
 public class UserProfileRetriever {
 
     private final UserProfileRepository userProfileRepository;
-    private final DiaryRepository diaryRepository;
 
 
     public UserProfile findByUserId(final Long userId) {
@@ -39,5 +38,7 @@ public class UserProfileRetriever {
         return UserProfileRes.from(profile);
     }
 
-
+    public List<UserProfile> findByUserIds(List<Long> userIds) {
+        return userProfileRepository.findByUserIds(userIds);
+    }
 }
