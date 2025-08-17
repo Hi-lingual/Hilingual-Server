@@ -6,9 +6,13 @@ import org.sopt.block.exception.AlreadyBlockedUserException;
 import org.sopt.block.exception.BlockCoreErrorCode;
 import org.sopt.block.exception.BlockedNotFoundException;
 import org.sopt.block.exception.UnblockableUserException;
+import org.sopt.block.repository.BlockRepository;
 import org.sopt.user.domain.User;
+import org.sopt.userprofile.domain.UserProfile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -16,6 +20,7 @@ public class BlockFacade {
 
     private final BlockRetriever blockRetriever;
     private final BlockSaver blockSaver;
+    private final BlockRepository blockRepository;
 
     @Transactional
     public void block(User blocker, User blocked) {
@@ -38,5 +43,13 @@ public class BlockFacade {
                 .orElseThrow(() -> new BlockedNotFoundException(BlockCoreErrorCode.BLOCKED_NOT_FOUND));
 
         blockSaver.delete(relation);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserProfile> getBlockedUserProfiles(Long blockerId) {
+        List<User> blockedUsers = blockRetriever.findBlockedUsers(blockerId);
+        return blockedUsers.stream()
+                .map(User::getUserProfile)
+                .toList();
     }
 }
