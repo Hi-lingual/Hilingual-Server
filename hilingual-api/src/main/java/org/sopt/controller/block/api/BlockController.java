@@ -2,7 +2,7 @@ package org.sopt.controller.block.api;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.sopt.controller.block.dto.BlockedUserProfileDtoRes;
+import org.sopt.controller.userprofile.dto.UserProfileSummaryDtoRes;
 import org.sopt.controller.block.service.BlockService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +36,7 @@ public class BlockController {
     }
 
     @GetMapping("/mypage/blocks")
-    public ResponseEntity<List<BlockedUserProfileDtoRes>> getBlockedUserList(){
+    public ResponseEntity<List<UserProfileSummaryDtoRes>> getBlockedUserList(){
         Long userId = 1L;
         // TODO Long userId = UserAuthenticationUtils.getCurrentUserId();
         return ResponseEntity.ok(blockService.getBlockedUserList(userId));
