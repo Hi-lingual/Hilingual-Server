@@ -17,7 +17,7 @@ public class Follow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = FollowTableConstants.COLUMN_FOLLOW_ID)
-    private Long followId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = FollowTableConstants.COLUMN_FOLLOWER_ID, nullable = false)
