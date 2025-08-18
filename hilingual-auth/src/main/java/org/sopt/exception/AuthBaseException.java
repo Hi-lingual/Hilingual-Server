@@ -1,20 +1,14 @@
 package org.sopt.exception;
 
+import org.sopt.exception.base.HilingualBaseException;
 import org.sopt.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public abstract class AuthBaseException extends RuntimeException {
+public abstract class AuthBaseException extends HilingualBaseException {
 
-    private final ErrorCode errorCode;
-
-    protected AuthBaseException(ErrorCode errorCode) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode;
+    public AuthBaseException(ErrorCode errorCode) {
+        super(errorCode);
     }
 
-    public ErrorCode getErrorCode() {
-        return errorCode;
-    }
-
-    public abstract HttpStatus getStatus(); // 상태 코드는 하위 클래스에서 결정
+    public abstract HttpStatus getStatus();
 }
