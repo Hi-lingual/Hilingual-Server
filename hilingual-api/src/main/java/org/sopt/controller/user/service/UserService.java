@@ -1,10 +1,12 @@
 package org.sopt.controller.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.controller.token.TokenService;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
 import org.sopt.controller.user.exception.UserSuccessCode;
 import org.sopt.dto.BaseResponseDto;
-import org.sopt.user.domain.User;
+import org.sopt.jwt.core.JwtTokenProvider;
+import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.user.facade.UserFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserService {
+
+    private final TokenService tokenService;
 
     // TODO : 닉네임 중복 체크 아예 Custom Validator 로 빼자. 현재 UserService 의 책임이 너무 무거움.
 
@@ -51,5 +55,10 @@ public class UserService {
 
     private BaseResponseDto<NicknameAvailableRes> unavailableNickname(UserSuccessCode code) {
         return BaseResponseDto.success(code, new NicknameAvailableRes(false));
+    }
+
+    @Transactional
+    public ReissueTokensRes reissue(final String refreshToken) {
+        return tokenService.reissue(refreshToken);
     }
 }
