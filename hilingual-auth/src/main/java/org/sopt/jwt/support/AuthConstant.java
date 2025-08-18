@@ -8,12 +8,12 @@ public class AuthConstant {
     public static final String CHARACTER_TYPE = "utf-8";
     public static final String CONTENT_TYPE = "application/json";
 
-
+    // AuthConstant
     public static final String[] AUTH_WHITE_LIST = {
-            "/api/v1/**",
-            "/actuator/health",
+            "/actuator/**",
             "/callback",
-            "/test/**"
+            "/test/jwt/token/issue",
+            "/api/v1/users/reissue"
     };
 
     private AuthConstant() {
