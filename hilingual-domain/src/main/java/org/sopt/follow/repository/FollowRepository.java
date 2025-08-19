@@ -1,6 +1,7 @@
 package org.sopt.follow.repository;
 
 import org.sopt.follow.domain.Follow;
+import org.sopt.follow.dto.FollowRelation;
 import org.sopt.follow.dto.FolloweeIdAndIsFollowed;
 import org.sopt.follow.dto.FollowerIdAndIsFollowing;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,4 +35,18 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
            WHERE f1.follower.id = :userId
            """)
     List<FolloweeIdAndIsFollowed> findFolloweeAndIsFollowedByUserId(@Param("userId") Long userId);
+
+    // 나와 대상자에 대해 isFollowed, isFollowing 여부 확인
+    @Query("""
+           SELECT 
+              (COUNT(f1) > 0) AS isFollowing,
+              (COUNT(f2) > 0) AS isFollowed
+           FROM Follow f1, Follow f2
+           WHERE (f1.follower.id = :userId AND f1.followee.id = :targetUserId)
+              OR (f2.follower.id = :targetUserId AND f2.followee.id = :userId)
+           """)
+    FollowRelation findFollowRelation(
+            @Param("userId") Long userId,
+            @Param("targetUserId") Long targetUserId
+    );
 }
