@@ -15,6 +15,7 @@ public class FollowFacade {
 
     private final FollowRetriever followRetriever;
     private final FollowSaver followSaver;
+    private final FollowRemover followRemover;
 
     private static final String UK_FOLLOWER_FOLLOWEE = "uk_follower_followee";
 
@@ -41,6 +42,18 @@ public class FollowFacade {
         Throwable cause = e.getMostSpecificCause();
         String msg = (cause != null ? cause.getMessage() : "");
         return msg != null && msg.contains(constraintName);
+    }
+
+    /** 언팔로우 메서드 */
+    @Transactional
+    public void deleteIfExists(User follower, User followee) {
+        int affected = followRemover.deleteByFollowerIdAndFolloweeId(follower.getId(), followee.getId());
+    }
+
+    /** a -> b 팔로우 여부 확인*/
+    @Transactional(readOnly = true)
+    public boolean isFollowing(User a, User b) {
+        return followRetriever.existsByFollowerIdAndFolloweeId(a.getId(), b.getId());
     }
 
 }
