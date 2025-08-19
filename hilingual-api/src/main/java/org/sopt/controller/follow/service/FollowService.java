@@ -21,13 +21,13 @@ public class FollowService {
     private final BlockFacade blockFacade;
 
     @Transactional
-    public void follow(Long followerId, Long followeeId) {
+    public void follow(Long userId, Long targetUserId) {
         // 자기 자신 팔로우 불가능
-        if (followerId.equals(followeeId)) {
+        if (userId.equals(targetUserId)) {
             throw new SelfFollowNotAllowedException(FollowApiErrorCode.SELF_FOLLOW_NOT_ALLOWED);
         }
-        User follower = userFacade.getUserById(followerId);
-        User followee = userFacade.getUserById(followeeId);
+        User follower = userFacade.getUserById(userId);
+        User followee = userFacade.getUserById(targetUserId);
 
         // A가 B를 차단했거나, B가 A를 차단했으면 팔로우 금지
         blockFacade.assertNotBlockedEitherDirection(follower, followee);
@@ -38,13 +38,13 @@ public class FollowService {
     }
 
     @Transactional
-    public NewFollowInfoRes unfollow(Long userId, Long unfollowId) {
+    public NewFollowInfoRes unfollow(Long userId, Long targetUserId) {
         // 자기 자신 언팔로우 불가능
-        if (userId.equals(unfollowId)) {
+        if (userId.equals(targetUserId)) {
             throw new SelfFollowNotAllowedException(FollowApiErrorCode.SELF_UNFOLLOW_NOT_ALLOWED);
         }
         User me = userFacade.getUserById(userId);
-        User you = userFacade.getUserById(unfollowId);
+        User you = userFacade.getUserById(targetUserId);
 
         followFacade.deleteIfExists(me, you);
 

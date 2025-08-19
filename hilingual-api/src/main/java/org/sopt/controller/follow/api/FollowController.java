@@ -9,26 +9,26 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/feed")
+@RequestMapping("/api/v1/users/following")
 public class FollowController {
 
     private final FollowService followService;
 
-    @PutMapping("/{followId}/follow")
+    @PutMapping("/{targetUserId}")
     public ResponseEntity<Void> follow(
             @UserId Long userId,
-            @PathVariable long followId
+            @PathVariable long targetUserId
     ){
-        followService.follow(userId, followId);
+        followService.follow(userId, targetUserId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{unfollowId}/unfollow")
+    @DeleteMapping("/{targetUserId}")
     public ResponseEntity<NewFollowInfoRes> unfollow(
             @UserId Long userId,
-            @PathVariable long unfollowId
+            @PathVariable long targetUserId
     ){
-        return ResponseEntity.ok(followService.unfollow(userId, unfollowId));
+        return ResponseEntity.ok(followService.unfollow(userId, targetUserId));
     }
 
 }
