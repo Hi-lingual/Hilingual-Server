@@ -6,7 +6,6 @@ import org.sopt.block.exception.AlreadyBlockedUserException;
 import org.sopt.block.exception.BlockCoreErrorCode;
 import org.sopt.block.exception.BlockedNotFoundException;
 import org.sopt.block.exception.UnblockableUserException;
-import org.sopt.block.repository.BlockRepository;
 import org.sopt.user.domain.User;
 import org.sopt.userprofile.domain.UserProfile;
 import org.springframework.stereotype.Component;
@@ -48,4 +47,8 @@ public class BlockFacade {
     public List<Long> getBlockedUserId(Long blockerId) {
         return blockRetriever.findBlockedUserId(blockerId);
     }
+
+    @Transactional(readOnly = true)
+    public boolean existsByBlockerIdAndBlockedId(Long blockerId, Long blockedId) { return blockRetriever.existsByBlockerIdAndBlockedId(blockerId, blockedId); }
+
 }

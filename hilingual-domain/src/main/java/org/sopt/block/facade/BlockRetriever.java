@@ -30,4 +30,6 @@ public class BlockRetriever {
     public List<Long> findBlockedUserId(Long blockerId) {
         return blockRepository.findBlockedUsers(blockerId);
     }
+
+    public boolean existsByBlockerIdAndBlockedId(Long blockerId, Long blockedId) { return blockRepository.existsByBlockerIdAndBlockedId(blockerId, blockedId); }
 }
