@@ -18,6 +18,7 @@ public class DiaryFacade {
 
     private final DiaryRetriever diaryRetriever;
     private final DiarySaver diarySaver;
+    private final DiaryRemover diaryRemover;
 
     public void validateDiaryOwnership(final long userId, final long diaryId) {
         Diary diary = diaryRetriever.findById(diaryId);
@@ -39,9 +40,8 @@ public class DiaryFacade {
         return diaryRetriever.findById(diaryId);
     }
 
-    public List<LocalDateTime> getCreatedAts(Long userId) {
-        return diaryRetriever.findDiaryCreatedAts(userId);
+    public void deleteDiary(final long userId, final long diaryId) {
+        diaryRemover.deleteDiary(userId,diaryId);
     }
-
 
 }
