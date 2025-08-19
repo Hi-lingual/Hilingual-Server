@@ -5,7 +5,6 @@ import org.sopt.controller.token.TokenService;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
 import org.sopt.controller.user.exception.UserSuccessCode;
 import org.sopt.dto.BaseResponseDto;
-import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.user.facade.UserFacade;
 import org.springframework.stereotype.Service;
