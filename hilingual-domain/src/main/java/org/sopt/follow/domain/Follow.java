@@ -8,7 +8,16 @@ import lombok.NoArgsConstructor;
 import org.sopt.user.domain.User;
 
 @Entity
-@Table(name = FollowTableConstants.TABLE_FOLLOW)
+@Table(
+        name = FollowTableConstants.TABLE_FOLLOW,
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_follower_followee",
+                columnNames = {
+                        FollowTableConstants.COLUMN_FOLLOWER_ID,
+                        FollowTableConstants.COLUMN_FOLLOWEE_ID
+                }
+        )
+)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -26,6 +35,7 @@ public class Follow {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = FollowTableConstants.COLUMN_FOLLOWEE_ID, nullable = false)
     private User followee;
+
 
     public static Follow create(User follower, User followee) {
         return new Follow(null, follower, followee);
