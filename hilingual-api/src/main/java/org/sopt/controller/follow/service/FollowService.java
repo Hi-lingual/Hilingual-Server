@@ -2,6 +2,7 @@ package org.sopt.controller.follow.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.block.facade.BlockFacade;
+import org.sopt.controller.follow.dto.NewFollowInfoRes;
 import org.sopt.controller.follow.exception.FollowApiErrorCode;
 import org.sopt.controller.follow.exception.SelfFollowNotAllowedException;
 import org.sopt.follow.facade.FollowFacade;
@@ -35,4 +36,21 @@ public class FollowService {
 
         followFacade.save(follower, followee);
     }
+
+    @Transactional
+    public NewFollowInfoRes unfollow(Long userId, Long unfollowId) {
+        // 자기 자신 언팔로우 불가능
+        if (userId.equals(unfollowId)) {
+            throw new SelfFollowNotAllowedException(FollowApiErrorCode.SELF_UNFOLLOW_NOT_ALLOWED);
+        }
+        User me = userFacade.getUserById(userId);
+        User you = userFacade.getUserById(unfollowId);
+
+        followFacade.deleteIfExists(me, you);
+
+        // 언팔 직후 me->you는 항상 false, you->me만 확인
+        boolean followedBy = followFacade.isFollowing(you, me);
+        return NewFollowInfoRes.of(followedBy);
+    }
+
 }
