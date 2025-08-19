@@ -20,4 +20,9 @@ public class FollowRetriever {
             throw new FollowAlreadyExistsException(FollowCoreErrorCode.FOLLOW_ALREADY_EXISTS);
         }
     }
+
+    @Transactional(readOnly = true)
+    public boolean existsByFollowerIdAndFolloweeId(Long aId, Long bId){
+        return followRepository.existsByFollowerIdAndFolloweeId(aId, bId);
+    }
 }
