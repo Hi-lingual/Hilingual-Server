@@ -51,10 +51,10 @@ public class Diary extends BaseTimeEntity {
     @JoinColumn(name = DiaryTableConstants.COLUMN_USER_ID, nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "diary", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "diary", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DiaryFeedback> feedbacks;
 
-    @OneToMany(mappedBy = "diary", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "diary", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Recommend> recommends;
 
     public static Diary create(
