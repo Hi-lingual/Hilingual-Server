@@ -27,18 +27,19 @@ public class UserCalendar extends BaseTimeEntity {
     @Column(name = UserCalendarTableConstants.COLUMN_DATE, nullable = false)
     private LocalDate date;
 
-    @Column(name = UserCalendarTableConstants.COLUMN_IS_WRITTEN, nullable = false)
-    private Boolean isWritten;
+    @Enumerated(EnumType.STRING)
+    @Column(name = UserCalendarTableConstants.COLUMN_STATUS, nullable = false, length = 16)
+    private WriteStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = UserCalendarTableConstants.COLUMN_USER_ID, nullable = false)
     private User user;
 
-    public void markWritten(){
-        this.isWritten = true;
+    public void markWritten() {
+        this.status = WriteStatus.WRITTEN;
     }
 
-    public static UserCalendar create(LocalDate date, Boolean isWritten, User user) {
-        return new UserCalendar(null, date, isWritten, user); // id=null
+    public static UserCalendar create(LocalDate date, WriteStatus status, User user) {
+        return new UserCalendar(null, date, status, user);
     }
 }
