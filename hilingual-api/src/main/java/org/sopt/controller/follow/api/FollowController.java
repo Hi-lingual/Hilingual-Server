@@ -1,6 +1,7 @@
 package org.sopt.controller.follow.api;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.controller.follow.dto.NewFollowInfoRes;
 import org.sopt.controller.follow.service.FollowService;
 import org.sopt.jwt.annotation.UserId;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,14 @@ public class FollowController {
     ){
         followService.follow(userId, followId);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{unfollowId}/unfollow")
+    public ResponseEntity<NewFollowInfoRes> unfollow(
+            @UserId Long userId,
+            @PathVariable long unfollowId
+    ){
+        return ResponseEntity.ok(followService.unfollow(userId, unfollowId));
     }
 
 }
