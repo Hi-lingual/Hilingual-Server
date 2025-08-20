@@ -8,7 +8,17 @@ import lombok.NoArgsConstructor;
 import org.sopt.user.domain.User;
 
 @Entity
-@Table(name = FollowTableConstants.TABLE_FOLLOW)
+@Table(
+        name = FollowTableConstants.TABLE_FOLLOW,
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {
+                                FollowTableConstants.COLUMN_FOLLOWER_ID,
+                                FollowTableConstants.COLUMN_FOLLOWEE_ID
+                        }
+                )
+        }
+)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
