@@ -53,11 +53,9 @@ jobs:
           proxy_key: ${{ secrets.SSH_KEY }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
-          # ✅ 폴더 전체를 그대로 보냄
-          source: "nginx"
-          # ✅ 목적지는 상위 디렉터리(/home/ubuntu). tar strip 불필요
-          target: "/home/ubuntu"
-          # ❌ strip_components 삭제 (혹은 0으로)
+          source: "nginx/*"
+          target: "/home/ubuntu/nginx/"
+          strip_components: 1
           debug: true
 
       - name: 🧾 List files on Nginx EC2
