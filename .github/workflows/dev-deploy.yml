@@ -26,6 +26,22 @@ jobs:
         run: |
           chmod +x ./gradlew && ./gradlew clean build -x test
 
+      - name: 🗂️ Prepare target directory on Nginx EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.NGINX_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          proxy_host: ${{ secrets.BASTION_IP }}
+          proxy_username: ubuntu
+          proxy_key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            sudo mkdir -p /home/ubuntu/nginx
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/nginx
+            ls -al /home/ubuntu/nginx
+
       - name: 📦 Copy NGINX bundle to Nginx EC2
         uses: appleboy/scp-action@v0.1.6
         with:
@@ -38,6 +54,7 @@ jobs:
           source:      "nginx/*"
           target:      "/home/ubuntu/nginx/"
           strip_components: 1
+          debug: true
 
       - name: 🔧 Ensure Nginx container is up (DEV)
         uses: appleboy/ssh-action@v1.0.3
