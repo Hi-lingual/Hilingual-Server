@@ -1,7 +1,6 @@
 package org.sopt.userprofile.facade;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.diary.repository.DiaryRepository;
 import org.sopt.userprofile.dto.UserProfileRes;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.exception.UserProfileNotFoundException;
@@ -9,7 +8,6 @@ import org.sopt.userprofile.exception.UserProfileCoreErrorCode;
 import org.sopt.userprofile.repository.UserProfileRepository;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

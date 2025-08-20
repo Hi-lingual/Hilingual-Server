@@ -1,6 +1,6 @@
 package org.sopt.controller.follow.dto;
 
-import org.sopt.controller.userprofile.dto.UserProfileSummaryDtoRes;
+import org.sopt.controller.userprofile.dto.UserProfileSummaryRes;
 
 public record FollowingDtoRes(
         Long userId,
@@ -9,7 +9,7 @@ public record FollowingDtoRes(
         boolean isFollowing,
         boolean isFollowed
 ){
-    public static FollowingDtoRes of(UserProfileSummaryDtoRes profile, boolean isFollowed) {
+    public static FollowingDtoRes of(UserProfileSummaryRes profile, boolean isFollowed) {
         return new FollowingDtoRes(
                 profile.userId(),
                 profile.nickname(),

@@ -5,7 +5,7 @@ import org.sopt.controller.follow.dto.FollowerDtoRes;
 import org.sopt.controller.follow.dto.FollowerListDtoRes;
 import org.sopt.controller.follow.dto.FollowingDtoRes;
 import org.sopt.controller.follow.dto.FollowingListDtoRes;
-import org.sopt.controller.userprofile.dto.UserProfileSummaryDtoRes;
+import org.sopt.controller.userprofile.dto.UserProfileSummaryRes;
 import org.sopt.follow.dto.FolloweeIdAndIsFollowed;
 import org.sopt.follow.dto.FollowerIdAndIsFollowing;
 import org.sopt.follow.facade.FollowFacade;
@@ -40,15 +40,15 @@ public class FollowService {
                 .toList();
 
         // 팔로워 프로필 정보 Map으로 변환
-        Map<Long, UserProfileSummaryDtoRes> profilesMap = userProfileFacade.getProfilesByUserIds(followerIds)
+        Map<Long, UserProfileSummaryRes> profilesMap = userProfileFacade.getProfilesByUserIds(followerIds)
                 .stream()
-                .map(UserProfileSummaryDtoRes::from)
-                .collect(Collectors.toMap(UserProfileSummaryDtoRes::userId, Function.identity()));
+                .map(UserProfileSummaryRes::from)
+                .collect(Collectors.toMap(UserProfileSummaryRes::userId, Function.identity()));
 
         // 팔로워 목록과 프로필 정보 결합
         return new FollowerListDtoRes(followers.stream()
                 .map(follower -> {
-                    UserProfileSummaryDtoRes profile = profilesMap.get(follower.getFollowerId());
+                    UserProfileSummaryRes profile = profilesMap.get(follower.getFollowerId());
                     return FollowerDtoRes.of(profile, follower.getIsFollowing());
                 })
                 .toList()
@@ -65,14 +65,14 @@ public class FollowService {
                 .map(FolloweeIdAndIsFollowed::getFolloweeId)
                 .toList();
 
-        Map<Long, UserProfileSummaryDtoRes> profilesMap = userProfileFacade.getProfilesByUserIds(followeeIds)
+        Map<Long, UserProfileSummaryRes> profilesMap = userProfileFacade.getProfilesByUserIds(followeeIds)
                 .stream()
-                .map(UserProfileSummaryDtoRes::from)
-                .collect(Collectors.toMap(UserProfileSummaryDtoRes::userId, Function.identity()));
+                .map(UserProfileSummaryRes::from)
+                .collect(Collectors.toMap(UserProfileSummaryRes::userId, Function.identity()));
 
         return new FollowingListDtoRes(followings.stream()
                 .map(following -> {
-                    UserProfileSummaryDtoRes profile = profilesMap.get(following.getFolloweeId());
+                    UserProfileSummaryRes profile = profilesMap.get(following.getFolloweeId());
                     return FollowingDtoRes.of(profile, following.getIsFollowed());
                 })
                 .toList()
