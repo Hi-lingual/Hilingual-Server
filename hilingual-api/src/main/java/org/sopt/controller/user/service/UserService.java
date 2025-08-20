@@ -84,6 +84,7 @@ public class UserService {
                 break;
             case "APPLE":
                 loginProviderInfo = "애플 로그인";
+                break;
             default:
                 throw new CannotLoadProviderException(UserApiErrorCode.PROVIDER_LOAD_ERROR);
         }
