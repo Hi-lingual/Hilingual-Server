@@ -51,16 +51,34 @@ jobs:
       - name: 📦 Copy NGINX bundle to Nginx EC2
         uses: appleboy/scp-action@v0.1.6
         with:
-          host:        ${{ env.NGINX_HOST }}
-          proxy_host:  ${{ secrets.BASTION_IP }}
+          host: ${{ env.NGINX_HOST }}
+          proxy_host: ${{ secrets.BASTION_IP }}
           proxy_username: ubuntu
-          proxy_key:   ${{ secrets.SSH_KEY }}
-          username:    ubuntu
-          key:         ${{ secrets.SSH_KEY }}
-          source:      "nginx/*"
-          target:      "/home/ubuntu/nginx/"
-          strip_components: 1
+          proxy_key: ${{ secrets.SSH_KEY }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          # ✅ 폴더 전체를 그대로 보냄
+          source: "nginx"
+          # ✅ 목적지는 상위 디렉터리(/home/ubuntu). tar strip 불필요
+          target: "/home/ubuntu"
+          # ❌ strip_components 삭제 (혹은 0으로)
           debug: true
+
+      - name: 🧾 List files on Nginx EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.NGINX_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          proxy_host: ${{ secrets.BASTION_IP }}
+          proxy_username: ubuntu
+          proxy_key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            ls -al /home/ubuntu
+            echo "----"
+            ls -al /home/ubuntu/nginx
 
       - name: 🔧 Ensure Nginx container is up (PROD)
         uses: appleboy/ssh-action@v1.0.3
