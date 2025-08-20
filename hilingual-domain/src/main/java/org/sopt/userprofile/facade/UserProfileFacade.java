@@ -25,6 +25,7 @@ public class UserProfileFacade {
         return userProfileRetriever.findByUserId(userId);
     }
 
+    // TODO UserProfileRes 반환값 UserProfile로 수정해서 아래랑 통일
     public UserProfileRes getUserProfile(Long userId) {
         return userProfileRetriever.getUserProfile(userId);
     }
@@ -40,6 +41,10 @@ public class UserProfileFacade {
     @Transactional(readOnly = true)
     public List<UserProfile> getProfilesByUserIds(List<Long> userIds) {
         return userProfileRetriever.findByUserIds(userIds);
+    }
+
+    public UserProfile getProfileByUserId(Long userId) {
+        return userProfileRetriever.findByUserId(userId);
     }
 
     /**
