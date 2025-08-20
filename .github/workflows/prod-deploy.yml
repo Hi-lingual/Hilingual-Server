@@ -43,7 +43,9 @@ jobs:
           script: |
             set -e
             sudo mkdir -p /home/ubuntu/nginx
+            sudo rm -rf /home/ubuntu/nginx/*
             sudo chown -R ubuntu:ubuntu /home/ubuntu/nginx
+            grep -E '^Subsystem' /etc/ssh/sshd_config || true
             ls -al /home/ubuntu/nginx
 
       - name: 📦 Copy NGINX bundle to Nginx EC2
