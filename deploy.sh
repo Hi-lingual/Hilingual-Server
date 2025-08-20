@@ -1,14 +1,10 @@
 #!/bin/bash
 set -e  # 명령 실패 시 즉시 종료
 
-############################################
-# 입력 환경변수
-# - APP_HOST:   App EC2 Private IP
-# - NGINX_HOST: Nginx EC2 Private IP
-# - UPSTREAM_ENV: dev | prod  (배포 대상 도메인 그룹)
-############################################
+# 입력 환경변수:
+# - APP_HOST:   App EC2 Private IP (예: 10.0.2.177)
+# - NGINX_HOST: Nginx EC2 Private IP (예: 10.0.1.18)
 
-UPSTREAM_ENV="${UPSTREAM_ENV:-}"
 SSH_KEY=~/.ssh/hilingual_actions
 SSH_HOST="ubuntu@${NGINX_HOST}"
 SSH="ssh -i ${SSH_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=no ${SSH_HOST}"
@@ -53,9 +49,8 @@ if [ "$SUCCESS" -ne 1 ]; then
 fi
 
 ############################################
-# Nginx 스위치 함수
+# Nginx 스위치 (TARGET_UPSTREAM만 사용)
 # - TARGET: "APP_HOST:PORT" (예: 10.0.2.177:8082)
-# - UPSTREAM_ENV에 따라 dev/prod inc 파일을 함께 갱신
 ############################################
 switch_upstream () {
   local TARGET="$1"  # 예: "10.0.2.177:8082"
@@ -65,13 +60,12 @@ switch_upstream () {
       set -e
       cd /home/ubuntu/nginx
 
-      # Docker compose 준비 (nginx 서비스 보장)
       C='sudo docker compose -p hilingual -f /home/ubuntu/nginx/docker-compose.yml'
       sudo systemctl start docker
       sudo systemctl enable docker >/dev/null 2>&1 || true
       \$C up -d --remove-orphans nginx
 
-      # nginx 컨테이너 CID 조회(라벨 기준, 안정적)
+      # nginx 컨테이너 CID 조회
       i=0; cid=''
       while [ \$i -lt 30 ]; do
         cid=\$(sudo docker ps -q \
@@ -82,17 +76,21 @@ switch_upstream () {
       done
       [ -n \"\$cid\" ] || { echo 'nginx container not found'; exit 1; }
 
-      # (A) 환경 inc 파일 갱신: 실제 전환된 포트를 반영(printf로 안전하게)
+      # INC 디렉토리 보장
+      sudo docker exec \"\$cid\" /bin/sh -lc 'mkdir -p /etc/nginx/includes'
+
+      # (A) 환경 inc 파일 갱신
       if [ '${UPSTREAM_ENV}' = 'dev' ]; then
-        sudo docker exec \"\$cid\" /bin/sh -lc \"printf 'set \\\$app_dev \\\"%s\\\";\\n' 'http://${TARGET}' > /etc/nginx/conf.d/dev.inc\"
+        sudo docker exec \"\$cid\" /bin/sh -lc \
+          "printf 'set \\\$service_url \\\"%s\\\";\\n' 'http://${TARGET}' > /etc/nginx/includes/dev.inc"
       elif [ '${UPSTREAM_ENV}' = 'prod' ]; then
-        sudo docker exec \"\$cid\" /bin/sh -lc \"printf 'set \\\$app_prod \\\"%s\\\";\\n' 'http://${TARGET}' > /etc/nginx/conf.d/prod.inc\"
+        sudo docker exec \"\$cid\" /bin/sh -lc \
+          "printf 'set \\\$service_url \\\"%s\\\";\\n' 'http://${TARGET}' > /etc/nginx/includes/prod.inc"
       else
         echo '[WARN] UPSTREAM_ENV not set (dev|prod). inc 파일 갱신 생략'
       fi
 
       # (B) 템플릿 치환 + 검증 + 리로드
-      #     여기서 TARGET_UPSTREAM은 fallback 용도로만 사용(템플릿 map 구조와 함께 동작)
       sudo docker exec -e TARGET_UPSTREAM='${TARGET}' \"\$cid\" \
         /bin/sh -lc \"envsubst '\\\$TARGET_UPSTREAM' < /etc/nginx/nginx.template.conf > /etc/nginx/conf.d/default.conf && nginx -t && nginx -s reload\"
     "
@@ -100,18 +98,3 @@ switch_upstream () {
     echo "⚠️  ${SSH_KEY} 가 없어 Nginx 스위치를 건너뜁니다."
   fi
 }
-
-######## 3) 스위치 or 롤백 ########
-if [ -z "$ROLLBACK" ]; then
-  echo "[NGINX] switch → ${NEW} (${APP_HOST}:${PORT_NEW})"
-  switch_upstream "${APP_HOST}:${PORT_NEW}"
-
-  # 이전 색 종료(첫 배포가 아니면)
-  if [ -n "$CURRENT" ]; then
-    docker compose stop spring-${OLD}
-  fi
-else
-  echo "[NGINX] rollback → ${OLD} (${APP_HOST}:${PORT_OLD})"
-  switch_upstream "${APP_HOST}:${PORT_OLD}"
-  exit 1
-fi
