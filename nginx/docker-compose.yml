@@ -1,11 +1,14 @@
 services:
   nginx:
-    image: nginx:latest
+    image: nginx:1.25-alpine
     container_name: hilingual-nginx
     ports: ["80:80"]
     volumes:
       # 템플릿만 컨테이너에 제공(읽기전용 권장)
       - ./nginx.template.conf:/etc/nginx/nginx.template.conf:ro
+      - ./conf.d/:/etc/nginx/conf.d/:rw
+    restart: unless-stopped
+
       # (선택) 스크립트는 자동 실행 안 되게 다른 경로로 마운트만 해둠
       # - ./start-nginx.sh:/opt/start-nginx.sh:ro
 
