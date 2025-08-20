@@ -3,15 +3,14 @@ package org.sopt.controller.user.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sopt.controller.block.exception.CannotSelfUnblockException;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
 import org.sopt.controller.user.dto.UserDefaultInfoRes;
 import org.sopt.controller.user.exception.CannotLoadProviderException;
 import org.sopt.controller.user.exception.UserApiErrorCode;
-import org.sopt.controller.user.exception.UserApiException;
 import org.sopt.controller.user.exception.UserSuccessCode;
 import org.sopt.dto.BaseResponseDto;
 import org.sopt.user.domain.User;
+import org.sopt.controller.user.dto.HomeUserProfileRes;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.facade.UserProfileFacade;
@@ -28,8 +27,6 @@ public class UserService {
     private static final String NICKNAME_PATTERN = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]+$";
     private static final int MIN_NICKNAME_LENGTH = 2;
     private static final int MAX_NICKNAME_LENGTH = 10;
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
-
 
     private final UserFacade userFacade;
     private final UserProfileFacade userProfileFacade;
@@ -48,13 +45,20 @@ public class UserService {
     }
 
     public UserDefaultInfoRes getUserDefaultInfo(final long userId) {
-        UserProfile userProfile = userProfileFacade.getProfileByUserId(userId);
         User user = userFacade.getUserById(userId);
 
-        return new UserDefaultInfoRes(
-                userProfile.getProfileImg(),
-                userProfile.getNickname(),
+        return UserDefaultInfoRes.from(
+                user.getUserProfile(),
                 parseProviderInfo(user.getProvider())
+        );
+    }
+
+    public HomeUserProfileRes getHomeUserInfo(final long userId) {
+        User user = userFacade.getUserById(userId);
+
+        return HomeUserProfileRes.from(
+                user.getUserProfile(),
+                user.getNotifyStatus()
         );
     }
 

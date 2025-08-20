@@ -6,6 +6,7 @@ import org.sopt.controller.user.dto.UserDefaultInfoRes;
 import org.sopt.controller.user.service.UserService;
 import org.sopt.dto.BaseResponseDto;
 import org.sopt.jwt.annotation.UserId;
+import org.sopt.controller.user.dto.HomeUserProfileRes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,16 @@ public class UserController {
             @RequestParam(value = "nickname") String nickname
     ) {
         return userService.getNicknameAvailable(nickname);
+    }
+
+    /*
+     * 홈
+     */
+    @GetMapping("/home/info")
+    public ResponseEntity<HomeUserProfileRes> getUserProfile(
+            @UserId Long userId
+    ) {
+        return ResponseEntity.ok(userService.getHomeUserInfo(userId));
     }
 
     /*
