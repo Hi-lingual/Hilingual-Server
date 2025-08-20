@@ -2,8 +2,9 @@ package org.sopt.controller.block.api;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.sopt.controller.userprofile.dto.UserProfileSummaryDtoRes;
+import org.sopt.controller.userprofile.dto.UserProfileSummaryRes;
 import org.sopt.controller.block.service.BlockService;
+import org.sopt.jwt.annotation.UserId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,27 +19,24 @@ public class BlockController {
 
     @PutMapping("/{userId}/block")
     public ResponseEntity<Void> blockUser(
+            @UserId Long blockerId,
             @PathVariable("userId") @NotNull Long blockedId
     ) {
-        Long blockerId = 1L;
-        // TODO Long blockerId = UserAuthenticationUtils.getCurrentUserId();
-
         return ResponseEntity.ok(blockService.blockUser(blockerId, blockedId));
     }
 
     @DeleteMapping("/{userId}/unblock")
     public ResponseEntity<Void> unblockUser(
+            @UserId Long blockerId,
             @PathVariable("userId") @NotNull Long unblockedId
     ) {
-        Long blockerId = 1L;
-        // TODO Long blockerId = UserAuthenticationUtils.getCurrentUserId();
         return ResponseEntity.ok(blockService.unblockUser(blockerId, unblockedId));
     }
 
     @GetMapping("/mypage/blocks")
-    public ResponseEntity<List<UserProfileSummaryDtoRes>> getBlockedUserList(){
-        Long userId = 1L;
-        // TODO Long userId = UserAuthenticationUtils.getCurrentUserId();
+    public ResponseEntity<List<UserProfileSummaryRes>> getBlockedUserList(
+            @UserId Long userId
+    ){
         return ResponseEntity.ok(blockService.getBlockedUserList(userId));
     }
 }
