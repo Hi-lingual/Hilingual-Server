@@ -1,17 +1,14 @@
-package org.sopt.user.exception;
+package org.sopt.alarmpreference.exception;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
-public enum UserCoreErrorCode implements ErrorCode {
+public enum AlarmPreferenceCoreErrorCode implements ErrorCode {
 
     // 400
-    INVALID_REGISTER_STATUS_TYPE(HttpStatus.BAD_REQUEST, 40421, "올바르지 않은 가입 타입입니다."),
-
-    // 404
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, 40410, "존재하지 않는 사용자입니다."),
+    INVALID_ALARM_TYPE(HttpStatus.BAD_REQUEST, 40017, "올바르지 않은 알림 타입입니다."),
     ;
 
     public final HttpStatus httpStatus;
@@ -32,5 +29,4 @@ public enum UserCoreErrorCode implements ErrorCode {
     public String getMessage() {
         return message;
     }
-
 }

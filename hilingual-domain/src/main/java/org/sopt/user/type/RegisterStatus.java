@@ -2,6 +2,8 @@ package org.sopt.user.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.sopt.user.exception.InvalidRegisterStatusException;
+import org.sopt.user.exception.UserCoreErrorCode;
 
 import java.util.Arrays;
 
@@ -18,6 +20,6 @@ public enum RegisterStatus {
         return Arrays.stream(values())
                 .filter(status -> status.code == code)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid code: " + code));
+                .orElseThrow(() -> new InvalidRegisterStatusException(UserCoreErrorCode.INVALID_REGISTER_STATUS_TYPE));
     }
 }

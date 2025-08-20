@@ -2,6 +2,8 @@ package org.sopt.feedalarm.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.sopt.feedalarm.exception.FeedAlarmCoreErrorCode;
+import org.sopt.feedalarm.exception.InvalidTargetTypeException;
 
 import java.util.Arrays;
 
@@ -17,6 +19,6 @@ public enum TargetType {
         return Arrays.stream(values())
                 .filter(t -> t.code == code)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown TargetType code: " + code));
+                .orElseThrow(() -> new InvalidTargetTypeException(FeedAlarmCoreErrorCode.INVALID_TARGET_TYPE));
     }
 }
