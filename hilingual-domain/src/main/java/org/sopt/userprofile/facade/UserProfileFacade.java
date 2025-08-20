@@ -2,7 +2,6 @@ package org.sopt.userprofile.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.userprofile.domain.UserProfile;
-import org.sopt.userprofile.dto.UserProfileRes;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +22,6 @@ public class UserProfileFacade {
      */
     public UserProfile findByUserId(Long userId) {
         return userProfileRetriever.findByUserId(userId);
-    }
-
-    // TODO UserProfileRes 반환값 UserProfile로 수정해서 아래랑 통일
-    public UserProfileRes getUserProfile(Long userId) {
-        return userProfileRetriever.getUserProfile(userId);
     }
 
     public Optional<UserProfile> findOptionalByUserId(Long userId) {
