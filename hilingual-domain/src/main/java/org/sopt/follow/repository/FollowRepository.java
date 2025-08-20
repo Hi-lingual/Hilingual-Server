@@ -38,13 +38,12 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     // 나와 대상자에 대해 isFollowed, isFollowing 여부 확인
     @Query("""
-           SELECT 
-              (COUNT(f1) > 0) AS isFollowing,
-              (COUNT(f2) > 0) AS isFollowed
-           FROM Follow f1, Follow f2
-           WHERE (f1.follower.id = :userId AND f1.followee.id = :targetUserId)
-              OR (f2.follower.id = :targetUserId AND f2.followee.id = :userId)
-           """)
+       SELECT
+          (SELECT COUNT(f) > 0 FROM Follow f
+           WHERE f.follower.id = :userId AND f.followee.id = :targetUserId) AS isFollowing,
+          (SELECT COUNT(f) > 0 FROM Follow f 
+           WHERE f.follower.id = :targetUserId AND f.followee.id = :userId) AS isFollowed
+       """)
     FollowRelation findFollowRelation(
             @Param("userId") Long userId,
             @Param("targetUserId") Long targetUserId
