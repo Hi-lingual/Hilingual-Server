@@ -5,7 +5,7 @@ import org.sopt.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
-public enum FollowApiErrorCode  implements ErrorCode {
+public enum FollowApiErrorCode implements ErrorCode {
 
    ;
 
