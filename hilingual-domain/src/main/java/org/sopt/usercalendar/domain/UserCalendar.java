@@ -28,7 +28,7 @@ public class UserCalendar extends BaseTimeEntity {
     private LocalDate date;
 
     @Column(name = UserCalendarTableConstants.COLUMN_IS_WRITTEN, nullable = false)
-    private Boolean isWritten;
+    private Boolean isWritten = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = UserCalendarTableConstants.COLUMN_USER_ID, nullable = false)
