@@ -3,6 +3,7 @@ package org.sopt.controller.feed.api;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.feed.dto.FeedProfileRes;
 import org.sopt.controller.feed.service.FeedService;
+import org.sopt.jwt.annotation.UserId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,15 +14,13 @@ public class FeedController {
 
     private final FeedService feedService;
 
-    @GetMapping("/profiles/{userId}")
+    @GetMapping("/profiles/{targetUserId}")
     public ResponseEntity<FeedProfileRes> getFeedProfile(
-            @PathVariable(value = "userId", required = false) Long targetUserId
+            @UserId Long userId,
+            @PathVariable(value = "targetUserId") Long targetUserId
     ) {
-        Long userId = 1L;
-        // TODO UserAuthenticationUtils.getCurrentUserId();
-        // 본인의 프로필인 경우
-        if (targetUserId == null) {
-            targetUserId = 1L;
+        if (targetUserId == 0) {
+            targetUserId = userId;
         }
 
         return ResponseEntity.ok(feedService.getFeedProfile(userId, targetUserId));
