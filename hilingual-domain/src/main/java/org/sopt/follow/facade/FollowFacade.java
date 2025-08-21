@@ -29,12 +29,12 @@ public class FollowFacade {
         followRetriever.assertNotFollowing(follower, followee);
     }
 
-    //팔로 우 생성
+    //팔로우 생성
     @Transactional
     public Long save(User follower, User followee) {
         try {
             Follow saved = followSaver.save(Follow.create(follower, followee));
-            return saved.getFollowId();
+            return saved.getId();
         } catch (DataIntegrityViolationException e) {
             if (isUniqueViolation(e, UK_FOLLOWER_FOLLOWEE)) {
                 throw new FollowAlreadyExistsException(FollowCoreErrorCode.FOLLOW_ALREADY_EXISTS);
@@ -64,7 +64,7 @@ public class FollowFacade {
     // 내가 팔로우하는 사람들 + 그들이 나를 팔로우 중인지
     @Transactional(readOnly = true)
     public List<FolloweeIdAndIsFollowed> getFolloweeListAndIsFollowed(Long userId) {
-        return followRetriever.getFolloweeListAndIsFollowedByUserId(userId);
+        return followRetriever.getFolloweeListAndIsFollowed(userId);
     }
 
     private boolean isUniqueViolation(DataIntegrityViolationException e, String constraintName) {
