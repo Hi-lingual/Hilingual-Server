@@ -1,14 +1,16 @@
-package org.sopt.api.test;
+package org.sopt.controller.test.api;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.controller.test.dto.jwt.*;
+import org.sopt.controller.test.dto.jwt.JwtTokensDto;
 import org.sopt.jwt.annotation.UserId;
-import org.sopt.jwt.auth.JwtTokenProvider;
 import org.sopt.jwt.auth.authentication.UserAuthentication;
 import org.sopt.jwt.auth.domain.Token;
 import org.sopt.jwt.auth.domain.TokenRepository;
+import org.sopt.jwt.core.JwtTokenProvider;
+import org.sopt.jwt.core.TokenHasher;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.util.Base64;
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/test/jwt")
@@ -29,6 +29,7 @@ public class JwtController {
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRepository tokenRepository;
     private final UserFacade userFacade;
+    private final TokenHasher tokenHasher;
 
     /**
      * 토큰 발급 테스트 (멀티 디바이스/세션 검증용)
@@ -50,16 +51,19 @@ public class JwtController {
                 req.userId(), req.provider(), sessionId
         );
 
-        Token token = Token.create(
-                user.getId(),
-                req.provider(),
-                sha256Base64(refreshToken),
-                req.deviceName(),
-                req.deviceType(),
-                req.osType(),
-                req.osVersion(),
-                req.appVersion()
-        );
+        Token token = Token.builder()
+                .id(req.userId() + ":" + sessionId)
+                .userId(user.getId())
+                .authProvider(req.provider())
+                .refreshTokenHash(tokenHasher.hash(refreshToken))
+                .deviceName(req.deviceName())
+                .deviceType(req.deviceType())
+                .osType(req.osType())
+               .osVersion(req.osVersion())
+                .appVersion(req.appVersion())
+                .issuedAt(Instant.now())
+                .lastUsedAt(Instant.now())
+                .build();
         tokenRepository.save(token);
 
         JwtTokensDto tokens = JwtTokensDto.builder()
@@ -67,16 +71,6 @@ public class JwtController {
                 .refreshToken(refreshToken)
                 .build();
         return ResponseEntity.ok(tokens);
-    }
-
-    public static String sha256Base64(String value) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest(value.getBytes(StandardCharsets.UTF_8));
-            return Base64.getEncoder().encodeToString(digest);
-        } catch (Exception e) {
-            throw new IllegalStateException("Hashing failed", e);
-        }
     }
 
     /**

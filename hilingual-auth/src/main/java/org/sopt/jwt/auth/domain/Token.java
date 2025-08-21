@@ -2,6 +2,8 @@ package org.sopt.jwt.auth.domain;
 
 import jakarta.persistence.Id;
 import lombok.*;
+import org.sopt.jwt.auth.domain.type.AuthProvider;
+import org.sopt.jwt.auth.domain.type.DeviceType;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 

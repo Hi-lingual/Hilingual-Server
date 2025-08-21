@@ -8,7 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt.jwt.auth.JwtTokenProvider;
+import org.sopt.jwt.core.JwtClaimsKeys;
+import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.auth.authentication.UserAuthenticationFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -32,13 +33,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final AntPathMatcher PM = new AntPathMatcher();
     private static final List<String> SKIP = List.of(
-            "/auth/login/**", "/auth/reissue/**", "/actuator/**"
+            "/actuator/**",
+            "/api/v1/users/reissue",
+            "/test/jwt/token/issue"
     );
 
     private boolean shouldSkip(HttpServletRequest req) {
-        String path = req.getRequestURI();
-        for (String p : SKIP) if (PM.match(p, path)) return true;
-        return false;
+        String path = req.getServletPath();
+        boolean matched = SKIP.stream().anyMatch(p -> PM.match(p, path));
+        log.debug("skipCheck path='{}' matched={}", path, matched);
+        return matched;
     }
 
     @Override
@@ -62,12 +66,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = jwtTokenProvider.getJwtFromRequest(request);
         /** 유효하면 파싱 및 검증해서 Claim 획득 */
         if (StringUtils.hasText(token)) {
-            Claims claims = jwtTokenProvider.getBody(token);
-            if (log.isDebugEnabled()) {
-                log.debug("JWT parsed. sub={}, sid={}", claims.getSubject(), claims.get("sid"));
+            Claims claims = jwtTokenProvider.parseAndVerify(token);
+            String type = claims.get(JwtClaimsKeys.TYPE, String.class);
+
+            if (JwtClaimsKeys.ACCESS.equals(type)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("JWT parsed. sub={}, sid={}", claims.getSubject(), claims.get("sid"));
+                }
+                userAuthenticationFactory.authenticateUser(claims, request);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Skip authentication. tokenType={}", type);
+                }
             }
-            userAuthenticationFactory.authenticateUser(claims, request);
         }
+
         filterChain.doFilter(request, response);
     }
 }

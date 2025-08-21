@@ -2,7 +2,7 @@ package org.sopt.jwt.auth.authentication;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
-import org.sopt.jwt.support.AuthConstant;
+import org.sopt.jwt.support.AuthConstants;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -24,7 +24,7 @@ public class UserAuthenticationFactory {
 
         // userId: 클레임 → sub 순으로 파싱
         Long userId = null;
-        Object idObj = claims.get(AuthConstant.USER_ID_CLAIM_NAME);
+        Object idObj = claims.get(AuthConstants.USER_ID_CLAIM_NAME);
         if (idObj instanceof Number n) userId = n.longValue();
         if (userId == null) userId = Long.valueOf(claims.getSubject());
 

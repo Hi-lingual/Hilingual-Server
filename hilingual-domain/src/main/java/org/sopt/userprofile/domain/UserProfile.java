@@ -66,5 +66,3 @@ public class UserProfile extends BaseTimeEntity {
         this.streak = streak;
     }
 }
-
-

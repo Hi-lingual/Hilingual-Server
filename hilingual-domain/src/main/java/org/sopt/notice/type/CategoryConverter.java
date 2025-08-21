@@ -2,22 +2,18 @@ package org.sopt.notice.type;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import org.sopt.feedalarm.type.TargetType;
 
 @Converter(autoApply = false)
 public class CategoryConverter implements AttributeConverter<Category, Integer> {
+
     @Override
     public Integer convertToDatabaseColumn(Category attribute) {
-        if (attribute == null) {
-            return null;
-        }
-        return attribute.getCode();
+        return attribute != null ? attribute.getCode() : null;
     }
 
     @Override
     public Category convertToEntityAttribute(Integer dbData) {
-        if (dbData == null) {
-            return null;
-        }
-        return Category.fromCode(dbData);
+        return dbData != null ? Category.fromCode(dbData) : null;
     }
 }
