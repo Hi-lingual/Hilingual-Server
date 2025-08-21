@@ -1,7 +1,7 @@
 package org.sopt.controller.user.exception;
 
-import org.sopt.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
+import org.sopt.exception.code.ErrorCode;
 
 public class CannotLoadProviderException extends UserApiException {
     public CannotLoadProviderException(ErrorCode errorCode) { super(errorCode); }
