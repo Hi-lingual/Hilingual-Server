@@ -1,7 +1,6 @@
 package org.sopt.userprofile.facade;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.userprofile.dto.UserProfileRes;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.exception.UserProfileNotFoundException;
 import org.sopt.userprofile.exception.UserProfileCoreErrorCode;
@@ -29,11 +28,6 @@ public class UserProfileRetriever {
 
     public List<UserProfile> findAll() {
         return userProfileRepository.findAll();
-    }
-
-    public UserProfileRes getUserProfile(final Long userId) {
-        UserProfile profile = findByUserId(userId);
-        return UserProfileRes.from(profile);
     }
 
     public List<UserProfile> findByUserIds(List<Long> userIds) {
