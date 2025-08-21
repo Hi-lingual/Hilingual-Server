@@ -7,14 +7,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.user.domain.User;
 
+import static org.sopt.follow.domain.FollowTableConstants.*;
+
 @Entity
 @Table(
-        name = FollowTableConstants.TABLE_FOLLOW,
+        name = TABLE_FOLLOW,
         uniqueConstraints = {
                 @UniqueConstraint(
                         columnNames = {
-                                FollowTableConstants.COLUMN_FOLLOWER_ID,
-                                FollowTableConstants.COLUMN_FOLLOWEE_ID
+                                COLUMN_FOLLOWER_ID,
+                                COLUMN_FOLLOWEE_ID
                         }
                 )
         }
@@ -26,15 +28,15 @@ public class Follow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = FollowTableConstants.COLUMN_FOLLOW_ID)
+    @Column(name = COLUMN_FOLLOW_ID)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = FollowTableConstants.COLUMN_FOLLOWER_ID, nullable = false)
+    @JoinColumn(name = COLUMN_FOLLOWER_ID, nullable = false)
     private User follower;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = FollowTableConstants.COLUMN_FOLLOWEE_ID, nullable = false)
+    @JoinColumn(name = COLUMN_FOLLOWEE_ID, nullable = false)
     private User followee;
 
     public static Follow create(User follower, User followee) {
