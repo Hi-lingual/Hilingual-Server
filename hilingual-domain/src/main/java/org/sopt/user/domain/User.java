@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.sopt.common.config.BaseTimeEntity;
+import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.noticedelivery.domain.NoticeDelivery;
 import org.sopt.user.type.RegisterStatus;
 import org.sopt.user.type.RegisterStatusConverter;
@@ -33,6 +34,9 @@ public class User extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = COLUMN_ID)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @Column(name = COLUMN_PROVIDER, nullable = false, length = 20)
     private String provider; // GOOGLE | APPLE

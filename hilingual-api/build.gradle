@@ -38,6 +38,12 @@ dependencies {
 
     // Open Feign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
 }
 
 bootJar { enabled = true } // dependencies 와 class 파일 모두 묶어서 빌드

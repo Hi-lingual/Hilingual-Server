@@ -100,4 +100,9 @@ public class DiaryService {
                 .imageUrl(imageUrl)
                 .build();
     }
+
+    @Transactional
+    public void removeDairy(final Long userId, final Long diary){
+        diaryFacade.deleteDiary(userId, diary);
+    };
 }

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.dto.BaseResponseDto;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.code.ErrorCode;
-import org.sopt.jwt.support.AuthConstant;
+import org.sopt.jwt.support.AuthConstants;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -37,8 +37,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             errorCode = AuthErrorCode.WRONG_ENTRY_POINT;
         }
 
-        response.setContentType(AuthConstant.CONTENT_TYPE);
-        response.setCharacterEncoding(AuthConstant.CHARACTER_TYPE);
+        response.setContentType(AuthConstants.CONTENT_TYPE);
+        response.setCharacterEncoding(AuthConstants.CHARACTER_TYPE);
         response.setStatus(errorCode.getHttpStatus().value());
         response.getWriter().write(
                 objectMapper.writeValueAsString(BaseResponseDto.fail(errorCode))

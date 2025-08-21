@@ -16,17 +16,24 @@ public class UserAuthentication extends AbstractAuthenticationToken {
     @Getter
     private final UserRole role;
 
-    public UserAuthentication(Long userId, UserRole role) {
+    private UserAuthentication(Long userId, UserRole role, boolean authenticated) {
         super(List.of(new SimpleGrantedAuthority("ROLE_" + role.name())));
         this.userId = userId;
         this.role = role;
-        setAuthenticated(true);
+        super.setAuthenticated(authenticated);
     }
 
-    @Override public Object getPrincipal()   { return userId; }
-    @Override public Object getCredentials() { return null;    }
+    @Override
+    public Object getPrincipal() {
+        return userId;
+    }
+
+    @Override
+    public Object getCredentials() {
+        return null;
+    }
 
     public static UserAuthentication create(Long userId, UserRole role) {
-        return new UserAuthentication(userId, role);
+        return new UserAuthentication(userId, role, true);
     }
 }

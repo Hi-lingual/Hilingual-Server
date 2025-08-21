@@ -3,6 +3,7 @@ package org.sopt.usercalendar.facade;
 import lombok.RequiredArgsConstructor;
 import org.sopt.user.domain.User;
 import org.sopt.usercalendar.domain.UserCalendar;
+import org.sopt.usercalendar.domain.WriteStatus;
 import org.sopt.usercalendar.repository.UserCalendarRepository;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ public class UserCalendarSaver {
     private final UserCalendarRepository userCalendarRepository;
 
     public void save(User user, LocalDate writtenDate) {
-        UserCalendar newCalendar = UserCalendar.create(writtenDate, true, user);
+        UserCalendar newCalendar = UserCalendar.create(writtenDate, WriteStatus.WRITTEN, user);
         userCalendarRepository.save(newCalendar);
     }
 }
