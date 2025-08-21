@@ -22,6 +22,7 @@ import java.net.URL;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Objects;
@@ -44,18 +45,12 @@ public class S3Service {
     private final S3Presigner presigner;
     private final S3Client s3Client;
     private final AWSProperties awsProperties;
-    private final Clock clock = Clock.systemDefaultZone();
+    private final Clock clock = Clock.system(ZoneId.of("Asia/Seoul"));
 
     /*
     업로드용 presigned URL 발급 메서드
      */
     public PreSignedUrlRes getPreSignedUrls(Long userId, String purpose, String contentType) {
-        if (contentType == null || contentType.isBlank()) {
-            throw new S3BaseException(GlobalErrorCode.INVALID_INPUT_VALUE);
-        }
-        if (purpose == null || purpose.isBlank()) {
-            throw new S3BaseException(GlobalErrorCode.INVALID_INPUT_VALUE);
-        }
 
         final String bucket = awsProperties.getBucketName();
         final Purpose pur = Purpose.from(purpose);
@@ -77,7 +72,7 @@ public class S3Service {
             URL url = p.url();
             return PreSignedUrlRes.of(fileKey, url.toString());
         } catch (S3Exception e) {
-            throw Objects.requireNonNull(mapS3(e, S3ErrorCode.PRESIGN_CREATE_FAILED));
+            throw mapS3(e, S3ErrorCode.PRESIGN_CREATE_FAILED);
         } catch (SdkException e) {
             throw new S3BaseException(S3ErrorCode.PRESIGN_CREATE_FAILED);
         }
@@ -181,8 +176,9 @@ public class S3Service {
 
         String normKey = key.startsWith("/") ? key.substring(1) : key;
 
-        String base = cdn.matches("(?i)^http?://.*") ? cdn : "http://" + (cdn.endsWith("/") ? cdn.substring(0, cdn.length() - 1) : cdn);
-        if (base.endsWith("/")) base = base.substring(0, base.length() - 1);
+        String base = cdn.startsWith("http://")
+                ? cdn
+                : "http://" + (cdn.endsWith("/") ? cdn.substring(0, cdn.length() - 1) : cdn);
 
         return base + "/" + normKey;
     }
