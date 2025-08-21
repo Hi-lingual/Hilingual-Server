@@ -60,7 +60,9 @@ public class S3Service {
         final String bucket = awsProperties.getBucketName();
         final Purpose pur = Purpose.from(purpose);
         final String ext = extFromContentType(contentType);
-        final String fileKey = buildTmpKey(userId, pur, ext);
+
+        final String rawTmpKey = buildTmpKey(userId, pur, ext);
+        final String fileKey = prefix(rawTmpKey);
 
         try {
             PutObjectRequest put = PutObjectRequest.builder()
@@ -109,17 +111,18 @@ public class S3Service {
     }
 
     /*
-    tmp 키를 최종 위치로 “서버가” 옮기고(finalKey 반환), tmp는 삭제
+     * tmp 키를 최종 위치로 이동(finalKey 반환) 후 tmp 삭제
      */
     public String bindDiaryImage(Long userId, String tmpKey, LocalDate date) {
-        validateTmpKeyOwnership(userId, tmpKey, "users/%d/images/diaries/tmp/".formatted(userId));
+        String expectedPrefix = prefix("users/%d/images/diaries/tmp/".formatted(userId));
+        validateTmpKeyOwnership(userId, tmpKey, expectedPrefix);
 
         String dateDir = date.toString();
         String filename = tmpKey.substring(tmpKey.lastIndexOf('/') + 1);
         String bucket = awsProperties.getBucketName();
-        String finalKey = "users/%d/images/diaries/%s/%s".formatted(userId, dateDir, filename);
+        String finalKey = prefix("users/%d/images/diaries/%s/%s".formatted(userId, dateDir, filename));
 
-        String copySourceRaw = bucket + "/" + tmpKey;
+        String copySourceRaw = bucket + "/" + tmpKey; // tmpKey는 이미 prefix 포함
         String copySource = SdkHttpUtils.urlEncode(copySourceRaw);
 
         try {
@@ -149,9 +152,27 @@ public class S3Service {
         }
     }
 
+    // 모든 S3 key 앞에 prefix(dev/prod) 안전하게 붙임
+    private String prefix(String key) {
+        String p = trimToNull(awsProperties.getPrefix()); // "dev" / "prod"
+        String k = normalize(key);
+        if (p == null) return k;
+
+        String np = normalize(p);
+        if (k.startsWith(np + "/")) return k;
+        return np + "/" + k;
+    }
+
+    private static String normalize(String s) {
+        String v = Objects.requireNonNull(s).trim();
+        while (v.startsWith("/")) v = v.substring(1);
+        while (v.endsWith("/")) v = v.substring(0, v.length() - 1);
+        return v;
+    }
+
     /*
-    DB에 저장된 S3 key를 퍼블릭 URL로 변환
-    TODO : https 연결 확인하기, Access 권한 확인하기
+     * DB에 저장된 S3 key를 퍼블릭 URL로 변환
+     * TODO : https 연결 확인하기
      */
     public String toPublicUrl(String key) {
         if (key == null || key.isBlank()) return null;
@@ -159,8 +180,10 @@ public class S3Service {
         if (cdn == null) throw new S3BaseException(S3ErrorCode.CDN_DOMAIN_NOT_CONFIGURED);
 
         String normKey = key.startsWith("/") ? key.substring(1) : key;
-        String normCdn = cdn.endsWith("/") ? cdn.substring(0, cdn.length() - 1) : cdn;
 
-        return "https://%s/%s".formatted(normCdn, normKey);
+        String base = cdn.matches("(?i)^http?://.*") ? cdn : "http://" + (cdn.endsWith("/") ? cdn.substring(0, cdn.length() - 1) : cdn);
+        if (base.endsWith("/")) base = base.substring(0, base.length() - 1);
+
+        return base + "/" + normKey;
     }
 }
