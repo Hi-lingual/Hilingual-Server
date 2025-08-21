@@ -6,7 +6,7 @@ import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.InvalidTokenException;
 import org.sopt.exception.TokenNotFoundException;
 import org.sopt.jwt.auth.authentication.UserRole;
-import org.sopt.jwt.auth.domain.AuthProvider;
+import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.domain.Token;
 import org.sopt.jwt.auth.domain.TokenRepository;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
@@ -14,7 +14,7 @@ import org.sopt.jwt.core.JwtClaimsKeys;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.core.TokenHasher;
 import org.sopt.jwt.core.TokenId;
-import org.sopt.jwt.support.AuthConstant;
+import org.sopt.jwt.support.AuthConstants;
 import org.sopt.user.facade.UserFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,12 +43,12 @@ public class TokenService {
         }
 
         // Claim 에서 정보 추출
-        Long userId = claims.get(AuthConstant.USER_ID_CLAIM_NAME, Long.class);
+        Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
         String sessionId = claims.get(JwtClaimsKeys.SESSIONID, String.class);
         AuthProvider provider = AuthProvider.valueOf(claims.get(JwtClaimsKeys.PROVIDER, String.class));
         UserRole role = userFacade.getUserById(userId).getRole();
 
-        // Redis 애서 토큰 정보 조회 & 해시 대조
+        // Redis 에서 토큰 정보 조회 & 해시 대조
         String tokenId = new TokenId(userId, sessionId).toString();
         Token stored = tokenRepository.findById(tokenId)
                 .orElseThrow(() -> new TokenNotFoundException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND_IN_STORE));
