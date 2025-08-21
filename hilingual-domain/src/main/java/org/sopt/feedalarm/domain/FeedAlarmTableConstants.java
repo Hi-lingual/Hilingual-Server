@@ -1,7 +1,7 @@
 package org.sopt.feedalarm.domain;
 
 public class FeedAlarmTableConstants {
-    public static final String TABLE_FEED_ALARM = "FeedAlarm";
+    public static final String TABLE_FEED_ALARM = "feed_alarm";
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_USER_ID = "user_id";
     public static final String COLUMN_TYPE = "type";

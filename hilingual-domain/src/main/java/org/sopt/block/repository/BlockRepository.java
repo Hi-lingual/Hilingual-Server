@@ -34,7 +34,11 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
     Optional<Block> findByBlockerAndBlocked(@Param("blocker") User blocker,
                                             @Param("blocked") User blocked);
 
-    @Query("SELECT b.blocked.id FROM Block b WHERE b.blocker.id = :blockerId")
+    @Query("""
+           SELECT b.blocked.id
+           FROM Block b WHERE b.blocker.id = :blockerId
+           ORDER BY b.createdAt DESC
+           """)
     List<Long> findBlockedUsers(@Param("blockerId") Long blockerId);
 
     // 두 사용자(aId, bId) 중 어느 한쪽이라도 서로를 차단한 관계가 존재하는지 여부 확인

@@ -2,6 +2,7 @@ package org.sopt.block.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.block.domain.Block;
+import org.sopt.block.domain.BlockTableConstants;
 import org.sopt.block.exception.AlreadyBlockedUserException;
 import org.sopt.block.exception.BlockCoreErrorCode;
 import org.sopt.block.repository.BlockRepository;
@@ -21,12 +22,22 @@ public class BlockSaver {
         try {
             return blockRepository.save(Block.create(blocker, blocked));
         } catch (DataIntegrityViolationException e) {
-            throw new AlreadyBlockedUserException(BlockCoreErrorCode.ALREADY_BLOCKED_USER);
+            if (isUniqueViolation(e, BlockTableConstants.UK_BLOCKER_BLOCKED)) {
+                throw new AlreadyBlockedUserException(BlockCoreErrorCode.ALREADY_BLOCKED_USER);
+            }
+            throw e;
         }
+
     }
 
     @Transactional
     public void delete(Block block) {
         blockRepository.delete(block);
+    }
+
+    private boolean isUniqueViolation(DataIntegrityViolationException e, String constraintName) {
+        Throwable cause = e.getMostSpecificCause();
+        String msg = cause.getMessage();
+        return msg != null && msg.contains(constraintName);
     }
 }

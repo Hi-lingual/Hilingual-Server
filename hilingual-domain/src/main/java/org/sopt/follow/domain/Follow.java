@@ -28,7 +28,7 @@ public class Follow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = COLUMN_FOLLOW_ID)
-    private Long followId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_FOLLOWER_ID, nullable = false)
@@ -37,7 +37,6 @@ public class Follow {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_FOLLOWEE_ID, nullable = false)
     private User followee;
-
 
     public static Follow create(User follower, User followee) {
         return new Follow(null, follower, followee);

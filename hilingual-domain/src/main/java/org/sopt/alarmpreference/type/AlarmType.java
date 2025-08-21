@@ -2,6 +2,8 @@ package org.sopt.alarmpreference.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.sopt.alarmpreference.exception.AlarmPreferenceCoreErrorCode;
+import org.sopt.alarmpreference.exception.InvalidAlarmTypeException;
 
 import java.util.Arrays;
 
@@ -17,6 +19,6 @@ public enum AlarmType {
         return Arrays.stream(values())
                 .filter(type -> type.code == code)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid AlarmType code: " + code));
+                .orElseThrow(() -> new InvalidAlarmTypeException(AlarmPreferenceCoreErrorCode.INVALID_ALARM_TYPE));
     }
 }
