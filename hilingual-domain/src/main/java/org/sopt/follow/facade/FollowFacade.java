@@ -9,6 +9,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.sopt.follow.domain.FollowTableConstants.UK_FOLLOWER_FOLLOWEE;
+
 @Component
 @RequiredArgsConstructor
 public class FollowFacade {
@@ -16,8 +18,6 @@ public class FollowFacade {
     private final FollowRetriever followRetriever;
     private final FollowSaver followSaver;
     private final FollowRemover followRemover;
-
-    private static final String UK_FOLLOWER_FOLLOWEE = "uk_follower_followee";
 
     /** 이미 팔로우 중이면 예외, 아니면 통과 */
     @Transactional(readOnly = true)
