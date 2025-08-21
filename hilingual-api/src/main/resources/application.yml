@@ -99,6 +99,7 @@ aws-property:
   aws-region: ${AWS_REGION}
   bucket-name: ${AWS_BUCKET_NAME}
   cdn-domain: ${AWS_CDN_DOMAIN}
+  prefix: ${AWS_S3_FILE_KEY}
 
 openai:
   api-key: ${OPENAI_API_KEY}
