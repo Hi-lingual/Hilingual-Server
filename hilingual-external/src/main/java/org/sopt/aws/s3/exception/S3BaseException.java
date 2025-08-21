@@ -4,13 +4,13 @@ import org.sopt.exception.base.HilingualBaseException;
 import org.sopt.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public class InvalidImageException extends HilingualBaseException {
-    public InvalidImageException(ErrorCode errorCode) {
+public class S3BaseException extends HilingualBaseException {
+    public S3BaseException(ErrorCode errorCode) {
         super(errorCode);
     }
 
     @Override
     public HttpStatus getStatus() {
-        return HttpStatus.BAD_REQUEST;
+        return getErrorCode().getHttpStatus();
     }
 }

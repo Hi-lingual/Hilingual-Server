@@ -26,7 +26,7 @@ public class UserCalendar extends BaseTimeEntity {
 
     @Column(name = UserCalendarTableConstants.COLUMN_DATE, nullable = false)
     private LocalDate date;
-
+  
     @Enumerated(EnumType.STRING)
     @Column(name = UserCalendarTableConstants.COLUMN_STATUS, nullable = false, length = 16)
     private WriteStatus status;

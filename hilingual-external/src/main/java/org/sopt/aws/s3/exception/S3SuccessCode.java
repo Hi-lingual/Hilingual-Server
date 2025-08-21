@@ -8,8 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum S3SuccessCode implements SuccessCode {
-    S3_UPLOAD_SUCCESS(HttpStatus.OK, 20000, "이미지 업로드 성공"),
-    S3_DELETE_SUCCESS(HttpStatus.OK, 20000, "이미지 삭제 성공"),
+    S3_PRESIGN_ISSUE_SUCCESS(HttpStatus.OK, 20000, "prsigned-url 발급 성공"),
     ;
 
     public final HttpStatus httpStatus;
