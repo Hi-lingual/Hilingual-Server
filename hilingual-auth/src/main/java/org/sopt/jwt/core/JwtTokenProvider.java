@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.exception.*;
 import org.sopt.jwt.auth.authentication.UserRole;
-import org.sopt.jwt.auth.domain.AuthProvider;
-import org.sopt.jwt.support.AuthConstant;
+import org.sopt.jwt.auth.domain.type.AuthProvider;
+import org.sopt.jwt.support.AuthConstants;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -60,7 +60,7 @@ public class JwtTokenProvider implements InitializingBean {
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .subject(String.valueOf(userId))
-                .claim(AuthConstant.USER_ID_CLAIM_NAME, userId)
+                .claim(AuthConstants.USER_ID_CLAIM_NAME, userId)
                 .claim(JwtClaimsKeys.ROLE, role.name())
                 .claim(JwtClaimsKeys.PROVIDER, provider.name())
                 .claim(JwtClaimsKeys.SESSIONID, sessionId)
@@ -81,7 +81,7 @@ public class JwtTokenProvider implements InitializingBean {
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .subject(String.valueOf(userId))
-                .claim(AuthConstant.USER_ID_CLAIM_NAME, userId)
+                .claim(AuthConstants.USER_ID_CLAIM_NAME, userId)
                 .claim(JwtClaimsKeys.PROVIDER, provider.name())
                 .claim(JwtClaimsKeys.SESSIONID, sessionId)
                 .claim(JwtClaimsKeys.TYPE, JwtClaimsKeys.REFRESH)
@@ -103,12 +103,12 @@ public class JwtTokenProvider implements InitializingBean {
 
     /** Authorization 헤더에서 Bearer 토큰 추출 */
     public String getJwtFromRequest(final HttpServletRequest request) {
-        final String bearerToken = request.getHeader(AuthConstant.AUTHORIZATION_HEADER);
+        final String bearerToken = request.getHeader(AuthConstants.AUTHORIZATION_HEADER);
 
         if (!StringUtils.hasText(bearerToken)) throw new TokenNotFoundException(AuthErrorCode.AUTH_HEADER_NOT_FOUND);
-        if (!bearerToken.startsWith(AuthConstant.BEARER_PREFIX)) throw new InvalidAuthHeaderException(AuthErrorCode.INVALID_AUTH_HEADER);
+        if (!bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) throw new InvalidAuthHeaderException(AuthErrorCode.INVALID_AUTH_HEADER);
 
-        String token = bearerToken.substring(AuthConstant.BEARER_PREFIX.length());
+        String token = bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
         if (!StringUtils.hasText(token)) throw new TokenNotFoundException(AuthErrorCode.AUTH_TOKEN_NOT_FOUND);
         return token;
     }

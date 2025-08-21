@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.dto.BaseResponseDto;
 import org.sopt.exception.code.ErrorCode;
-import org.sopt.jwt.support.AuthConstant;
+import org.sopt.jwt.support.AuthConstants;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ public class ErrorResponder {
     public void write(HttpServletResponse response, ErrorCode errorCode) {
         try {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(AuthConstant.CHARACTER_TYPE);
+            response.setCharacterEncoding(AuthConstants.CHARACTER_TYPE);
             response.setStatus(errorCode.getHttpStatus().value());
 
             PrintWriter writer = response.getWriter();

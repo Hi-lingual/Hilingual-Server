@@ -1,7 +1,7 @@
 package org.sopt.config;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.jwt.support.AuthConstant;
+import org.sopt.jwt.support.AuthConstants;
 import org.sopt.jwt.auth.web.ExceptionHandlerFilter;
 import org.sopt.jwt.auth.web.JwtAuthenticationEntryPoint;
 import org.sopt.jwt.auth.web.JwtAuthenticationFilter;
@@ -42,7 +42,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> {
                     auth
-                            .requestMatchers(AuthConstant.AUTH_WHITE_LIST).permitAll()
+                            .requestMatchers(AuthConstants.AUTH_WHITE_LIST).permitAll()
                             .anyRequest()
                             .authenticated();
                 })
