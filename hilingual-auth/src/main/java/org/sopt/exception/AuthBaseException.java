@@ -6,9 +6,10 @@ import org.springframework.http.HttpStatus;
 
 public abstract class AuthBaseException extends HilingualBaseException {
 
-    public AuthBaseException(ErrorCode errorCode) {
+    protected AuthBaseException(ErrorCode errorCode) {
         super(errorCode);
     }
 
-    public abstract HttpStatus getStatus();
+    @Override
+    public abstract HttpStatus getStatus(); // 상태 코드는 하위 클래스에서 결정
 }

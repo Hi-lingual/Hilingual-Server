@@ -7,6 +7,10 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum VocaCoreErrorCode implements ErrorCode {
 
+    // 400
+    INVALID_SAVED_ROOT_TYPE(HttpStatus.BAD_REQUEST, 40421, "올바르지 않은 저장 경로입니다."),
+
+    // 404
     VOCA_NOT_FOUND(HttpStatus.NOT_FOUND, 40404, "phraseId에 해당하는 단어가 없습니다");
 
 

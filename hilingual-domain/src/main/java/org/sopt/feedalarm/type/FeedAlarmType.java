@@ -2,6 +2,8 @@ package org.sopt.feedalarm.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.sopt.feedalarm.exception.FeedAlarmCoreErrorCode;
+import org.sopt.feedalarm.exception.InvalidFeedAlarmTypeException;
 
 import java.util.Arrays;
 
@@ -17,6 +19,6 @@ public enum FeedAlarmType {
         return Arrays.stream(values())
                 .filter(t -> t.code == code)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown Type code: " + code));
+                .orElseThrow(() -> new InvalidFeedAlarmTypeException(FeedAlarmCoreErrorCode.INVALID_FEED_ALARM_TYPE));
     }
 }

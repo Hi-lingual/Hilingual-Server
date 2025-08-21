@@ -1,57 +1,71 @@
 #!/bin/bash
-set -e                                  # 명령 실패 시 즉시 종료
+set -e  # 명령 실패 시 즉시 종료
 
-## 테스트용 주석 변경!!! ##
-######## 0) 지금 어떤 색 컨테이너가 떠 있는지 확인 ############
-#  └─ 둘 다 없으면 “첫 배포” 라고 간주
+# 입력 환경변수:
+# - APP_HOST:   App EC2 Private IP (예: 10.0.2.177)
+# - NGINX_HOST: Nginx EC2 Private IP (예: 10.0.1.18)
+
+SSH_KEY=~/.ssh/hilingual_actions
+SSH_HOST="ubuntu@${NGINX_HOST}"
+SSH="ssh -i ${SSH_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=no ${SSH_HOST}"
+
+######## 0) 현재 떠 있는 색 확인 ########
 if  docker ps --format '{{.Names}}' | grep -q hilingual-blue ; then
   CURRENT="blue"
 elif docker ps --format '{{.Names}}' | grep -q hilingual-green ; then
   CURRENT="green"
 else
-  CURRENT=""                            # ← 첫 배포
+  CURRENT=""  # 첫 배포
 fi
 
-# 이번에 띄울 색·포트 결정
+######## 새로 띄울 색/포트 결정 ########
 if [ "$CURRENT" = "blue" ]; then
   NEW="green"; PORT_NEW=8082
   OLD="blue" ; PORT_OLD=8081
-else                                    # green 이거나 첫 배포
+else
   NEW="blue" ; PORT_NEW=8081
   OLD="green"; PORT_OLD=8082
 fi
 
-######## 1) 새 컨테이너 기동 ##################################
+echo "[INFO] CURRENT=$CURRENT NEW=$NEW PORT_NEW=$PORT_NEW"
+
+######## 1) 새 컨테이너 기동 ########
 docker compose up -d spring-${NEW}
 
-######## 2) 헬스체크 (최대 100 초) ###############################
+######## 2) 헬스체크 (최대 100초) ########
 SUCCESS=0
 for i in {1..20}; do
   if curl -fs "http://localhost:${PORT_NEW}/actuator/health" 2>/dev/null | grep -q '"status":"UP"'; then
     SUCCESS=1
     break
   fi
-  echo "  …${i}/20"
+  echo "  …health ${i}/20"
   sleep 5
 done
-[ "$SUCCESS" -eq 1 ] || { echo "Health FAIL"; ROLLBACK=1; }
 
-######## 3) Nginx EC2 upstream 전환(또는 롤백) #################
-# 첫 배포 + ssh 키 미배치 상황을 고려해 “없으면 건너뜀”
-SSH_KEY=~/.ssh/hilingual_actions
-SSH_HOST="ubuntu@${NGINX_HOST}"
-SSH="ssh -i ${SSH_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=no ${SSH_HOST}"
+if [ "$SUCCESS" -ne 1 ]; then
+  echo "[ERROR] Health check failed on :${PORT_NEW}"
+  ROLLBACK=1
+fi
 
+############################################
+# Nginx 스위치 (TARGET_UPSTREAM만 사용)
+# - TARGET: "APP_HOST:PORT" (예: 10.0.2.177:8082)
+############################################
 switch_upstream () {
-  local TARGET="$1"
+  local TARGET="$1"  # 예: "10.0.2.177:8082"
+
   if [ -f "${SSH_KEY}" ]; then
     $SSH bash -lc "
       set -e
-      C='sudo --preserve-env=TARGET_UPSTREAM docker compose -p hilingual -f /home/ubuntu/nginx/docker-compose.yml'
-      # Nginx 컨테이너 보장
+      cd /home/ubuntu/nginx
+
+      C='sudo docker compose -p hilingual -f /home/ubuntu/nginx/docker-compose.yml'
+      sudo systemctl start docker
+      sudo systemctl enable docker >/dev/null 2>&1 || true
       \$C up -d --remove-orphans nginx
 
-      # 컨테이너 CID를 라벨로 안정적으로 조회
+      # nginx 컨테이너 CID 조회
       i=0; cid=''
       while [ \$i -lt 30 ]; do
         cid=\$(sudo docker ps -q \
@@ -62,7 +76,21 @@ switch_upstream () {
       done
       [ -n \"\$cid\" ] || { echo 'nginx container not found'; exit 1; }
 
-      # 컨테이너 내부에서 envsubst + 검증 + 리로드
+      # INC 디렉토리 보장
+      sudo docker exec \"\$cid\" /bin/sh -lc 'mkdir -p /etc/nginx/includes'
+
+      # (A) 환경 inc 파일 갱신
+      if [ '${UPSTREAM_ENV}' = 'dev' ]; then
+        sudo docker exec \"\$cid\" /bin/sh -lc \
+          "printf 'set \\\$service_url \\\"%s\\\";\\n' 'http://${TARGET}' > /etc/nginx/includes/dev.inc"
+      elif [ '${UPSTREAM_ENV}' = 'prod' ]; then
+        sudo docker exec \"\$cid\" /bin/sh -lc \
+          "printf 'set \\\$service_url \\\"%s\\\";\\n' 'http://${TARGET}' > /etc/nginx/includes/prod.inc"
+      else
+        echo '[WARN] UPSTREAM_ENV not set (dev|prod). inc 파일 갱신 생략'
+      fi
+
+      # (B) 템플릿 치환 + 검증 + 리로드
       sudo docker exec -e TARGET_UPSTREAM='${TARGET}' \"\$cid\" \
         /bin/sh -lc \"envsubst '\\\$TARGET_UPSTREAM' < /etc/nginx/nginx.template.conf > /etc/nginx/conf.d/default.conf && nginx -t && nginx -s reload\"
     "
@@ -70,17 +98,3 @@ switch_upstream () {
     echo "⚠️  ${SSH_KEY} 가 없어 Nginx 스위치를 건너뜁니다."
   fi
 }
-
-if [ -z "$ROLLBACK" ]; then
-  echo "[NGINX] switch → ${NEW}"
-  switch_upstream "${APP_HOST}:${PORT_NEW}"
-
-  # 첫 배포가 아니면 이전 색 컨테이너 종료
-  if [ -n "$CURRENT" ] ; then
-    docker compose stop spring-${OLD}
-  fi
-else
-  echo "[NGINX] rollback → ${OLD}"
-  switch_upstream "${APP_HOST}:${PORT_OLD}"
-  exit 1                                 # GitHub Actions job 을 실패로 종료
-fi

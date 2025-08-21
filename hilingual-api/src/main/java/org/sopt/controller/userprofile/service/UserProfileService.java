@@ -3,7 +3,6 @@ package org.sopt.controller.userprofile.service;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.userprofile.dto.UserProfileReq;
 import org.sopt.user.facade.UserFacade;
-import org.sopt.userprofile.dto.UserProfileRes;
 import org.sopt.user.domain.User;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.exception.UserProfileAlreadyExistException;
@@ -16,10 +15,6 @@ import org.springframework.stereotype.Service;
 public class UserProfileService {
     private final UserFacade userFacade;
     private final UserProfileFacade userProfileFacade;
-
-    public UserProfileRes getUserProfile(final Long userId) {
-        return userProfileFacade.getUserProfile(userId);
-    }
 
     public void save(Long userId, UserProfileReq userProfileReq) {
         // TODO : Custom error

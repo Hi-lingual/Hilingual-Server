@@ -8,13 +8,11 @@ public class AlarmTypeConverter implements AttributeConverter<AlarmType, Integer
 
     @Override
     public Integer convertToDatabaseColumn(AlarmType attribute) {
-        if (attribute == null) return null;
-        return attribute.getCode();
+        return attribute != null ? attribute.getCode() : null;
     }
 
     @Override
     public AlarmType convertToEntityAttribute(Integer dbData) {
-        if (dbData == null) return null;
-        return AlarmType.fromCode(dbData);
+        return dbData != null ? AlarmType.fromCode(dbData) : null;
     }
 }

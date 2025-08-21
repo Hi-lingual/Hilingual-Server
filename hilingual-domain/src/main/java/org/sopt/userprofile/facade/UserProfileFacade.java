@@ -2,7 +2,6 @@ package org.sopt.userprofile.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.userprofile.domain.UserProfile;
-import org.sopt.userprofile.dto.UserProfileRes;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +24,6 @@ public class UserProfileFacade {
         return userProfileRetriever.findByUserId(userId);
     }
 
-    public UserProfileRes getUserProfile(Long userId) {
-        return userProfileRetriever.getUserProfile(userId);
-    }
-
     public Optional<UserProfile> findOptionalByUserId(Long userId) {
         return userProfileRetriever.findOptionalByUserId(userId);
     }
@@ -40,6 +35,10 @@ public class UserProfileFacade {
     @Transactional(readOnly = true)
     public List<UserProfile> getProfilesByUserIds(List<Long> userIds) {
         return userProfileRetriever.findByUserIds(userIds);
+    }
+
+    public UserProfile getProfileByUserId(Long userId) {
+        return userProfileRetriever.findByUserId(userId);
     }
 
     /**
