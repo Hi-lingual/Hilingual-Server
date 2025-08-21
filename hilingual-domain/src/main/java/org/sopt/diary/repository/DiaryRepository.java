@@ -13,19 +13,8 @@ import java.util.Optional;
 
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
+    /** 같은 날짜 재작성 금지*/
     boolean existsByUserAndWrittenDate(User user, LocalDate writtenDate);
-
-    @Query("""
-    SELECT d FROM Diary d
-    WHERE d.user.id = :userId
-      AND d.createdAt >= :startOfDay
-      AND d.createdAt < :endOfDay
-""")
-    List<Diary> findByUserIdAndCreatedAtBetween(
-            @Param("userId") Long userId,
-            @Param("startOfDay") LocalDateTime startOfDay,
-            @Param("endOfDay") LocalDateTime endOfDay
-    );
 
     @Query("""
     SELECT d.createdAt FROM Diary d
@@ -33,6 +22,8 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 """)
     List<LocalDateTime> findCreatedAtsByUserId(@Param("userId") Long userId);
 
+    /** 본인 소유의 일기 단건 조회*/
     Optional<Diary> findFirstByUserIdAndWrittenDate(Long userId, LocalDate writtenDate);
+    Optional<Diary> findByIdAndUserId(Long diaryId, Long userId);
 
 }

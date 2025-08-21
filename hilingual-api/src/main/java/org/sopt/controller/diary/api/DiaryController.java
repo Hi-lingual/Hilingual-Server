@@ -44,4 +44,13 @@ public class DiaryController {
         return ResponseEntity.ok(diaryService.getDiaryDetails(userId, diaryId));
     }
 
+    @DeleteMapping("/{diaryId}")
+    public ResponseEntity<Void> removeDiary(
+            @UserId Long userId,
+            @PathVariable("diaryId") @NotNull @Min(1) Long diaryId
+    ){
+        diaryService.removeDairy(userId, diaryId);
+        return ResponseEntity.ok().build();
+    }
+
 }
