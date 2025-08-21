@@ -55,4 +55,8 @@ public class BlockFacade {
             throw new FollowForbiddenByBlockException(FollowCoreErrorCode.FOLLOW_FORBIDDEN_BY_BLOCK);
         }
     }
+
+    @Transactional(readOnly = true)
+    public boolean existsByBlockerIdAndBlockedId(Long blockerId, Long blockedId) { return blockRetriever.existsByBlockerIdAndBlockedId(blockerId, blockedId); }
+
 }

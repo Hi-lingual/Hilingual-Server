@@ -35,4 +35,5 @@ public class BlockRetriever {
         return blockRepository.existsEitherDirectionById(aId, bId);
     }
 
+    public boolean existsByBlockerIdAndBlockedId(Long blockerId, Long blockedId) { return blockRepository.existsByBlockerIdAndBlockedId(blockerId, blockedId); }
 }

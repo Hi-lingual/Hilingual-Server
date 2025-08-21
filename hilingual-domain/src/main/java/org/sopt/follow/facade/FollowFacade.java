@@ -2,6 +2,7 @@ package org.sopt.follow.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.follow.domain.Follow;
+import org.sopt.follow.dto.FollowRelation;
 import org.sopt.follow.dto.FolloweeIdAndIsFollowed;
 import org.sopt.follow.dto.FollowerIdAndIsFollowing;
 import org.sopt.follow.exception.FollowAlreadyExistsException;
@@ -71,5 +72,10 @@ public class FollowFacade {
         Throwable cause = e.getMostSpecificCause();
         String msg = (cause != null ? cause.getMessage() : "");
         return msg != null && msg.contains(constraintName);
+    }
+
+    @Transactional(readOnly = true)
+    public FollowRelation findFollowRelation(Long userId, Long targetUserId) {
+        return followRetriever.findFollowRelation(userId, targetUserId);
     }
 }

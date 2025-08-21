@@ -1,6 +1,7 @@
 package org.sopt.follow.repository;
 
 import org.sopt.follow.domain.Follow;
+import org.sopt.follow.dto.FollowRelation;
 import org.sopt.user.domain.User;
 import org.sopt.follow.dto.FolloweeIdAndIsFollowed;
 import org.sopt.follow.dto.FollowerIdAndIsFollowing;
@@ -32,12 +33,13 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     // 나를 팔로우하는 사람들 + 그들을 내가 팔로우 중인지 여부
     @Query("""
            SELECT f1.follower.id AS followerId,
-                  CASE WHEN f2.id IS NOT NULL THEN true ELSE false END AS isFollowing
-             FROM Follow f1
-        LEFT JOIN Follow f2
-               ON f2.follower.id = :userId
-              AND f2.followee.id = f1.follower.id
-            WHERE f1.followee.id = :userId
+                  CASE WHEN f2.id IS NOT NULL THEN true
+                       ELSE false
+                       END AS isFollowing
+           FROM Follow f1
+           LEFT JOIN Follow f2
+                  ON f2.follower.id = :userId AND f2.followee.id = f1.follower.id
+           WHERE f1.followee.id = :userId
            """)
     List<FollowerIdAndIsFollowing> findFollowerAndIsFollowingByUserId(@Param("userId") Long userId);
 
@@ -52,4 +54,15 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
             WHERE f1.follower.id = :userId
            """)
     List<FolloweeIdAndIsFollowed> findFolloweeAndIsFollowedByUserId(@Param("userId") Long userId);
+
+    // 나와 대상자에 대해 isFollowed, isFollowing 여부 확인
+    @Query("""
+       SELECT
+          (EXISTS(SELECT 1 FROM Follow f WHERE f.follower.id = :userId AND f.followee.id = :targetUserId)) AS isFollowing,
+          (EXISTS(SELECT 1 FROM Follow f WHERE f.follower.id = :targetUserId AND f.followee.id = :userId)) AS isFollowed
+       """)
+    FollowRelation findFollowRelation(
+            @Param("userId") Long userId,
+            @Param("targetUserId") Long targetUserId
+    );
 }
