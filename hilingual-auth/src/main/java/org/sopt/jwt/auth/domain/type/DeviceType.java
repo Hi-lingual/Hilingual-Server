@@ -1,4 +1,4 @@
-package org.sopt.jwt.auth.domain;
+package org.sopt.jwt.auth.domain.type;
 
 public enum DeviceType {
     PHONE,
