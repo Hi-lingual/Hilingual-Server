@@ -1,6 +1,6 @@
 package org.sopt.jwt.support;
 
-public class AuthConstant {
+public class AuthConstants {
     public static final String USER_ID_CLAIM_NAME = "uid";
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -16,6 +16,6 @@ public class AuthConstant {
             "/api/v1/users/reissue"
     };
 
-    private AuthConstant() {
+    private AuthConstants() {
     }
 }
