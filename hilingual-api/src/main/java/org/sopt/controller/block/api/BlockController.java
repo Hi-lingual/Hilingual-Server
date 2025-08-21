@@ -17,18 +17,18 @@ public class BlockController {
 
     private final BlockService blockService;
 
-    @PutMapping("/{userId}/block")
+    @PutMapping("/block/{targetUserId}")
     public ResponseEntity<Void> blockUser(
             @UserId Long blockerId,
-            @PathVariable("userId") @NotNull Long blockedId
+            @PathVariable("targetUserId") @NotNull Long blockedId
     ) {
         return ResponseEntity.ok(blockService.blockUser(blockerId, blockedId));
     }
 
-    @DeleteMapping("/{userId}/unblock")
+    @DeleteMapping("/unblock/{targetUserId}")
     public ResponseEntity<Void> unblockUser(
             @UserId Long blockerId,
-            @PathVariable("userId") @NotNull Long unblockedId
+            @PathVariable("targetUserId") @NotNull Long unblockedId
     ) {
         return ResponseEntity.ok(blockService.unblockUser(blockerId, unblockedId));
     }
