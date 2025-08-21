@@ -30,4 +30,9 @@ public class BlockRetriever {
     public List<Long> findBlockedUserId(Long blockerId) {
         return blockRepository.findBlockedUsers(blockerId);
     }
+
+    public boolean existsEitherDirection(Long aId, Long bId) {
+        return blockRepository.existsEitherDirectionById(aId, bId);
+    }
+
 }
