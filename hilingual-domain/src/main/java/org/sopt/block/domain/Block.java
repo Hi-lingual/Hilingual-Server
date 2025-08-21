@@ -13,6 +13,7 @@ import org.sopt.user.domain.User;
         name = BlockTableConstants.TABLE_BLOCK,
         uniqueConstraints = {
         @UniqueConstraint(
+                name = BlockTableConstants.UK_BLOCKER_BLOCKED,
                 columnNames = {
                         BlockTableConstants.COLUMN_BLOCKER_ID,
                         BlockTableConstants.COLUMN_BLOCKED_ID
