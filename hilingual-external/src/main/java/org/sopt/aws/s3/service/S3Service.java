@@ -35,17 +35,17 @@ import static org.apache.logging.log4j.util.Strings.trimToNull;
 public class S3Service {
 
     private static final DateTimeFormatter DATE_DIR = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final Clock clock = Clock.system(ZoneId.of("Asia/Seoul"));
+    private static final Duration DEFAULT_PRESIGN_TTL = Duration.ofMinutes(10);
     private static final Map<String, String> CONTENT_TYPE_TO_EXT = Map.of(
             "image/jpeg", "jpg",
             "image/png",  "png",
             "image/webp", "webp"
     );
-    private static final Duration DEFAULT_PRESIGN_TTL = Duration.ofMinutes(10);
 
     private final S3Presigner presigner;
     private final S3Client s3Client;
     private final AWSProperties awsProperties;
-    private final Clock clock = Clock.system(ZoneId.of("Asia/Seoul"));
 
     /*
     업로드용 presigned URL 발급 메서드
@@ -117,7 +117,7 @@ public class S3Service {
         String bucket = awsProperties.getBucketName();
         String finalKey = prefix("users/%d/images/diaries/%s/%s".formatted(userId, dateDir, filename));
 
-        String copySourceRaw = bucket + "/" + tmpKey; // tmpKey는 이미 prefix 포함
+        String copySourceRaw = bucket + "/" + tmpKey;
         String copySource = SdkHttpUtils.urlEncode(copySourceRaw);
 
         try {
@@ -175,11 +175,9 @@ public class S3Service {
         if (cdn == null) throw new S3BaseException(S3ErrorCode.CDN_DOMAIN_NOT_CONFIGURED);
 
         String normKey = key.startsWith("/") ? key.substring(1) : key;
-
         String base = cdn.startsWith("http://")
                 ? cdn
                 : "http://" + (cdn.endsWith("/") ? cdn.substring(0, cdn.length() - 1) : cdn);
-
         return base + "/" + normKey;
     }
 }
