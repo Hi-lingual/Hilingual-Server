@@ -14,6 +14,7 @@ import static org.sopt.follow.domain.FollowTableConstants.*;
         name = TABLE_FOLLOW,
         uniqueConstraints = {
                 @UniqueConstraint(
+                        name = UK_FOLLOWER_FOLLOWEE,
                         columnNames = {
                                 COLUMN_FOLLOWER_ID,
                                 COLUMN_FOLLOWEE_ID
