@@ -6,8 +6,9 @@ import org.sopt.block.exception.AlreadyBlockedUserException;
 import org.sopt.block.exception.BlockCoreErrorCode;
 import org.sopt.block.exception.BlockedNotFoundException;
 import org.sopt.block.exception.UnblockableUserException;
+import org.sopt.follow.exception.FollowCoreErrorCode;
+import org.sopt.follow.exception.FollowForbiddenByBlockException;
 import org.sopt.user.domain.User;
-import org.sopt.userprofile.domain.UserProfile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,13 @@ public class BlockFacade {
     @Transactional(readOnly = true)
     public List<Long> getBlockedUserId(Long blockerId) {
         return blockRetriever.findBlockedUserId(blockerId);
+    }
+
+    @Transactional(readOnly = true)
+    public void assertNotBlockedEitherDirection(User follower, User followee) {
+        if (blockRetriever.existsEitherDirection(follower.getId(), followee.getId())) {
+            throw new FollowForbiddenByBlockException(FollowCoreErrorCode.FOLLOW_FORBIDDEN_BY_BLOCK);
+        }
     }
 
     @Transactional(readOnly = true)
