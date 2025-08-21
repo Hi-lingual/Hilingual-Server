@@ -98,6 +98,7 @@ aws-property:
   secret-key: ${AWS_SECRET_KEY}
   aws-region: ${AWS_REGION}
   bucket-name: ${AWS_BUCKET_NAME}
+  cdn-domain: ${AWS_CDN_DOMAIN}
 
 openai:
   api-key: ${OPENAI_API_KEY}
