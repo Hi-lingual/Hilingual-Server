@@ -26,4 +26,7 @@ public interface LikedDiaryRepository extends JpaRepository<LikedDiary, Long> {
             ORDER BY ld.createdAt DESC
             """)
     List<LikedDiary> findLikedDiariesWithDetailsByUserId(@Param("userId") Long userId);
+
+    // 유저ID와 다이어리ID가 존재하는지 확인(isLiked 여부 확인을 위해)
+    boolean existsByUserIdAndDiaryId(@Param("userId") Long userId, @Param("diaryId") Long diaryId);
 }
