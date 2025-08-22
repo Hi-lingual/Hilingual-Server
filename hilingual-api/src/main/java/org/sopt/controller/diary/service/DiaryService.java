@@ -105,4 +105,14 @@ public class DiaryService {
     public void removeDairy(final Long userId, final Long diary){
         diaryFacade.deleteDiary(userId, diary);
     };
+
+    @Transactional
+    public void publishDiary(final Long userId, final Long diaryId){
+        diaryFacade.publish(userId, diaryId);
+    }
+
+    @Transactional
+    public void unpublishDiary(final Long userId, final Long diaryId){
+        diaryFacade.unpublish(userId, diaryId);
+    }
 }

@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.exception.DiaryAlreadyWrittenException;
 import org.sopt.diary.exception.DiaryCoreErrorCode;
+import org.sopt.diary.exception.DiaryForbiddenException;
 import org.sopt.diary.exception.DiaryNotFoundException;
 import org.sopt.diary.repository.DiaryRepository;
 import org.sopt.user.domain.User;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -30,12 +30,13 @@ public class DiaryRetriever {
                 .orElseThrow(() -> new DiaryNotFoundException(DiaryCoreErrorCode.DIARY_NOT_FOUND));
     }
 
-    public List<LocalDateTime> findDiaryCreatedAts(final Long userId) {
-        return diaryRepository.findCreatedAtsByUserId(userId);
-    }
-
     public List<Diary> findByUserIdAndIsPublicTrue(final Long userId) {
         return diaryRepository.findByUserIdAndIsPublicTrueOrderByCreatedAtDesc(userId);
+    }
+
+    public Diary findOwnedByIdOrThrow(Long userId, Long diaryId) {
+        return diaryRepository.findByIdAndUserId(diaryId, userId)
+                .orElseThrow(() -> new DiaryForbiddenException(DiaryCoreErrorCode.DIARY_FORBIDDEN));
     }
 
 }
