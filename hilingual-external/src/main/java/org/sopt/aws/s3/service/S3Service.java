@@ -1,12 +1,12 @@
 package org.sopt.aws.s3.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.aws.config.AWSProperties;
 import org.sopt.aws.s3.dto.PreSignedUrlRes;
 import org.sopt.aws.s3.dto.Purpose;
 import org.sopt.aws.s3.exception.S3BaseException;
 import org.sopt.aws.s3.exception.S3ErrorCode;
-import org.sopt.exception.code.GlobalErrorCode;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -31,6 +31,7 @@ import java.util.UUID;
 import static org.apache.logging.log4j.util.Strings.trimToNull;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class S3Service {
 
@@ -95,11 +96,11 @@ public class S3Service {
 
     private String buildTmpKey(Long userId, Purpose purpose, String ext) {
         return switch (purpose) {
-            case PROFILE_UPLOAD, PROFILE_UPDATE -> "users/%d/images/profile/tmp/%s.%s"
+            case PROFILE_UPLOAD, PROFILE_UPDATE -> "/tmp/users/%d/images/profile/%s.%s"
                     .formatted(userId, UUID.randomUUID(), ext);
             case DIARY_IMAGE -> {
                 String dateDir = LocalDate.now(clock).format(DATE_DIR);
-                yield "users/%d/images/diaries/tmp/%s/%s.%s"
+                yield "/tmp/users/%d/images/diaries/%s/%s.%s"
                         .formatted(userId, dateDir, UUID.randomUUID(), ext);
             }
         };
@@ -109,7 +110,7 @@ public class S3Service {
      * tmp 키를 최종 위치로 이동(finalKey 반환) 후 tmp 삭제
      */
     public String bindDiaryImage(Long userId, String tmpKey, LocalDate date) {
-        String expectedPrefix = prefix("users/%d/images/diaries/tmp/".formatted(userId));
+        String expectedPrefix = prefix("/tmp/users/%d/images/diaries".formatted(userId));
         validateTmpKeyOwnership(userId, tmpKey, expectedPrefix);
 
         String dateDir = date.toString();
@@ -179,5 +180,37 @@ public class S3Service {
                 ? cdn
                 : "http://" + (cdn.endsWith("/") ? cdn.substring(0, cdn.length() - 1) : cdn);
         return base + "/" + normKey;
+    }
+
+    /*
+     * S3 이미지 삭제
+     */
+    public void deleteObject(String key) {
+        String bucket = awsProperties.getBucketName();
+        String normKey = key.startsWith("/") ? key.substring(1) : key;
+        try {
+            s3Client.deleteObject(DeleteObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(normKey)
+                    .build());
+        } catch (S3Exception e) {
+            String code = e.awsErrorDetails() != null ? e.awsErrorDetails().errorCode() : null;
+            int status = e.statusCode();
+
+            log.warn("S3 delete failed bucket={}, key={}, status={}, code={}, requestId={}",
+                    bucket, normKey, status, code, e.requestId(), e);
+
+            if (S3Constants.NO_SUCH_KEY.equals(code) || S3Constants.NO_SUCH_VERSION.equals(code)) {
+                return;
+            }
+            if (S3Constants.NO_SUCH_BUCKET.equals(code)) {
+                throw new S3BaseException(S3ErrorCode.S3_BUCKET_NOT_FOUND);
+            }
+            throw new S3BaseException(S3ErrorCode.S3_DELETE_FAILED);
+
+        } catch (SdkException e) {
+            log.error("S3 SDK exception on delete bucket={}, key={}", bucket, normKey, e);
+            throw new S3BaseException(S3ErrorCode.S3_DELETE_FAILED);
+        }
     }
 }
