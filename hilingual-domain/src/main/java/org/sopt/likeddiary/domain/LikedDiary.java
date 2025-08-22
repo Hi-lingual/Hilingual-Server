@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.sopt.common.config.BaseTimeEntity;
 import org.sopt.diary.domain.Diary;
 import org.sopt.user.domain.User;
 
@@ -20,7 +21,7 @@ import org.sopt.user.domain.User;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class LikedDiary {
+public class LikedDiary extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
