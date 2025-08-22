@@ -3,11 +3,13 @@ package org.sopt.controller.feed.service;
 import lombok.RequiredArgsConstructor;
 import org.sopt.block.facade.BlockFacade;
 import org.sopt.controller.feed.dto.FeedProfileRes;
+import org.sopt.controller.feed.dto.LikedDiaryListRes;
 import org.sopt.controller.feed.dto.SharedDiaryListRes;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.follow.dto.FollowRelation;
 import org.sopt.follow.facade.FollowFacade;
+import org.sopt.likeddiary.domain.LikedDiary;
 import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
@@ -78,6 +80,25 @@ public class FeedService {
                 .toList();
 
         return SharedDiaryListRes.of(userProfile, diaries, isLikedByUser);
+    }
+
+    public LikedDiaryListRes getLikedDiaries(Long targetUserId) {
+        List<LikedDiary> likedDiaries = likedDiaryFacade.findLikedDiariesWithDetailsByUserId(targetUserId);
+
+        return LikedDiaryListRes.of(
+                likedDiaries.stream()
+                        .map(likedDiary -> {
+                            Diary diary = likedDiary.getDiary();
+                            UserProfile diaryWriterProfile = diary.getUser().getUserProfile();
+                            boolean isMine = diaryWriterProfile.getUser().getId().equals(targetUserId);
+
+                            LikedDiaryListRes.LikedDiaryDetail.Profile profile = LikedDiaryListRes.LikedDiaryDetail.Profile.of(diaryWriterProfile, isMine);
+                            LikedDiaryListRes.LikedDiaryDetail.LikedDiary likedDiaryDto = LikedDiaryListRes.LikedDiaryDetail.LikedDiary.of(diary);
+
+                            return LikedDiaryListRes.LikedDiaryDetail.of(profile, likedDiaryDto);
+                        })
+                        .toList()
+        );
     }
 
     // TODO 사용위치 확인 후 Diary 쪽으로 옮기는 것도 고려해볼 것
