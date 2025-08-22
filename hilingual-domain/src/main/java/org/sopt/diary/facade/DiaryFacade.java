@@ -43,5 +43,5 @@ public class DiaryFacade {
         return diaryRetriever.findDiaryCreatedAts(userId);
     }
 
-
+    public List<Diary> getPublicDiaries(final long userId) { return diaryRetriever.findByUserIdAndIsPublicTrue(userId); }
 }

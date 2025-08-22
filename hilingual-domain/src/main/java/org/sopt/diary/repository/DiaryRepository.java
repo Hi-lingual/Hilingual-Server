@@ -35,4 +35,5 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     Optional<Diary> findFirstByUserIdAndWrittenDate(Long userId, LocalDate writtenDate);
 
+    List<Diary> findByUserIdAndIsPublicTrueOrderByCreatedAtDesc(Long userId);
 }
