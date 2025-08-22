@@ -38,4 +38,7 @@ public class DiaryRetriever {
         return diaryRepository.findByUserIdAndIsPublicTrueOrderByCreatedAtDesc(userId);
     }
 
+    public Diary findDiaryWithDetails(final long diaryId) {
+        return diaryRepository.findDiaryWithDetailsById(diaryId);
+    }
 }
