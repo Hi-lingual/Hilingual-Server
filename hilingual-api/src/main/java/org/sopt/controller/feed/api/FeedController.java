@@ -2,6 +2,8 @@ package org.sopt.controller.feed.api;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.feed.dto.FeedProfileRes;
+import org.sopt.controller.feed.dto.LikedDiaryListRes;
+import org.sopt.controller.feed.dto.SharedDiaryListRes;
 import org.sopt.controller.feed.service.FeedService;
 import org.sopt.jwt.annotation.UserId;
 import org.springframework.http.ResponseEntity;
@@ -25,4 +27,29 @@ public class FeedController {
 
         return ResponseEntity.ok(feedService.getFeedProfile(userId, targetUserId));
     }
+
+    @GetMapping("/profiles/{targetUserId}/diaries/shared")
+    public ResponseEntity<SharedDiaryListRes> getSharedDiaries(
+            @UserId Long userId,
+            @PathVariable(value = "targetUserId") Long targetUserId
+    ) {
+        if (targetUserId == 0) {
+            targetUserId = userId;
+        }
+
+        return ResponseEntity.ok(feedService.getSharedDiaries(targetUserId));
+    }
+
+    @GetMapping("/profiles/{targetUserId}/diaries/liked")
+    public ResponseEntity<LikedDiaryListRes> getLikedDiaries(
+            @UserId Long userId,
+            @PathVariable(value = "targetUserId") Long targetUserId
+    ) {
+        if (targetUserId == 0) {
+            targetUserId = userId;
+        }
+
+        return ResponseEntity.ok(feedService.getLikedDiaries(targetUserId));
+    }
+
 }

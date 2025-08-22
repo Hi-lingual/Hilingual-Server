@@ -34,4 +34,8 @@ public class DiaryRetriever {
         return diaryRepository.findCreatedAtsByUserId(userId);
     }
 
+    public List<Diary> findByUserIdAndIsPublicTrue(final Long userId) {
+        return diaryRepository.findByUserIdAndIsPublicTrueOrderByCreatedAtDesc(userId);
+    }
+
 }

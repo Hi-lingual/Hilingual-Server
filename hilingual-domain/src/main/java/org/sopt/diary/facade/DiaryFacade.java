@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -44,4 +43,5 @@ public class DiaryFacade {
         diaryRemover.deleteDiary(userId,diaryId);
     }
 
+    public List<Diary> getPublicDiaries(final long userId) { return diaryRetriever.findByUserIdAndIsPublicTrue(userId); }
 }
