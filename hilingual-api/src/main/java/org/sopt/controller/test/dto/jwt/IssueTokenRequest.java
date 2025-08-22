@@ -2,8 +2,8 @@ package org.sopt.controller.test.dto.jwt;
 
 import jakarta.validation.constraints.NotNull;
 import org.sopt.jwt.auth.authentication.UserRole;
-import org.sopt.jwt.auth.domain.AuthProvider;
-import org.sopt.jwt.auth.domain.DeviceType;
+import org.sopt.jwt.auth.domain.type.AuthProvider;
+import org.sopt.jwt.auth.domain.type.DeviceType;
 
 public record IssueTokenRequest(
         @NotNull Long userId,

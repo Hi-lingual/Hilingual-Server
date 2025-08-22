@@ -1,11 +1,10 @@
-package org.sopt.aws.s3.exception;
+package org.sopt.controller.follow.exception;
 
-import org.sopt.exception.base.HilingualBaseException;
 import org.sopt.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public class InvalidImageException extends HilingualBaseException {
-    public InvalidImageException(ErrorCode errorCode) {
+public class SelfFollowNotAllowedException extends FollowApiException{
+    public SelfFollowNotAllowedException(ErrorCode errorCode) {
         super(errorCode);
     }
 

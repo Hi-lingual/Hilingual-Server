@@ -6,8 +6,9 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 public enum FollowApiErrorCode implements ErrorCode {
-
-   ;
+    SELF_FOLLOW_NOT_ALLOWED(HttpStatus.BAD_REQUEST, 40025, "자기 자신은 팔로우할 수 없습니다."),
+    SELF_UNFOLLOW_NOT_ALLOWED(HttpStatus.BAD_REQUEST, 40026, "자기 자신은 팔로우 해제 할 수 없습니다."),
+    ;
 
     public final HttpStatus httpStatus;
     private final int code;
@@ -28,3 +29,4 @@ public enum FollowApiErrorCode implements ErrorCode {
         return message;
     }
 }
+

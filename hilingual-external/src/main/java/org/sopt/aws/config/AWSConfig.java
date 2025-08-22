@@ -8,6 +8,7 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
 @RequiredArgsConstructor
@@ -23,14 +24,9 @@ public class AWSConfig {
         if (hasAccessKey && hasSecretKey) {
             return S3Client.builder()
                     .region(Region.of(awsProperties.getAwsRegion()))
-                    .credentialsProvider(
-                            StaticCredentialsProvider.create(
-                                    AwsBasicCredentials.create(
-                                            awsProperties.getAccessKey(),
-                                            awsProperties.getSecretKey()
-                                    )
-                            )
-                    )
+                    .credentialsProvider(StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create(awsProperties.getAccessKey(), awsProperties.getSecretKey())
+                    ))
                     .build();
         } else {
             return S3Client.builder()
@@ -39,4 +35,25 @@ public class AWSConfig {
                     .build();
         }
     }
+
+    @Bean
+    public S3Presigner s3Presigner() {
+        var builder = S3Presigner.builder().region(Region.of(awsProperties.getAwsRegion()));
+        if (hasStaticCreds()) {
+            builder.credentialsProvider(
+                    StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create(awsProperties.getAccessKey(), awsProperties.getSecretKey())
+                    )
+            );
+        } else {
+            builder.credentialsProvider(DefaultCredentialsProvider.create());
+        }
+        return builder.build();
+    }
+
+    private boolean hasStaticCreds() {
+        return awsProperties.getAccessKey() != null && !awsProperties.getAccessKey().isBlank()
+                && awsProperties.getSecretKey() != null && !awsProperties.getSecretKey().isBlank();
+    }
+
 }

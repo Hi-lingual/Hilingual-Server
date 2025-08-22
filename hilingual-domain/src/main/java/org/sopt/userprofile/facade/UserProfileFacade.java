@@ -32,7 +32,6 @@ public class UserProfileFacade {
         return userProfileRetriever.findAll();
     }
 
-    @Transactional(readOnly = true)
     public List<UserProfile> getProfilesByUserIds(List<Long> userIds) {
         return userProfileRetriever.findByUserIds(userIds);
     }
