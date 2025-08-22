@@ -25,7 +25,7 @@ public record SharedDiaryListRes(
             String profileImg,
             String nickname
     ) {
-        public static Profile from(final UserProfile userProfile) {
+        static Profile from(final UserProfile userProfile) {
             return new Profile(
                     (userProfile.getProfileImg() != null) ? userProfile.getProfileImg() : " ",
                     userProfile.getNickname()
@@ -42,7 +42,7 @@ public record SharedDiaryListRes(
             String diaryImg,
             String originalText
     ) {
-        public static SharedDiary of(final Diary diary, final boolean isLikedByUser) {
+        static SharedDiary of(final Diary diary, final boolean isLikedByUser) {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime createdAt = diary.getCreatedAt();
             long minutesDiff = Duration.between(createdAt, now).toMinutes();
