@@ -17,7 +17,7 @@ public class LikedDiaryRetriever {
         return likedDiaryRepository.findLikedDiaryIdsByUserIdAndDiaryIdsIn(userId, diaryIds);
     }
 
-    public List<LikedDiary> findLikedDiariesWithDetailsByUserId(Long userId) {
+    public List<LikedDiary> getLikedDiariesWithAllDetails(Long userId) {
         return likedDiaryRepository.findLikedDiariesWithDetailsByUserId(userId);
     }
 }

@@ -16,7 +16,7 @@ public class LikedDiaryFacade {
         return likedDiaryRetriever.findLikedDiaryIdsByUserIdAndDiaryIdsIn(userId, diaryIds);
     }
 
-    public List<LikedDiary> findLikedDiariesWithDetailsByUserId(Long userId) {
-        return likedDiaryRetriever.findLikedDiariesWithDetailsByUserId(userId);
+    public List<LikedDiary> getLikedDiariesWithAllDetails(Long userId) {
+        return likedDiaryRetriever.getLikedDiariesWithAllDetails(userId);
     }
 }
