@@ -3,7 +3,6 @@ package org.sopt.controller.follow.api;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.follow.dto.FollowerListRes;
 import org.sopt.controller.follow.dto.NewFollowInfoRes;
-import org.sopt.controller.follow.dto.FollowerListRes;
 import org.sopt.controller.follow.dto.FollowingListRes;
 import org.sopt.controller.follow.service.FollowService;
 import org.sopt.jwt.annotation.UserId;

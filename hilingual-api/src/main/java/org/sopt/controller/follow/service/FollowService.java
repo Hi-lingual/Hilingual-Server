@@ -5,10 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.block.facade.BlockFacade;
 
 import org.sopt.controller.follow.dto.NewFollowInfoRes;
-import org.sopt.controller.follow.dto.FollowerDtoRes;
-import org.sopt.controller.follow.dto.FollowerListDtoRes;
-import org.sopt.controller.follow.dto.FollowingDtoRes;
-import org.sopt.controller.follow.dto.FollowingListDtoRes;
 
 import org.sopt.controller.follow.exception.FollowApiErrorCode;
 import org.sopt.controller.follow.exception.SelfFollowNotAllowedException;
