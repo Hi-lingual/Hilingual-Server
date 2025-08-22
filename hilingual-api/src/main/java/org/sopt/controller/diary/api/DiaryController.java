@@ -53,4 +53,22 @@ public class DiaryController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/{diaryId}/publish")
+    public ResponseEntity<Void> publishDiary(
+            @UserId Long userId,
+            @PathVariable("diaryId") @NotNull @Min(1) Long diaryId
+    ){
+        diaryService.publishDiary(userId, diaryId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{diaryId}/unpublish")
+    public ResponseEntity<Void> unpublishDiary(
+            @UserId Long userId,
+            @PathVariable("diaryId") @NotNull @Min(1) Long diaryId
+    ){
+        diaryService.unpublishDiary(userId, diaryId);
+        return ResponseEntity.ok().build();
+    }
+
 }
