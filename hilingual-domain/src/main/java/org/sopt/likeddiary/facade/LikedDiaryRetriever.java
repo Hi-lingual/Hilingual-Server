@@ -1,6 +1,7 @@
 package org.sopt.likeddiary.facade;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.likeddiary.domain.LikedDiary;
 import org.sopt.likeddiary.repository.LikedDiaryRepository;
 import org.springframework.stereotype.Component;
 
@@ -14,5 +15,9 @@ public class LikedDiaryRetriever {
 
     public List<Long> findLikedDiaryIdsByUserIdAndDiaryIdsIn(Long userId, List<Long> diaryIds) {
         return likedDiaryRepository.findLikedDiaryIdsByUserIdAndDiaryIdsIn(userId, diaryIds);
+    }
+
+    public List<LikedDiary> findLikedDiariesWithDetailsByUserId(Long userId) {
+        return likedDiaryRepository.findLikedDiariesWithDetailsByUserId(userId);
     }
 }

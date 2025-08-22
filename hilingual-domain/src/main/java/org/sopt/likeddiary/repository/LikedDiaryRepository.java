@@ -15,4 +15,15 @@ public interface LikedDiaryRepository extends JpaRepository<LikedDiary, Long> {
             @Param("userId") Long userId,
             @Param("diaryIds") List<Long> diaryIds
     );
+
+    // 유저ID에 따른 LikedDiary 조회(Diary, User, UserProfile 함께 조회) 및 최신순 정렬
+    @Query("""
+            SELECT ld FROM LikedDiary ld
+            JOIN FETCH ld.diary d
+            JOIN FETCH d.user u
+            JOIN FETCH u.userProfile up
+            WHERE ld.user.id = :userId
+            ORDER BY ld.createdAt DESC
+            """)
+    List<LikedDiary> findLikedDiariesWithDetailsByUserId(@Param("userId") Long userId);
 }
