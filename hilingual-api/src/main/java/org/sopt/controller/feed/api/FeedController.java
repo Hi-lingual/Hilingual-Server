@@ -1,6 +1,7 @@
 package org.sopt.controller.feed.api;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.controller.feed.dto.DiaryWriterProfileRes;
 import org.sopt.controller.feed.dto.FeedProfileRes;
 import org.sopt.controller.feed.dto.LikedDiaryListRes;
 import org.sopt.controller.feed.dto.SharedDiaryListRes;
@@ -52,4 +53,12 @@ public class FeedController {
         return ResponseEntity.ok(feedService.getLikedDiaries(targetUserId));
     }
 
+
+    @GetMapping("/{diaryId}/users/profiles")
+    public ResponseEntity<DiaryWriterProfileRes> getDiaryWriterProfile(
+            @UserId Long userId,
+            @PathVariable(value = "diaryId") Long diaryId
+    ) {
+        return ResponseEntity.ok(feedService.getDiaryWriterProfile(userId, diaryId));
+    }
 }
