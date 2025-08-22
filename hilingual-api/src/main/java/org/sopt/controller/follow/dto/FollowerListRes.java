@@ -19,22 +19,22 @@ public record FollowerListRes(
                 .toList();
         return new FollowerListRes(list);
     }
-}
 
-record FollowerRes(
-        Long userId,
-        String nickname,
-        String profileImg,
-        boolean isFollowing,
-        boolean isFollowed
-) {
-    public static FollowerRes of(final UserProfileSummaryRes profile, final boolean isFollowing) {
-        return new FollowerRes(
-                profile.userId(),
-                profile.nickname(),
-                profile.profileImg(),
-                isFollowing,
-                true
-        );
+    record FollowerRes(
+            Long userId,
+            String nickname,
+            String profileImg,
+            boolean isFollowing,
+            boolean isFollowed
+    ) {
+        static FollowerRes of(final UserProfileSummaryRes profile, final boolean isFollowing) {
+            return new FollowerRes(
+                    profile.userId(),
+                    profile.nickname(),
+                    profile.profileImg(),
+                    isFollowing,
+                    true
+            );
+        }
     }
 }
