@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.sopt.common.config.BaseTimeEntity;
 import org.sopt.user.domain.User;
 
-import static org.sopt.userprofile.domain.UserProfileTableConstants.DEFAULT_PROFILE_IMG;
+import static org.sopt.userprofile.domain.UserProfileTableConstants.*;
 
 @Entity
 @Table(name = UserProfileTableConstants.TABLE_USER_PROFILE)
@@ -19,29 +19,29 @@ public class UserProfile extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = UserProfileTableConstants.COLUMN_ID)
+    @Column(name = COLUMN_ID)
     private Long id;
 
-    @Column(name = UserProfileTableConstants.COLUMN_NICKNAME, nullable = false, length = 20, unique = true)
+    @Column(name = COLUMN_NICKNAME, nullable = false, length = 20, unique = true)
     private String nickname;
 
-    @Column(name = UserProfileTableConstants.COLUMN_PROFILE_IMG, nullable = false, length = 512)
+    @Column(name = COLUMN_PROFILE_IMG, nullable = false, length = 512)
     private String profileImg;
 
-    @Column(name = UserProfileTableConstants.COLUMN_TOTAL_DIARIES, nullable = false)
+    @Column(name = COLUMN_TOTAL_DIARIES, nullable = false)
     private Integer totalDiaries = 0;
 
-    @Column(name = UserProfileTableConstants.COLUMN_STREAK, nullable = false)
+    @Column(name = COLUMN_STREAK, nullable = false)
     private Integer streak = 0;
 
-    @Column(name = UserProfileTableConstants.COLUMN_FOLLOWING_COUNT, nullable = false)
+    @Column(name = COLUMN_FOLLOWING_COUNT, nullable = false)
     private Integer followingCount = 0;
 
-    @Column(name = UserProfileTableConstants.COLUMN_FOLLOWER_COUNT, nullable = false)
+    @Column(name = COLUMN_FOLLOWER_COUNT, nullable = false)
     private Integer followerCount = 0;
 
     @OneToOne
-    @JoinColumn(name = UserProfileTableConstants.COLUMN_USER_ID, nullable = false)
+    @JoinColumn(name = COLUMN_USER_ID, nullable = false)
     private User user;
 
     public static UserProfile create(User user, String nickname, String profileImg) {
