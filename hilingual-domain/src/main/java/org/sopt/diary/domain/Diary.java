@@ -59,6 +59,16 @@ public class Diary extends BaseTimeEntity {
     @OneToMany(mappedBy = "diary", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Recommend> recommends;
 
+    public void publish() {
+        this.isPublic = true;
+        this.sharedTime = LocalDateTime.now();
+    }
+
+    public void unpublish() {
+        this.isPublic = false;
+        this.sharedTime = null;
+    }
+
     public static Diary create(
             User user, String originalText, String rewriteText,
             String imageUrl, LocalDate writtenDate
