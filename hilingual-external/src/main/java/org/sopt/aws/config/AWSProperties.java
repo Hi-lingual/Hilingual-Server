@@ -12,4 +12,6 @@ public class AWSProperties {
     private String secretKey;
     private String awsRegion;
     private String bucketName;
+    private String cdnDomain;
+    private String prefix;
 }

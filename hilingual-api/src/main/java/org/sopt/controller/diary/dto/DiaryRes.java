@@ -1,6 +1,6 @@
 package org.sopt.controller.diary.dto;
 
-public record DiaryDtoRes(
-        Long id
+public record DiaryRes(
+        Long diaryId
 ) {
 }

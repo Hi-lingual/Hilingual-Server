@@ -1,9 +1,10 @@
 package org.sopt.controller.diary.service;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.aws.s3.utils.S3Service;
+import org.sopt.aws.s3.service.S3Service;
+import org.sopt.controller.diary.dto.CreateDiaryReq;
 import org.sopt.diaryfeedback.diff.dto.DiaryDetailsRes;
-import org.sopt.controller.diary.dto.DiaryDtoRes;
+import org.sopt.controller.diary.dto.DiaryRes;
 import org.sopt.controller.recommend.service.RecommendService;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
@@ -12,13 +13,11 @@ import org.sopt.controller.diaryfeedback.service.DiaryFeedbackService;
 import org.sopt.diaryfeedback.diff.service.DiaryDiffService;
 import org.sopt.diaryfeedback.diff.prompt.DiaryFeedbackPrompt;
 import org.sopt.openai.OpenAIService;
-import org.sopt.openai.dto.res.GptFeedbackResponse;
 import org.sopt.recommend.domain.Recommend;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -32,50 +31,49 @@ public class DiaryService {
 
     private final UserFacade userFacade;
     private final DiaryFacade diaryFacade;
-
-    private final S3Service s3Service;
     private final OpenAIService openAiService;
-
     private final DiaryFeedbackService diaryFeedbackService;
     private final RecommendService recommendService;
-
     private final DiaryDiffService diaryDiffService;
 
-    private static final String S3_BASE_URL = "https://hilingual-bucket.s3.ap-northeast-2.amazonaws.com/";
+    private final S3Service s3Service;
 
     @Transactional
-    public DiaryDtoRes getFeedbacks(Long userId, String originalText, LocalDate writtenDate, MultipartFile imageFile) {
+    public DiaryRes createDiaryWithFeedback(
+            Long userId,
+            String originalText,
+            LocalDate writtenDate,
+            CreateDiaryReq.ImageRef imageRef
+    ) {
         User user = userFacade.getUserById(userId);
         diaryFacade.validateNotExists(user, writtenDate);
 
-        String imageUrl = null;
-        if (imageFile != null && !imageFile.isEmpty()) {
-            imageUrl = s3Service.uploadImage("diaries", imageFile);
+        String finalImageKey = null;
+        if (imageRef != null && imageRef.fileKey() != null && !imageRef.fileKey().isBlank()) {
+            if (!"DIARY_IMAGE".equals(imageRef.purpose())) {
+                throw new IllegalArgumentException("image.purpose must be DIARY_IMAGE");
+            }
+            finalImageKey = s3Service.bindDiaryImage(userId, imageRef.fileKey(), writtenDate);
         }
 
-        GptFeedbackResponse aiResponse = openAiService.getDiaryFeedback(DiaryFeedbackPrompt.PROMPT, originalText);
-
-        String rewriteText = aiResponse.rewriteText();
-        List<GptFeedbackResponse.Feedback> feedbackList = aiResponse.feedbackList();
-        List<GptFeedbackResponse.Phrase> phraseList = aiResponse.phraseList();
-
+        var ai = openAiService.getDiaryFeedback(DiaryFeedbackPrompt.PROMPT, originalText);
         Diary diary = diaryFacade.saveDiary(
                 user,
                 originalText,
-                aiResponse.rewriteText(),
-                imageUrl,
+                ai.rewriteText(),
+                finalImageKey,
                 writtenDate
         );
 
-        feedbackList.stream()
+        ai.feedbackList().stream()
                 .map(f -> DiaryFeedback.create(diary, f.original(), f.rewrite(), f.explain()))
                 .forEach(diaryFeedbackService::saveFeedback);
 
-        phraseList.stream()
+        ai.phraseList().stream()
                 .map(p -> Recommend.create(diary, p.phrase(), String.join(",", p.phraseType()), p.explanation(), p.reason()))
                 .forEach(recommendService::saveRecommend);
 
-        return new DiaryDtoRes(diary.getId());
+        return new DiaryRes(diary.getId());
     }
 
     public DiaryDetailsRes getDiaryDetails(final Long userId, final Long diaryId) {
@@ -85,11 +83,9 @@ public class DiaryService {
 
         String originalText = diary.getOriginalText();
         String rewriteText = diary.getRewriteText();
-        String imageUrlKey = diary.getImageUrl();
+        String imageKey = diary.getImageUrl();
 
-        String imageUrl = (imageUrlKey != null && !imageUrlKey.isBlank())
-                ? S3_BASE_URL + imageUrlKey
-                : null;
+        String imageUrl = s3Service.toPublicUrl(imageKey);
 
         String date = diary.getWrittenDate()
                 .format(DateTimeFormatter.ofPattern("M월 d일 EEEE", Locale.KOREAN));
@@ -104,4 +100,9 @@ public class DiaryService {
                 .imageUrl(imageUrl)
                 .build();
     }
+
+    @Transactional
+    public void removeDairy(final Long userId, final Long diary){
+        diaryFacade.deleteDiary(userId, diary);
+    };
 }
