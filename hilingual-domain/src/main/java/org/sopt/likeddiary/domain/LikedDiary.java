@@ -1,4 +1,4 @@
-package org.sopt.likeddiary;
+package org.sopt.likeddiary.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

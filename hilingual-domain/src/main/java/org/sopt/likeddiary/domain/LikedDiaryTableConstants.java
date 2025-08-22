@@ -1,4 +1,4 @@
-package org.sopt.likeddiary;
+package org.sopt.likeddiary.domain;
 
 public class LikedDiaryTableConstants {
     public static final String TABLE_LIKED_DIARY = "liked_diary";
