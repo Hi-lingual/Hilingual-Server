@@ -67,6 +67,7 @@ public class Diary extends BaseTimeEntity {
     public void unpublish() {
         this.isPublic = false;
         this.sharedTime = null;
+        this.isLiked = 0;
     }
 
     public static Diary create(
