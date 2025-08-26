@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface VocaRepository extends JpaRepository<Voca, Long> {
 
@@ -45,6 +46,17 @@ public interface VocaRepository extends JpaRepository<Voca, Long> {
             @Param("userId") Long userId,
             @Param("keyword") String keyword
     );
+
+    // 특정 단어 상세 조회
+    @Query("""
+        SELECT v
+        FROM Voca v
+        JOIN FETCH v.recommend r
+        JOIN FETCH r.diary d
+        WHERE v.user.id = :userId AND r.id = :phraseId
+    """)
+    Optional<Voca> findDetailByUserIdAndPhraseId(@Param("userId") Long userId,
+                                                 @Param("phraseId") Long phraseId);
 
 }
 
