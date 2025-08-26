@@ -10,6 +10,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
+
 @Component
 @RequiredArgsConstructor
 public class VocaSaver {
@@ -18,10 +20,16 @@ public class VocaSaver {
 
     @Transactional
     public void saveIfNotExists(final User user, final Recommend recommend) {
-        if (vocaRepository.existsByUserAndRecommend(user, recommend)) return;
+        if (vocaRepository.existsByUserIdAndRecommendId(user.getId(), recommend.getId())) return;
 
         final boolean mine = recommend.getDiary().getUser().getId().equals(user.getId());
-        final Voca voca = mine ? Voca.fromMyDiary(user, recommend) : Voca.fromFeed(user, recommend);
+        final String writtenFrom = mine
+                ? recommend.getDiary().getWrittenDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")) + " 일기에서 저장됨"
+                : "피드에서 저장됨";
+
+        final Voca voca = mine
+                ? Voca.fromMyDiary(user, recommend, writtenFrom)
+                : Voca.fromFeed(user, recommend, writtenFrom);
 
         try {
             vocaRepository.save(voca);
