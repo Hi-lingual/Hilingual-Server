@@ -25,8 +25,4 @@ public class RecommendFacade {
         return recommendRetriever.findById(phraseId);
     }
 
-    public Recommend findByUserIdAndPhraseId(final Long userId, final Long phraseId) {
-        return recommendRetriever.findByUserIdAndPhraseId(userId, phraseId);
-    }
-
 }
