@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.recommend.domain.Recommend;
 import org.sopt.user.domain.User;
 import org.sopt.voca.domain.Voca;
+import org.sopt.voca.domain.VocaTableConstants;
 import org.sopt.voca.repository.VocaRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +20,20 @@ public class VocaSaver {
     public void saveIfNotExists(final User user, final Recommend recommend) {
         if (vocaRepository.existsByUserAndRecommend(user, recommend)) return;
 
-        boolean mine = recommend.getDiary().getUser().getId().equals(user.getId());
-        Voca voca = mine ? Voca.fromMyDiary(user, recommend)
-                : Voca.fromFeed(user, recommend);
+        final boolean mine = recommend.getDiary().getUser().getId().equals(user.getId());
+        final Voca voca = mine ? Voca.fromMyDiary(user, recommend) : Voca.fromFeed(user, recommend);
 
-        vocaRepository.save(voca);
+        try {
+            vocaRepository.save(voca);
+        } catch (DataIntegrityViolationException e) {
+            if (isUniqueViolation(e, VocaTableConstants.UK_VOCA_USER_RECOMMEND)) return;
+            throw e;
+        }
+    }
+
+    private boolean isUniqueViolation(DataIntegrityViolationException e, String constraintName) {
+        Throwable cause = e.getMostSpecificCause();
+        String msg = (cause != null ? cause.getMessage() : null);
+        return msg != null && msg.contains(constraintName);
     }
 }
