@@ -2,12 +2,13 @@ package org.sopt.controller.recommend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.recommend.dto.RecommendListRes;
+import org.sopt.controller.recommend.exception.RecommendApiErrorCode;
+import org.sopt.controller.recommend.exception.RecommendForbiddenException;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.recommend.domain.Recommend;
 import org.sopt.recommend.facade.RecommendFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
-import org.sopt.voca.domain.Voca;
 import org.sopt.voca.facade.VocaRemover;
 import org.sopt.voca.facade.VocaSaver;
 import org.springframework.stereotype.Service;
@@ -53,14 +54,19 @@ public class RecommendService {
     }
 
     @Transactional(readOnly = false)
-    public Void bookMark(final long userId, final long phraseId, final boolean isBookMarked){
+    public Void bookMark(final long userId, final long phraseId, final boolean isBookmarked){
         Recommend recommend = recommendFacade.findById(phraseId);
-        User user = userFacade.getUserById(userId);
-        recommend.updateMarkStatus(isBookMarked);
 
-        if (isBookMarked) {
-            Voca voca = new Voca(user, recommend);
-            vocaSaver.saveIfNotExists(voca);
+        // 내가 쓴 일기 or 피드에 공개된 일기만 허용
+        if (!recommend.getDiary().getUser().getId().equals(userId)
+                && Boolean.FALSE.equals(recommend.getDiary().getIsPublic())) {
+            throw new RecommendForbiddenException(RecommendApiErrorCode.RECOMMEND_FORBIDDEN);
+        }
+        User user = userFacade.getUserById(userId);
+        recommend.updateMarkStatus(isBookmarked);
+
+        if (isBookmarked) {
+            vocaSaver.saveIfNotExists(user, recommend);
         } else {
             vocaRemover.delete(user, recommend);
         }
