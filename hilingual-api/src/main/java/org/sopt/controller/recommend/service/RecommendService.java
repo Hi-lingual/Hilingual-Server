@@ -53,7 +53,7 @@ public class RecommendService {
         return new RecommendListRes(phrases);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public Void bookMark(final long userId, final long phraseId, final boolean isBookmarked){
         Recommend recommend = recommendFacade.findById(phraseId);
 
