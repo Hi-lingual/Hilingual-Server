@@ -2,6 +2,7 @@ package org.sopt.controller.diary.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.aws.s3.dto.Purpose;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.diary.dto.CreateDiaryReq;
 import org.sopt.controller.diary.exception.DiaryApiErrorCode;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class DiaryService {
@@ -124,7 +126,15 @@ public class DiaryService {
     }
 
     @Transactional
-    public void removeDairy(final Long userId, final Long diary){
-        diaryFacade.deleteDiary(userId, diary);
-    };
+    public void removeDairy(final Long userId, final Long diaryId) {
+        diaryFacade.validateDiaryOwnership(userId, diaryId);
+        Diary diary = diaryFacade.getDiaryById(diaryId);
+
+        String imageKey = diary.getImageUrl();
+        if (imageKey != null && !imageKey.isBlank()) {
+            s3Service.deleteObject(imageKey);
+        }
+
+        diaryFacade.deleteDiary(userId, diaryId);
+    }
 }

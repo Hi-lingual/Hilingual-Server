@@ -39,6 +39,7 @@ public class DiaryFacade {
         return diaryRetriever.findById(diaryId);
     }
 
+    @Transactional
     public void deleteDiary(final long userId, final long diaryId) {
         diaryRemover.deleteDiary(userId,diaryId);
     }

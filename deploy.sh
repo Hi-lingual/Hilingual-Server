@@ -79,20 +79,21 @@ switch_upstream () {
       # INC 디렉토리 보장
       sudo docker exec \"\$cid\" /bin/sh -lc 'mkdir -p /etc/nginx/includes'
 
-      # (A) 환경 inc 파일 갱신
+      # (A) 환경 inc 파일 원자적 갱신
       if [ '${UPSTREAM_ENV}' = 'dev' ]; then
         sudo docker exec \"\$cid\" /bin/sh -lc \
-          "printf 'set \\\$service_url \\\"%s\\\";\\n' 'http://${TARGET}' > /etc/nginx/includes/dev.inc"
+          \"printf 'set \\\$service_url \\\"http://${TARGET}\\\";\\n' > /etc/nginx/includes/dev.inc.new && \
+           mv /etc/nginx/includes/dev.inc.new /etc/nginx/includes/dev.inc\"
       elif [ '${UPSTREAM_ENV}' = 'prod' ]; then
         sudo docker exec \"\$cid\" /bin/sh -lc \
-          "printf 'set \\\$service_url \\\"%s\\\";\\n' 'http://${TARGET}' > /etc/nginx/includes/prod.inc"
+          \"printf 'set \\\$service_url \\\"http://${TARGET}\\\";\\n' > /etc/nginx/includes/prod.inc.new && \
+           mv /etc/nginx/includes/prod.inc.new /etc/nginx/includes/prod.inc\"
       else
         echo '[WARN] UPSTREAM_ENV not set (dev|prod). inc 파일 갱신 생략'
       fi
 
-      # (B) 템플릿 치환 + 검증 + 리로드
-      sudo docker exec -e TARGET_UPSTREAM='${TARGET}' \"\$cid\" \
-        /bin/sh -lc \"envsubst '\\\$TARGET_UPSTREAM' < /etc/nginx/nginx.template.conf > /etc/nginx/conf.d/default.conf && nginx -t && nginx -s reload\"
+      # (C) 문법 검사 성공 시에만 리로드
+      sudo docker exec \"\$cid\" /bin/sh -lc 'nginx -t && nginx -s reload'
     "
   else
     echo "⚠️  ${SSH_KEY} 가 없어 Nginx 스위치를 건너뜁니다."
