@@ -41,7 +41,7 @@ public class VocaController {
         return ResponseEntity.ok(vocaService.searchVocaList(userId, trimmedKeyword));
     }
 
-    // 특정 단어 세부 조회
+    // 특정 단어 세부내용 조회 API
     @GetMapping("/{phraseId}")
     public ResponseEntity<VocaDetailResponse> getVocaDetails(
             @UserId Long userId,
