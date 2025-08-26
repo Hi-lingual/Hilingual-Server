@@ -1,8 +1,6 @@
 package org.sopt.controller.voca.dto.res;
 
-import org.sopt.recommend.domain.Recommend;
-
-import java.time.format.DateTimeFormatter;
+import org.sopt.voca.domain.Voca;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,23 +9,17 @@ public record VocaDetailResponse(
         String phrase,
         List<String> phraseType,
         String explanation,
-        String writtenDate,
+        String writtenFrom,
         Boolean isBookmarked
 ) {
-
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yy.MM.dd");
-
-    public static VocaDetailResponse from(final Recommend recommend) {
+    public static VocaDetailResponse from(final Voca v) {
         return new VocaDetailResponse(
-                recommend.getId(),
-                recommend.getPhrase(),
-                parsePhraseTypes(recommend.getPhraseType()),
-                recommend.getExplanation(),
-                recommend
-                        .getDiary()
-                        .getWrittenDate()
-                        .format(FORMATTER),
-                recommend.getIsBookmarked()
+                v.getRecommendId(),
+                v.getPhrase(),
+                parsePhraseTypes(v.getPhraseType()),
+                v.getExplanation(),
+                v.getWrittenFrom(),
+                true
         );
     }
 

@@ -24,10 +24,10 @@ public record VocaSearchListResponse(
     ) {
         public static Item from(final Voca voca) {
             return new Item(
-                    voca.getRecommend().getId(),
-                    voca.getRecommend().getPhrase(),
-                    parsePhraseTypes(voca.getRecommend().getPhraseType()),
-                    voca.getRecommend().getIsBookmarked()
+                    voca.getRecommendId(),
+                    voca.getPhrase(),
+                    parsePhraseTypes(voca.getPhraseType()),
+                    Boolean.TRUE
             );
         }
 
