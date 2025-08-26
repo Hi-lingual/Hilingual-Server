@@ -41,16 +41,40 @@ public class Voca extends BaseTimeEntity {
     @JoinColumn(name = COLUMN_USER_ID, nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = COLUMN_RECOMMEND_ID, nullable = false)
-    private Recommend recommend;
+    @Column(name = COLUMN_RECOMMEND_ID, nullable = false)
+    private Long recommendId;
 
-    public static Voca fromMyDiary(User user, Recommend recommend) {
-        return new Voca(null, SavedRoot.MY, user, recommend);
+    @Column(name = COLUMN_PHRASE, nullable = false)
+    private String phrase;
+
+    @Column(name = COLUMN_PHRASE_TYPE, nullable = false)
+    private String phraseType;
+
+    @Column(name = COLUMN_EXPLANATION, nullable = false)
+    private String explanation;
+
+    @Column(name = COLUMN_WRITTEN_FROM, nullable = false)
+    private String writtenFrom;
+
+    public static Voca fromMyDiary(User user, Recommend recommend, String writtenFrom) {
+        return new Voca(
+                null, SavedRoot.MY, user,
+                recommend.getId(),
+                recommend.getPhrase(),
+                recommend.getPhraseType(),
+                recommend.getExplanation(),
+                writtenFrom
+        );
     }
 
-    public static Voca fromFeed(User user, Recommend recommend) {
-        return new Voca(null, SavedRoot.FEED, user, recommend);
+    public static Voca fromFeed(User user, Recommend recommend, String writtenFrom) {
+        return new Voca(
+                null, SavedRoot.FEED, user,
+                recommend.getId(),
+                recommend.getPhrase(),
+                recommend.getPhraseType(),
+                recommend.getExplanation(),
+                writtenFrom
+        );
     }
-
 }
