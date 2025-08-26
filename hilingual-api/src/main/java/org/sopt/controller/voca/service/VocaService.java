@@ -6,7 +6,6 @@ import org.sopt.voca.dto.VocaListRes;
 import org.sopt.controller.voca.dto.res.VocaSearchListResponse;
 import org.sopt.voca.domain.Voca;
 import org.sopt.voca.facade.VocaFacade;
-import org.sopt.voca.facade.VocaRetriever;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -16,18 +15,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VocaService {
 
-    private final VocaRetriever vocaRetriever;
     private final VocaFacade vocaFacade;
-
 
     // 단어장 목록 조회
     public VocaListRes getVocaList(final Long userId, final int sort) {
-        return vocaRetriever.findGroupedVoca(userId, sort);
+        return vocaFacade.findGroupedVoca(userId, sort);
     }
 
     // 단어장 검색
     public VocaSearchListResponse searchVocaList(final Long userId, final String keyword) {
-        final List<Voca> vocas = vocaRetriever.findStartsWithVoca(userId, keyword);
+        final List<Voca> vocas = vocaFacade.findStartsWithVoca(userId, keyword);
         return VocaSearchListResponse.from(vocas);
     }
 
