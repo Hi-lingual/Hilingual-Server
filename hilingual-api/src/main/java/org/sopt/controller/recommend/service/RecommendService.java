@@ -54,23 +54,20 @@ public class RecommendService {
     }
 
     @Transactional
-    public Void bookMark(final long userId, final long phraseId, final boolean isBookmarked){
+    public Void bookMark(final long userId, final long phraseId, final boolean isBookmarked) {
         Recommend recommend = recommendFacade.findById(phraseId);
-
-        // 내가 쓴 일기 or 피드에 공개된 일기만 허용
-        if (!recommend.getDiary().getUser().getId().equals(userId)
-                && Boolean.FALSE.equals(recommend.getDiary().getIsPublic())) {
-            throw new RecommendForbiddenException(RecommendApiErrorCode.RECOMMEND_FORBIDDEN);
-        }
+        boolean mine = recommend.getDiary().getUser().getId().equals(userId);
+        boolean publicDiary = Boolean.TRUE.equals(recommend.getDiary().getIsPublic());
         User user = userFacade.getUserById(userId);
-        recommend.updateMarkStatus(isBookmarked);
 
         if (isBookmarked) {
+            if (!mine && !publicDiary) {
+                throw new RecommendForbiddenException(RecommendApiErrorCode.RECOMMEND_FORBIDDEN);
+            }
             vocaSaver.saveIfNotExists(user, recommend);
         } else {
             vocaRemover.delete(user, recommend);
         }
-
         return null;
     }
 
