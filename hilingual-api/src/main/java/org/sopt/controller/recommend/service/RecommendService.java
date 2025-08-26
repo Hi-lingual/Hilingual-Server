@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.controller.recommend.dto.RecommendListRes;
 import org.sopt.controller.recommend.exception.RecommendApiErrorCode;
 import org.sopt.controller.recommend.exception.RecommendForbiddenException;
+import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.recommend.domain.Recommend;
 import org.sopt.recommend.facade.RecommendFacade;
@@ -55,19 +56,23 @@ public class RecommendService {
 
     @Transactional
     public Void bookMark(final long userId, final long phraseId, final boolean isBookmarked) {
-        Recommend recommend = recommendFacade.findById(phraseId);
-        boolean mine = recommend.getDiary().getUser().getId().equals(userId);
-        boolean publicDiary = Boolean.TRUE.equals(recommend.getDiary().getIsPublic());
-        User user = userFacade.getUserById(userId);
 
-        if (isBookmarked) {
-            if (!mine && !publicDiary) {
-                throw new RecommendForbiddenException(RecommendApiErrorCode.RECOMMEND_FORBIDDEN);
-            }
-            vocaSaver.saveIfNotExists(user, recommend);
-        } else {
-            vocaRemover.delete(user, recommend);
+        if (!isBookmarked) {
+            vocaRemover.delete(userId, phraseId);
+            return null;
         }
+
+        Recommend recommend = recommendFacade.findById(phraseId);
+        Diary diary = recommend.getDiary();
+        boolean mine = (diary != null) && userId == diary.getUser().getId();
+        boolean publicDiary = (diary == null) || Boolean.TRUE.equals(diary.getIsPublic());
+
+        if (!mine && !publicDiary) {
+            throw new RecommendForbiddenException(RecommendApiErrorCode.RECOMMEND_FORBIDDEN);
+        }
+
+        User user = userFacade.getUserById(userId);
+        vocaSaver.saveIfNotExists(user, recommend);
         return null;
     }
 
