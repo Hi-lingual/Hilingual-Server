@@ -3,6 +3,8 @@ package org.sopt.voca.facade;
 import lombok.RequiredArgsConstructor;
 import org.sopt.voca.domain.Voca;
 import org.sopt.voca.dto.VocaListRes;
+import org.sopt.voca.exception.VocaCoreErrorCode;
+import org.sopt.voca.exception.VocaNotFoundException;
 import org.sopt.voca.repository.VocaRepository;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,11 @@ public class VocaRetriever {
     // TODO : 검색 한글 예외처리 추가 (단어장 사용 시)
     public List<Voca> findStartsWithVoca(final Long userId, final String keyword) {
         return vocaRepository.findAllByUserIdAndPhraseStartsWith(userId, keyword);
+    }
+
+    public Voca findDetailByUserIdAndPhraseId(final Long userId, final Long phraseId){
+        return vocaRepository.findDetailByUserIdAndPhraseId(userId, phraseId)
+                .orElseThrow(() -> new VocaNotFoundException(VocaCoreErrorCode.VOCA_NOT_FOUND));
     }
 
 }
