@@ -3,8 +3,8 @@ package org.sopt.controller.diary.exception;
 import org.sopt.exception.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public class DiaryContentTooShortException extends DiaryApiException {
-    public DiaryContentTooShortException(ErrorCode errorCode) {
+public class DiaryImagePurposeMismatchException extends DiaryApiException{
+    public DiaryImagePurposeMismatchException(ErrorCode errorCode) {
         super(errorCode);
     }
 
