@@ -6,6 +6,8 @@ import org.sopt.userprofile.domain.UserProfile;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import static org.sopt.controller.feed.dto.FeedDtoConstants.*;
+
 public record DiaryWriterProfileRes(
         Boolean isMine,
         Profile profile,
@@ -48,7 +50,7 @@ public record DiaryWriterProfileRes(
             long minutesDiff = Duration.between(createdAt, now).toMinutes();
 
             return new FeedDiary(
-                    (minutesDiff < 1) ? 0L : minutesDiff,
+                    (minutesDiff < ONE_MINUTE) ? LESS_THAN_MINUTE : minutesDiff,
                     diary.getIsLiked(),
                     isLikedByUser
             );
