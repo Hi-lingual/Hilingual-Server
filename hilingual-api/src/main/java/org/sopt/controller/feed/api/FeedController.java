@@ -1,5 +1,7 @@
 package org.sopt.controller.feed.api;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.feed.dto.DiaryWriterProfileRes;
 import org.sopt.controller.feed.dto.FeedProfileRes;
@@ -20,7 +22,7 @@ public class FeedController {
     @GetMapping("/profiles/{targetUserId}")
     public ResponseEntity<FeedProfileRes> getFeedProfile(
             @UserId Long userId,
-            @PathVariable(value = "targetUserId") Long targetUserId
+            @PathVariable(value = "targetUserId") @NotNull Long targetUserId
     ) {
         if (targetUserId == 0) {
             targetUserId = userId;
@@ -32,7 +34,7 @@ public class FeedController {
     @GetMapping("/profiles/{targetUserId}/diaries/shared")
     public ResponseEntity<SharedDiaryListRes> getSharedDiaries(
             @UserId Long userId,
-            @PathVariable(value = "targetUserId") Long targetUserId
+            @PathVariable(value = "targetUserId") @NotNull Long targetUserId
     ) {
         if (targetUserId == 0) {
             targetUserId = userId;
@@ -44,7 +46,7 @@ public class FeedController {
     @GetMapping("/profiles/{targetUserId}/diaries/liked")
     public ResponseEntity<LikedDiaryListRes> getLikedDiaries(
             @UserId Long userId,
-            @PathVariable(value = "targetUserId") Long targetUserId
+            @PathVariable(value = "targetUserId") @NotNull Long targetUserId
     ) {
         if (targetUserId == 0) {
             targetUserId = userId;
@@ -57,7 +59,7 @@ public class FeedController {
     @GetMapping("/{diaryId}/users/profiles")
     public ResponseEntity<DiaryWriterProfileRes> getDiaryWriterProfile(
             @UserId Long userId,
-            @PathVariable(value = "diaryId") Long diaryId
+            @PathVariable(value = "diaryId") @NotNull @Min(1) Long diaryId
     ) {
         return ResponseEntity.ok(feedService.getDiaryWriterProfile(userId, diaryId));
     }
