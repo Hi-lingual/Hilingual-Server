@@ -34,7 +34,7 @@ public class UserProfileService {
         if (!isValidLength(nickname)) {
             return unavailableNickname(UserProfileSuccessCode.NICKNAME_COUNT);
         }
-        if (userFacade.isNicknameExists(nickname)) {
+        if (userProfileFacade.isNicknameExists(nickname)) {
             return unavailableNickname(UserProfileSuccessCode.NICKNAME_DUPLICATED);
         }
         if (forbiddenWordFacade.findIsInForbiddenWord(nickname)) {

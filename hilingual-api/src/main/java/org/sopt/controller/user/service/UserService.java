@@ -18,13 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final TokenService tokenService;
-
-    // TODO : 닉네임 중복 체크 아예 Custom Validator 로 빼자. 현재 UserService 의 책임이 너무 무거움.
-
-    private static final String NICKNAME_PATTERN = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]+$";
-    private static final int MIN_NICKNAME_LENGTH = 2;
-    private static final int MAX_NICKNAME_LENGTH = 10;
-
     private final UserFacade userFacade;
 
     public UserDefaultInfoRes getUserDefaultInfo(final long userId) {
