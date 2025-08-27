@@ -60,8 +60,6 @@ public class DiaryFacade {
         diaryRemover.deleteDiary(userId, diaryId);
     }
 
-    public List<Diary> getPublicDiaries(final long userId) { return diaryRetriever.findByUserIdAndIsPublicTrue(userId); }
-
     /*
      * Updater
      */
