@@ -137,4 +137,15 @@ public class DiaryService {
 
         diaryFacade.deleteDiary(userId, diaryId);
     }
+
+    @Transactional
+    public void publishDiary(final Long userId, final Long diaryId) {
+        diaryFacade.publish(userId, diaryId);
+    }
+
+    @Transactional
+    public void unpublishDiary(final Long userId, final Long diaryId) {
+        diaryFacade.unpublish(userId, diaryId);
+
+    }
 }

@@ -18,6 +18,7 @@ public class DiaryFacade {
     private final DiaryRetriever diaryRetriever;
     private final DiarySaver diarySaver;
     private final DiaryRemover diaryRemover;
+    private final DiaryUpdater diaryUpdater;
 
     public void validateDiaryOwnership(final long userId, final long diaryId) {
         Diary diary = diaryRetriever.findById(diaryId);
@@ -41,8 +42,22 @@ public class DiaryFacade {
 
     @Transactional
     public void deleteDiary(final long userId, final long diaryId) {
-        diaryRemover.deleteDiary(userId,diaryId);
+        diaryRemover.deleteDiary(userId, diaryId);
     }
 
-    public List<Diary> getPublicDiaries(final long userId) { return diaryRetriever.findByUserIdAndIsPublicTrue(userId); }
+    public List<Diary> getPublicDiaries(final long userId) {
+        return diaryRetriever.findByUserIdAndIsPublicTrue(userId);
+    }
+
+    @Transactional
+    public void publish(Long userId, Long diaryId) {
+        Diary diary = diaryRetriever.findOwnedByIdOrThrow(userId, diaryId);
+        diaryUpdater.publish(diary);
+    }
+
+    @Transactional
+    public void unpublish(Long userId, Long diaryId) {
+        Diary diary = diaryRetriever.findOwnedByIdOrThrow(userId, diaryId);
+        diaryUpdater.unpublish(diary);
+    }
 }
