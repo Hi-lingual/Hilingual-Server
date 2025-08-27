@@ -2,9 +2,10 @@ package org.sopt.controller.userprofile.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
-import org.sopt.controller.user.exception.UserSuccessCode;
+import org.sopt.controller.userprofile.exception.UserProfileSuccessCode;
 import org.sopt.controller.userprofile.dto.UserProfileReq;
 import org.sopt.dto.BaseResponseDto;
+import org.sopt.forbiddenword.facade.ForbiddenWordFacade;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.domain.User;
 import org.sopt.userprofile.domain.UserProfile;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 public class UserProfileService {
     private final UserFacade userFacade;
     private final UserProfileFacade userProfileFacade;
+    private final ForbiddenWordFacade forbiddenWordFacade;
 
     // TODO : 닉네임 중복 체크 아예 Custom Validator 로 빼자
 
@@ -27,13 +29,16 @@ public class UserProfileService {
 
     public BaseResponseDto<NicknameAvailableRes> getNicknameAvailable(String nickname) {
         if (!isValidFormat(nickname)) {
-            return unavailableNickname(UserSuccessCode.NICKNAME_SPECIAL_SYMBOLS);
+            return unavailableNickname(UserProfileSuccessCode.NICKNAME_SPECIAL_SYMBOLS);
         }
         if (!isValidLength(nickname)) {
-            return unavailableNickname(UserSuccessCode.NICKNAME_COUNT);
+            return unavailableNickname(UserProfileSuccessCode.NICKNAME_COUNT);
         }
         if (userFacade.isNicknameExists(nickname)) {
-            return unavailableNickname(UserSuccessCode.NICKNAME_DUPLICATED);
+            return unavailableNickname(UserProfileSuccessCode.NICKNAME_DUPLICATED);
+        }
+        if (forbiddenWordFacade.findIsInForbiddenWord(nickname)) {
+            return unavailableNickname(UserProfileSuccessCode.NICKNAME_FORBIDDEN);
         }
         return availableNickname();
     }
@@ -64,10 +69,10 @@ public class UserProfileService {
     }
 
     private BaseResponseDto<NicknameAvailableRes> availableNickname() {
-        return BaseResponseDto.success(UserSuccessCode.NICKNAME_AVAILABLE, new NicknameAvailableRes(true));
+        return BaseResponseDto.success(UserProfileSuccessCode.NICKNAME_AVAILABLE, new NicknameAvailableRes(true));
     }
 
-    private BaseResponseDto<NicknameAvailableRes> unavailableNickname(UserSuccessCode code) {
+    private BaseResponseDto<NicknameAvailableRes> unavailableNickname(UserProfileSuccessCode code) {
         return BaseResponseDto.success(code, new NicknameAvailableRes(false));
     }
 

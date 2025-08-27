@@ -2,17 +2,13 @@ package org.sopt.controller.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.token.TokenService;
-import org.sopt.controller.user.dto.NicknameAvailableRes;
 import org.sopt.controller.user.dto.UserDefaultInfoRes;
 import org.sopt.controller.user.exception.CannotLoadProviderException;
 import org.sopt.controller.user.exception.UserApiErrorCode;
-import org.sopt.controller.user.exception.UserSuccessCode;
-import org.sopt.dto.BaseResponseDto;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.user.domain.User;
 import org.sopt.controller.user.dto.HomeUserProfileRes;
 import org.sopt.user.facade.UserFacade;
-import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
