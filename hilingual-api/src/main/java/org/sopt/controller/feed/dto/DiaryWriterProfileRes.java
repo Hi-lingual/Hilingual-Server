@@ -32,7 +32,7 @@ public record DiaryWriterProfileRes(
         static Profile of(final UserProfile userProfile) {
             return new Profile(
                     userProfile.getUser().getId(),
-                    (userProfile.getProfileImg() != null) ? userProfile.getProfileImg() : "",
+                    (userProfile.getProfileImg() != null) ? userProfile.getProfileImg() : " ",
                     userProfile.getNickname(),
                     userProfile.getStreak()
             );
