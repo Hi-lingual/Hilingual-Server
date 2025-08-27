@@ -14,11 +14,11 @@ public record DiaryWriterProfileRes(
     public static DiaryWriterProfileRes of(
             final Diary diary,
             final boolean isMine,
-            final boolean isLiked) {
+            final boolean isLikedByUser) {
         return new DiaryWriterProfileRes(
                 isMine,
                 Profile.of(diary.getUser().getUserProfile()),
-                FeedDiary.of(diary, isLiked)
+                FeedDiary.of(diary, isLikedByUser)
         );
     }
     record Profile(
@@ -42,7 +42,7 @@ public record DiaryWriterProfileRes(
             Integer likeCount,
             Boolean isLiked
     ){
-        static FeedDiary of(final Diary diary, final boolean isLiked) {
+        static FeedDiary of(final Diary diary, final boolean isLikedByUser) {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime createdAt = diary.getCreatedAt();
             long minutesDiff = Duration.between(createdAt, now).toMinutes();
@@ -50,7 +50,7 @@ public record DiaryWriterProfileRes(
             return new FeedDiary(
                     (minutesDiff < 1) ? 0L : minutesDiff,
                     diary.getIsLiked(),
-                    isLiked
+                    isLikedByUser
             );
         }
     }
