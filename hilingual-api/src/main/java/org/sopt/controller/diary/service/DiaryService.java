@@ -124,7 +124,7 @@ public class DiaryService {
                 .imageUrl(imageUrl)
                 .build();
     }
-   
+
     @Transactional
     public void removeDairy(final Long userId, final Long diaryId) {
         diaryFacade.validateDiaryOwnership(userId, diaryId);
@@ -139,12 +139,13 @@ public class DiaryService {
     }
 
     @Transactional
-    public void publishDiary(final Long userId, final Long diaryId){
+    public void publishDiary(final Long userId, final Long diaryId) {
         diaryFacade.publish(userId, diaryId);
     }
 
     @Transactional
-    public void unpublishDiary(final Long userId, final Long diaryId){
+    public void unpublishDiary(final Long userId, final Long diaryId) {
         diaryFacade.unpublish(userId, diaryId);
 
+    }
 }
