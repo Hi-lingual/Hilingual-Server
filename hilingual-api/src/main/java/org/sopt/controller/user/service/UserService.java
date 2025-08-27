@@ -2,6 +2,7 @@ package org.sopt.controller.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.token.TokenService;
+import org.sopt.controller.user.dto.NotiStatusRes;
 import org.sopt.controller.user.dto.UserDefaultInfoRes;
 import org.sopt.controller.user.exception.CannotLoadProviderException;
 import org.sopt.controller.user.exception.UserApiErrorCode;
@@ -10,15 +11,14 @@ import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.user.domain.User;
 import org.sopt.controller.user.dto.HomeUserProfileRes;
 import org.sopt.user.facade.UserFacade;
-import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.sopt.controller.user.dto.NoticeDetailRes;
 import org.sopt.noticedelivery.domain.NoticeDelivery;
 import org.sopt.noticedelivery.facade.NoticeDeliveryFacade;
 
-
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -67,6 +67,21 @@ public class UserService {
                 throw new CannotLoadProviderException(UserApiErrorCode.PROVIDER_LOAD_ERROR);
         }
         return loginProviderInfo;
+    }
+
+    public NotiStatusRes getUserNotiSatus(final Long userId) {
+        Map<AlarmType, Boolean> map = alarmPreferenceFacade.getAlarmStatusMap(userId);
+
+        boolean marketing = Boolean.TRUE.equals(map.get(AlarmType.MARKETING));
+        boolean feed = Boolean.TRUE.equals(map.get(AlarmType.FEED));
+
+        return new NotiStatusRes(marketing, feed);
+    }
+
+    @Transactional
+    public NotiStatusRes toggleAlarmStatus(final Long userId, final String type) {
+        alarmPreferenceFacade.toggle(userId, AlarmType.from(type));
+        return getUserNotiSatus(userId);
     }
 
     @Transactional
