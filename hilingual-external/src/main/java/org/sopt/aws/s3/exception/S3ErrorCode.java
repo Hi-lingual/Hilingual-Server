@@ -19,6 +19,9 @@ public enum S3ErrorCode implements ErrorCode {
     // 403
     S3_ACCESS_DENIED(HttpStatus.FORBIDDEN, 40302, "S3 접근이 거부되었습니다."),
 
+    // 404
+    S3_BUCKET_NOT_FOUND(HttpStatus.NOT_FOUND, 40405, "S3 버킷이 존재하지 않습니다."),
+
     // 500
     PRESIGN_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 50005, "Presigned URL 생성에 실패했습니다."),
     S3_COPY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 50006, "S3 객체 복사에 실패했습니다."),

@@ -2,12 +2,14 @@ package org.sopt.controller.recommend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.recommend.dto.RecommendListRes;
+import org.sopt.controller.recommend.exception.RecommendApiErrorCode;
+import org.sopt.controller.recommend.exception.RecommendForbiddenException;
+import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.recommend.domain.Recommend;
 import org.sopt.recommend.facade.RecommendFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
-import org.sopt.voca.domain.Voca;
 import org.sopt.voca.facade.VocaRemover;
 import org.sopt.voca.facade.VocaSaver;
 import org.springframework.stereotype.Service;
@@ -52,19 +54,25 @@ public class RecommendService {
         return new RecommendListRes(phrases);
     }
 
-    @Transactional(readOnly = false)
-    public Void bookMark(final long userId, final long phraseId, final boolean isBookMarked){
-        Recommend recommend = recommendFacade.findById(phraseId);
-        User user = userFacade.getUserById(userId);
-        recommend.updateMarkStatus(isBookMarked);
+    @Transactional
+    public Void bookMark(final long userId, final long phraseId, final boolean isBookmarked) {
 
-        if (isBookMarked) {
-            Voca voca = new Voca(user, recommend);
-            vocaSaver.saveIfNotExists(voca);
-        } else {
-            vocaRemover.delete(user, recommend);
+        if (!isBookmarked) {
+            vocaRemover.delete(userId, phraseId);
+            return null;
         }
 
+        Recommend recommend = recommendFacade.findById(phraseId);
+        Diary diary = recommend.getDiary();
+        boolean mine = (diary != null) && userId == diary.getUser().getId();
+        boolean publicDiary = (diary == null) || Boolean.TRUE.equals(diary.getIsPublic());
+
+        if (!mine && !publicDiary) {
+            throw new RecommendForbiddenException(RecommendApiErrorCode.RECOMMEND_FORBIDDEN);
+        }
+
+        User user = userFacade.getUserById(userId);
+        vocaSaver.saveIfNotExists(user, recommend);
         return null;
     }
 

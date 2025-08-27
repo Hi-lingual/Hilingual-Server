@@ -22,15 +22,16 @@ public class RecommendController {
     @GetMapping("/{diaryId}/recommended")
     public ResponseEntity<RecommendListRes> getRecommendList(
             @UserId Long userId,
-            @PathVariable @Validated @Min(1) Long diaryId
+            @PathVariable @Min(1) Long diaryId
     ){
         return ResponseEntity.ok(recommendService.getRecommendList(userId, diaryId));
     }
 
+    // 북마크 지정/해제 API
     @PatchMapping("/{phraseId}")
     public ResponseEntity<Void> bookMark(
             @UserId Long userId,
-            @PathVariable @Validated @Min(1) Long phraseId,
+            @PathVariable @Min(1) Long phraseId,
             @RequestBody @NotNull BookmarkReq bookmarkRequest
     ){
         return ResponseEntity.ok(recommendService.bookMark(userId, phraseId, bookmarkRequest.isBookmarked()));
