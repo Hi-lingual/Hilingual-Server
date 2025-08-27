@@ -1,8 +1,12 @@
 package org.sopt.controller.diary.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.aws.s3.dto.Purpose;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.diary.dto.CreateDiaryReq;
+import org.sopt.controller.diary.exception.DiaryApiErrorCode;
+import org.sopt.controller.diary.exception.DiaryImagePurposeMismatchException;
 import org.sopt.diaryfeedback.diff.dto.DiaryDetailsRes;
 import org.sopt.controller.diary.dto.DiaryRes;
 import org.sopt.controller.recommend.service.RecommendService;
@@ -13,6 +17,7 @@ import org.sopt.controller.diaryfeedback.service.DiaryFeedbackService;
 import org.sopt.diaryfeedback.diff.service.DiaryDiffService;
 import org.sopt.diaryfeedback.diff.prompt.DiaryFeedbackPrompt;
 import org.sopt.openai.OpenAIService;
+import org.sopt.openai.dto.res.GptFeedbackResponse;
 import org.sopt.recommend.domain.Recommend;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
@@ -25,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class DiaryService {
@@ -38,6 +44,7 @@ public class DiaryService {
 
     private final S3Service s3Service;
 
+    // 일기 피드백 요청
     @Transactional
     public DiaryRes createDiaryWithFeedback(
             Long userId,
@@ -48,34 +55,51 @@ public class DiaryService {
         User user = userFacade.getUserById(userId);
         diaryFacade.validateNotExists(user, writtenDate);
 
-        String finalImageKey = null;
-        if (imageRef != null && imageRef.fileKey() != null && !imageRef.fileKey().isBlank()) {
-            if (!"DIARY_IMAGE".equals(imageRef.purpose())) {
-                throw new IllegalArgumentException("image.purpose must be DIARY_IMAGE");
-            }
-            finalImageKey = s3Service.bindDiaryImage(userId, imageRef.fileKey(), writtenDate);
-        }
+        String fileKey = bindDiaryImageIfPresent(userId, writtenDate, imageRef);
 
         var ai = openAiService.getDiaryFeedback(DiaryFeedbackPrompt.PROMPT, originalText);
         Diary diary = diaryFacade.saveDiary(
                 user,
                 originalText,
                 ai.rewriteText(),
-                finalImageKey,
+                fileKey,
                 writtenDate
         );
 
-        ai.feedbackList().stream()
-                .map(f -> DiaryFeedback.create(diary, f.original(), f.rewrite(), f.explain()))
-                .forEach(diaryFeedbackService::saveFeedback);
-
-        ai.phraseList().stream()
-                .map(p -> Recommend.create(diary, p.phrase(), String.join(",", p.phraseType()), p.explanation(), p.reason()))
-                .forEach(recommendService::saveRecommend);
+        saveFeedbacks(diary, ai.feedbackList());
+        saveRecommends(diary, ai.phraseList());
 
         return new DiaryRes(diary.getId());
     }
 
+    private String bindDiaryImageIfPresent(Long userId, LocalDate writtenDate, CreateDiaryReq.ImageRef imageRef) {
+        if (imageRef == null) return null;
+        if (imageRef.purpose() != Purpose.DIARY_IMAGE) {
+            throw new DiaryImagePurposeMismatchException(DiaryApiErrorCode.IMAGE_PURPOSE_INVALID);
+        }
+        return s3Service.bindDiaryImage(userId, imageRef.fileKey(), writtenDate);
+    }
+
+
+    private void saveFeedbacks(Diary diary, List<GptFeedbackResponse.Feedback> feedbackList) {
+        feedbackList.stream()
+                .map(f -> DiaryFeedback.create(diary, f.original(), f.rewrite(), f.explain()))
+                .forEach(diaryFeedbackService::saveFeedback);
+    }
+
+    private void saveRecommends(Diary diary, List<GptFeedbackResponse.Phrase> phraseList) {
+        phraseList.stream()
+                .map(p -> Recommend.create(
+                        diary,
+                        p.phrase(),
+                        String.join(",", p.phraseType()),
+                        p.explanation(),
+                        p.reason()
+                ))
+                .forEach(recommendService::saveRecommend);
+    }
+
+    // 일기 상세조회
     public DiaryDetailsRes getDiaryDetails(final Long userId, final Long diaryId) {
         diaryFacade.validateDiaryOwnership(userId, diaryId);
 
@@ -102,7 +126,15 @@ public class DiaryService {
     }
 
     @Transactional
-    public void removeDairy(final Long userId, final Long diary){
-        diaryFacade.deleteDiary(userId, diary);
-    };
+    public void removeDairy(final Long userId, final Long diaryId) {
+        diaryFacade.validateDiaryOwnership(userId, diaryId);
+        Diary diary = diaryFacade.getDiaryById(diaryId);
+
+        String imageKey = diary.getImageUrl();
+        if (imageKey != null && !imageKey.isBlank()) {
+            s3Service.deleteObject(imageKey);
+        }
+
+        diaryFacade.deleteDiary(userId, diaryId);
+    }
 }

@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.controller.voca.dto.res.VocaDetailResponse;
 import org.sopt.voca.dto.VocaListRes;
 import org.sopt.controller.voca.dto.res.VocaSearchListResponse;
-import org.sopt.recommend.domain.Recommend;
 import org.sopt.recommend.facade.RecommendFacade;
 import org.sopt.voca.domain.Voca;
+import org.sopt.voca.facade.VocaFacade;
 import org.sopt.voca.facade.VocaRetriever;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +19,7 @@ public class VocaService {
 
     private final VocaRetriever vocaRetriever;
     private final RecommendFacade recommendFacade;
+    private final VocaFacade vocaFacade;
 
 
     // 단어장 목록 조회
@@ -32,10 +33,10 @@ public class VocaService {
         return VocaSearchListResponse.from(vocas);
     }
 
-    //특정 단어 세부 조회
+    // 특정 단어 세부 조회
     public VocaDetailResponse getVocaDetails(final Long userId, final Long phraseId) {
-        final Recommend recommend = recommendFacade.findByUserIdAndPhraseId(userId, phraseId);
-        return VocaDetailResponse.from(recommend);
+        final Voca voca = vocaFacade.findDetailByUserIdAndPhraseId(userId, phraseId);
+        return VocaDetailResponse.from(voca);
     }
 
 }

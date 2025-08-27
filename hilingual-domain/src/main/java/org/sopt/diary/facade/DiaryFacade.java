@@ -41,6 +41,7 @@ public class DiaryFacade {
     /*
      * Remover
      */
+    @Transactional
     public void deleteDiary(final long userId, final long diaryId) {
         diaryRemover.deleteDiary(userId,diaryId);
     }
