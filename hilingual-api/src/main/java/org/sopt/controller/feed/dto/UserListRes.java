@@ -25,7 +25,7 @@ public record UserListRes(
         static SearchUser of(UserSearchProjection userList) {
             return new SearchUser(
                     userList.getUserId(),
-                    userList.getProfileImg(),
+                    (userList.getProfileImg() != null) ? userList.getProfileImg() : " ",
                     userList.getNickname(),
                     userList.getIsFollowing(),
                     userList.getIsFollowed()
