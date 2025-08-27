@@ -34,7 +34,9 @@ public class DiaryFacade {
         return diaryRetriever.findByUserIdAndIsPublicTrue(userId);
     }
 
-    public Diary getDiaryWithDetails(final long diaryId) { return diaryRetriever.findDiaryWithDetails(diaryId); }
+    public Diary getDiaryWithDetails(final long diaryId) {
+        return diaryRetriever.findDiaryWithDetails(diaryId);
+    }
 
     public void validateNotExists(User user, LocalDate writtenDate) {
         diaryRetriever.validateDiaryNotExists(user, writtenDate);

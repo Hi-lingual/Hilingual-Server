@@ -34,7 +34,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
            FROM Diary d
            JOIN FETCH d.user u
            JOIN FETCH u.userProfile up
-           WHERE d.id = :diaryId
+           WHERE d.id = :diaryId AND d.isPublic = TRUE
            """)
-    Diary findDiaryWithDetailsById(@Param("diaryId") Long diaryId);
+    Optional<Diary> findDiaryWithDetailsById(@Param("diaryId") Long diaryId);
 }
