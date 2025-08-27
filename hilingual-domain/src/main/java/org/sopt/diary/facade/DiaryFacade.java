@@ -18,17 +18,31 @@ public class DiaryFacade {
     private final DiaryRetriever diaryRetriever;
     private final DiarySaver diarySaver;
     private final DiaryRemover diaryRemover;
+    private final DiaryUpdater diaryUpdater;
 
     /*
      * Retriever
      */
+    public void validateDiaryOwnership(final long userId, final long diaryId) {
+        Diary diary = diaryRetriever.findById(diaryId);
+        if (!diary.getUser().getId().equals(userId)) {
+            throw new DiaryForbiddenException(DiaryCoreErrorCode.DIARY_FORBIDDEN);
+        }
+    }
+
+    public List<Diary> getPublicDiaries(final long userId) {
+        return diaryRetriever.findByUserIdAndIsPublicTrue(userId);
+    }
+
+    public Diary getDiaryWithDetails(final long diaryId) { return diaryRetriever.findDiaryWithDetails(diaryId); }
+
+    public void validateNotExists(User user, LocalDate writtenDate) {
+        diaryRetriever.validateDiaryNotExists(user, writtenDate);
+    }
+
     public Diary getDiaryById(long diaryId) {
         return diaryRetriever.findById(diaryId);
     }
-
-    public List<Diary> getPublicDiaries(final long userId) { return diaryRetriever.findByUserIdAndIsPublicTrue(userId); }
-
-    public Diary getDiaryWithDetails(final long diaryId) { return diaryRetriever.findDiaryWithDetails(diaryId); }
 
     /*
      * Saver
@@ -43,18 +57,23 @@ public class DiaryFacade {
      */
     @Transactional
     public void deleteDiary(final long userId, final long diaryId) {
-        diaryRemover.deleteDiary(userId,diaryId);
+        diaryRemover.deleteDiary(userId, diaryId);
     }
 
-    public void validateDiaryOwnership(final long userId, final long diaryId) {
-        Diary diary = diaryRetriever.findById(diaryId);
-        if (!diary.getUser().getId().equals(userId)) {
-            throw new DiaryForbiddenException(DiaryCoreErrorCode.DIARY_FORBIDDEN);
-        }
+    public List<Diary> getPublicDiaries(final long userId) { return diaryRetriever.findByUserIdAndIsPublicTrue(userId); }
+
+    /*
+     * Updater
+     */
+    @Transactional
+    public void publish(Long userId, Long diaryId) {
+        Diary diary = diaryRetriever.findOwnedByIdOrThrow(userId, diaryId);
+        diaryUpdater.publish(diary);
     }
 
-    public void validateNotExists(User user, LocalDate writtenDate) {
-        diaryRetriever.validateDiaryNotExists(user, writtenDate);
+    @Transactional
+    public void unpublish(Long userId, Long diaryId) {
+        Diary diary = diaryRetriever.findOwnedByIdOrThrow(userId, diaryId);
+        diaryUpdater.unpublish(diary);
     }
-
 }
