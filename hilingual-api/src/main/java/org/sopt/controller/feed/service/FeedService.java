@@ -5,6 +5,7 @@ import org.sopt.block.facade.BlockFacade;
 import org.sopt.controller.feed.dto.FeedProfileRes;
 import org.sopt.controller.feed.dto.LikedDiaryListRes;
 import org.sopt.controller.feed.dto.SharedDiaryListRes;
+import org.sopt.controller.feed.dto.UserListRes;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.follow.dto.FollowRelation;
@@ -13,6 +14,7 @@ import org.sopt.likeddiary.domain.LikedDiary;
 import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
+import org.sopt.userprofile.dto.UserSearchProjection;
 import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -99,6 +101,14 @@ public class FeedService {
                         })
                         .toList()
         );
+    }
+
+    public UserListRes getUserList(Long userId, String keyword) {
+        String likeKeyword = "%" + keyword + "%";
+        String startKeyword = keyword + "%";
+
+        List<UserSearchProjection> userList = userProfileFacade.getUserListByNickname(userId, likeKeyword, startKeyword);
+        return UserListRes.of(userList);
     }
 
     // TODO 사용위치 확인 후 Diary 쪽으로 옮기는 것도 고려해볼 것

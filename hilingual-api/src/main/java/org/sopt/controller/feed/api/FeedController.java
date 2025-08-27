@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.controller.feed.dto.FeedProfileRes;
 import org.sopt.controller.feed.dto.LikedDiaryListRes;
 import org.sopt.controller.feed.dto.SharedDiaryListRes;
+import org.sopt.controller.feed.dto.UserListRes;
 import org.sopt.controller.feed.service.FeedService;
 import org.sopt.jwt.annotation.UserId;
 import org.springframework.http.ResponseEntity;
@@ -52,4 +53,11 @@ public class FeedController {
         return ResponseEntity.ok(feedService.getLikedDiaries(targetUserId));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<UserListRes> getUserList(
+            @UserId Long userId,
+            @RequestParam(value = "keyword") String keyword
+    ) {
+        return ResponseEntity.ok(feedService.getUserList(userId, keyword));
+    }
 }
