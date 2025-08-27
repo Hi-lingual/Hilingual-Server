@@ -30,20 +30,6 @@ public class UserService {
     private static final int MAX_NICKNAME_LENGTH = 10;
 
     private final UserFacade userFacade;
-    private final UserProfileFacade userProfileFacade;
-
-    public BaseResponseDto<NicknameAvailableRes> getNicknameAvailable(String nickname) {
-        if (!isValidFormat(nickname)) {
-            return unavailableNickname(UserSuccessCode.NICKNAME_SPECIAL_SYMBOLS);
-        }
-        if (!isValidLength(nickname)) {
-            return unavailableNickname(UserSuccessCode.NICKNAME_COUNT);
-        }
-        if (userFacade.isNicknameExists(nickname)) {
-            return unavailableNickname(UserSuccessCode.NICKNAME_DUPLICATED);
-        }
-        return availableNickname();
-    }
 
     public UserDefaultInfoRes getUserDefaultInfo(final long userId) {
         User user = userFacade.getUserById(userId);
@@ -61,23 +47,6 @@ public class UserService {
                 user.getUserProfile(),
                 user.getNotifyStatus()
         );
-    }
-
-    private boolean isValidFormat(String nickname) {
-        return nickname.matches(NICKNAME_PATTERN);
-    }
-
-    private boolean isValidLength(String nickname) {
-        int length = nickname.length();
-        return length >= MIN_NICKNAME_LENGTH && length <= MAX_NICKNAME_LENGTH;
-    }
-
-    private BaseResponseDto<NicknameAvailableRes> availableNickname() {
-        return BaseResponseDto.success(UserSuccessCode.NICKNAME_AVAILABLE, new NicknameAvailableRes(true));
-    }
-
-    private BaseResponseDto<NicknameAvailableRes> unavailableNickname(UserSuccessCode code) {
-        return BaseResponseDto.success(code, new NicknameAvailableRes(false));
     }
 
     @Transactional

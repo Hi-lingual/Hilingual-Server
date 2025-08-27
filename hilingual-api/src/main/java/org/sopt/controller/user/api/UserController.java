@@ -21,13 +21,6 @@ public class UserController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @GetMapping("/profile")
-    public BaseResponseDto<NicknameAvailableRes> getUserProfile(
-            @RequestParam(value = "nickname") String nickname
-    ) {
-        return userService.getNicknameAvailable(nickname);
-    }
-
     @PostMapping("/reissue")
     public ResponseEntity<ReissueTokensRes> reissue(
             HttpServletRequest request

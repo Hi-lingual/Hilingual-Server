@@ -1,7 +1,9 @@
 package org.sopt.controller.userprofile.api;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.controller.user.dto.NicknameAvailableRes;
 import org.sopt.controller.userprofile.dto.UserProfileReq;
+import org.sopt.dto.BaseResponseDto;
 import org.sopt.jwt.annotation.UserId;
 import org.sopt.controller.userprofile.service.UserProfileService;
 import org.sopt.exception.code.GlobalSuccessCode;
@@ -14,6 +16,13 @@ import org.springframework.web.bind.annotation.*;
 public class UserProfileController {
 
     private final UserProfileService userProfileService;
+
+    @GetMapping("/profile")
+    public BaseResponseDto<NicknameAvailableRes> getUserProfile(
+            @RequestParam(value = "nickname") String nickname
+    ) {
+        return userProfileService.getNicknameAvailable(nickname);
+    }
 
     @PostMapping("/profile")
     public ResponseEntity<?> saveUserProfile(
