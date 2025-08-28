@@ -39,8 +39,8 @@ public record SharedDiaryListRes(
     ) {
         public static SharedDiary of(final Diary diary, final boolean isLikedByUser, final String diaryImgUrl) {
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime createdAt = diary.getCreatedAt();
-            long minutesDiff = Duration.between(createdAt, now).toMinutes();
+            LocalDateTime sharedTime = diary.getSharedTime();
+            long minutesDiff = Duration.between(sharedTime, now).toMinutes();
 
             return new SharedDiary(
                     diary.getId(),

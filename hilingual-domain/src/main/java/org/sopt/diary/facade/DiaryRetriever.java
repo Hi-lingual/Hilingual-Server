@@ -31,7 +31,7 @@ public class DiaryRetriever {
     }
 
     public List<Diary> findByUserIdAndIsPublicTrue(final Long userId) {
-        return diaryRepository.findByUserIdAndIsPublicTrueOrderByCreatedAtDesc(userId);
+        return diaryRepository.findByUserIdAndIsPublicTrueOrderBySharedTimeDesc(userId);
     }
 
     public Diary findOwnedByIdOrThrow(Long userId, Long diaryId) {

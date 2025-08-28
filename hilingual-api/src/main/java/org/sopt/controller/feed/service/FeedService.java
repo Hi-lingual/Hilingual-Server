@@ -135,7 +135,6 @@ public class FeedService {
         );
     }
 
-    // TODO 사용위치 확인 후 Diary 쪽으로 옮기는 것도 고려해볼 것
     private List<Map<String, Object>> getPublicDiariesWithIsLiked(Long userId) {
         // 해당 userId에 대해 공개된 다이어리 목록 조회
         List<Diary> diaries = diaryFacade.getPublicDiaries(userId);
