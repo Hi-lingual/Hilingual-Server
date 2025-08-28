@@ -16,10 +16,12 @@ public record DiaryWriterProfileRes(
     public static DiaryWriterProfileRes of(
             final Diary diary,
             final boolean isMine,
-            final boolean isLikedByUser) {
+            final boolean isLikedByUser,
+            final String profileImgUrl
+    ) {
         return new DiaryWriterProfileRes(
                 isMine,
-                Profile.of(diary.getUser().getUserProfile()),
+                Profile.of(diary.getUser().getUserProfile(), profileImgUrl),
                 FeedDiary.of(diary, isLikedByUser)
         );
     }
@@ -29,10 +31,10 @@ public record DiaryWriterProfileRes(
             String nickname,
             Integer streak
     ){
-        static Profile of(final UserProfile userProfile) {
+        static Profile of(final UserProfile userProfile, final String profileImgUrl) {
             return new Profile(
                     userProfile.getUser().getId(),
-                    (userProfile.getProfileImg() != null) ? userProfile.getProfileImg() : " ",
+                    (userProfile.getProfileImg() != null) ? profileImgUrl : " ",
                     userProfile.getNickname(),
                     userProfile.getStreak()
             );

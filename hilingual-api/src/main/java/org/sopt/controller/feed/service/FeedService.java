@@ -1,6 +1,7 @@
 package org.sopt.controller.feed.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.aws.s3.service.S3Service;
 import org.sopt.block.facade.BlockFacade;
 import org.sopt.controller.feed.dto.DiaryWriterProfileRes;
 import org.sopt.controller.feed.dto.FeedProfileRes;
@@ -33,6 +34,7 @@ public class FeedService {
     private final FollowFacade followFacade;
     private final DiaryFacade diaryFacade;
     private final LikedDiaryFacade likedDiaryFacade;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public FeedProfileRes getFeedProfile(Long userId, Long targetUserId) {
@@ -107,7 +109,11 @@ public class FeedService {
         final boolean isMine = diary.getUser().getId().equals(userId);
         final boolean isLiked = likedDiaryFacade.findUserAndDiaryExist(userId, diaryId);
 
-        return DiaryWriterProfileRes.of(diary, isMine, isLiked);
+        String profileImgUrl = diary.getUser().getUserProfile().getProfileImg();
+        if (profileImgUrl!= null) {
+            profileImgUrl = s3Service.toPublicUrl(profileImgUrl);
+        }
+        return DiaryWriterProfileRes.of(diary, isMine, isLiked, profileImgUrl);
     }
 
     // TODO 사용위치 확인 후 Diary 쪽으로 옮기는 것도 고려해볼 것
