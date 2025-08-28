@@ -48,6 +48,6 @@ dependencies {
 
 bootJar {
     enabled = true
-    archiveFileName = 'app.jar'   // ✅ 항상 app.jar 로 고정 (와일드카드/구버전 혼선 차단)
+    archiveFileName = 'app.jar'   // ✅ 항상 app.jar 로 고정
 }
 jar { enabled = false }
