@@ -29,9 +29,9 @@ fi
 
 echo "[INFO] CURRENT=$CURRENT NEW=$NEW PORT_NEW=$PORT_NEW"
 
-./gradlew clean bootJar -x test
-
+./gradlew :hilingual-api:clean :hilingual-api:bootJar -x test
 docker compose build spring-${NEW} --no-cache
+
 
 ######## 1) 새 컨테이너 기동 ########
 docker compose up -d spring-${NEW}

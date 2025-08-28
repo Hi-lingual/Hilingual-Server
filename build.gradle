@@ -67,8 +67,11 @@ subprojects {
     }
 }
 
-jar { enabled = false }
-bootJar {
-    enabled = true
-    archiveFileName = 'app.jar'   // 항상 build/libs/app.jar 로 고정
+// 루트에서는 실행 JAR(bootJar) 금지, 일반 jar는 서브모듈에서 기본 활성
+subprojects {
+    tasks.matching { it.name == "bootJar" }.configureEach { enabled = false }
+    tasks.matching { it.name == "jar"     }.configureEach { enabled = true  }
 }
+
+bootJar { enabled = false }
+
