@@ -46,5 +46,8 @@ dependencies {
 
 }
 
-bootJar { enabled = true } // dependencies 와 class 파일 모두 묶어서 빌드
-jar { enabled = false } // class 만 묶어서 빌드
+bootJar {
+    enabled = true
+    archiveFileName = 'app.jar'   // ✅ 항상 app.jar 로 고정
+}
+jar { enabled = false }

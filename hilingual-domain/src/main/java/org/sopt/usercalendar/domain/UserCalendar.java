@@ -29,7 +29,7 @@ public class UserCalendar extends BaseTimeEntity {
   
     @Enumerated(EnumType.STRING)
     @Column(name = UserCalendarTableConstants.COLUMN_STATUS, nullable = false, length = 16)
-    private WriteStatus status;
+    private WriteStatus status = WriteStatus.NONE;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = UserCalendarTableConstants.COLUMN_USER_ID, nullable = false)

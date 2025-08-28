@@ -13,10 +13,10 @@ public record VocaItemRes(
 ) {
     public static VocaItemRes from(final Voca voca) {
         return new VocaItemRes(
-                voca.getRecommend().getId(),
-                voca.getRecommend().getPhrase(),
-                parsePhraseTypes(voca.getRecommend().getPhraseType()),
-                voca.getRecommend().getIsBookmarked()
+                voca.getRecommendId(),
+                voca.getPhrase(),
+                parsePhraseTypes(voca.getPhraseType()),
+                Boolean.TRUE
         );
     }
 

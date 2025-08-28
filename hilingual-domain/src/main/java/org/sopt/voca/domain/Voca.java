@@ -11,8 +11,18 @@ import org.sopt.user.domain.User;
 import org.sopt.voca.type.SavedRoot;
 import org.sopt.voca.type.SavedRootConverter;
 
+import static org.sopt.voca.domain.VocaTableConstants.*;
+
 @Entity
-@Table(name = VocaTableConstants.TABLE_VOCA)
+@Table(
+        name = TABLE_VOCA,
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = UK_VOCA_USER_RECOMMEND,
+                        columnNames = { COLUMN_USER_ID, COLUMN_RECOMMEND_ID }
+                )
+        }
+)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -20,23 +30,51 @@ public class Voca extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = VocaTableConstants.COLUMN_ID)
+    @Column(name = COLUMN_ID)
     private Long id;
 
     @Convert(converter = SavedRootConverter.class)
-    @Column(name = VocaTableConstants.COLUMN_SAVED_ROOT, nullable = false)
+    @Column(name = COLUMN_SAVED_ROOT, nullable = false)
     private SavedRoot savedRoot;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = VocaTableConstants.COLUMN_USER_ID, nullable = false)
+    @JoinColumn(name = COLUMN_USER_ID, nullable = false)
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = VocaTableConstants.COLUMN_RECOMMEND_ID, nullable = false, unique = true)
-    private Recommend recommend;
+    @Column(name = COLUMN_RECOMMEND_ID, nullable = false)
+    private Long recommendId;
 
-    public Voca(User user, Recommend recommend) {
-        this.user = user;
-        this.recommend = recommend;
+    @Column(name = COLUMN_PHRASE, nullable = false)
+    private String phrase;
+
+    @Column(name = COLUMN_PHRASE_TYPE, nullable = false)
+    private String phraseType;
+
+    @Column(name = COLUMN_EXPLANATION, nullable = false)
+    private String explanation;
+
+    @Column(name = COLUMN_WRITTEN_FROM, nullable = false)
+    private String writtenFrom;
+
+    public static Voca fromMyDiary(User user, Recommend recommend, String writtenFrom) {
+        return new Voca(
+                null, SavedRoot.MY, user,
+                recommend.getId(),
+                recommend.getPhrase(),
+                recommend.getPhraseType(),
+                recommend.getExplanation(),
+                writtenFrom
+        );
+    }
+
+    public static Voca fromFeed(User user, Recommend recommend, String writtenFrom) {
+        return new Voca(
+                null, SavedRoot.FEED, user,
+                recommend.getId(),
+                recommend.getPhrase(),
+                recommend.getPhraseType(),
+                recommend.getExplanation(),
+                writtenFrom
+        );
     }
 }

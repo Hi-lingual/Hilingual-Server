@@ -1,13 +1,12 @@
 package org.sopt.controller.diary.api;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.diary.dto.CreateDiaryReq;
 import org.sopt.diaryfeedback.diff.dto.DiaryDetailsRes;
 import org.sopt.controller.diary.dto.DiaryRes;
-import org.sopt.controller.diary.exception.DiaryApiErrorCode;
-import org.sopt.controller.diary.exception.DiaryContentTooShortException;
 import org.sopt.controller.diary.service.DiaryService;
 import org.sopt.jwt.annotation.UserId;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +24,8 @@ public class DiaryController {
     @PostMapping
     public ResponseEntity<DiaryRes> createDiary(
             @UserId Long userId,
-            @RequestBody CreateDiaryReq req
+            @Valid @RequestBody CreateDiaryReq req
     ) {
-        if (req.originalText() == null || req.originalText().length() < 10) {
-            throw new DiaryContentTooShortException(DiaryApiErrorCode.DIARY_TOO_SHORT);
-        }
         LocalDate writtenDate = LocalDate.parse(req.date());
         return ResponseEntity.ok(
                 diaryService.createDiaryWithFeedback(userId, req.originalText(), writtenDate, req.image())
@@ -50,6 +46,24 @@ public class DiaryController {
             @PathVariable("diaryId") @NotNull @Min(1) Long diaryId
     ){
         diaryService.removeDairy(userId, diaryId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{diaryId}/publish")
+    public ResponseEntity<Void> publishDiary(
+            @UserId Long userId,
+            @PathVariable("diaryId") @NotNull @Min(1) Long diaryId
+    ){
+        diaryService.publishDiary(userId, diaryId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{diaryId}/unpublish")
+    public ResponseEntity<Void> unpublishDiary(
+            @UserId Long userId,
+            @PathVariable("diaryId") @NotNull @Min(1) Long diaryId
+    ){
+        diaryService.unpublishDiary(userId, diaryId);
         return ResponseEntity.ok().build();
     }
 

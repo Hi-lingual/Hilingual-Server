@@ -44,8 +44,4 @@ public class Recommend extends BaseTimeEntity {
     public static Recommend create(Diary diary, String phrase, String phraseType, String explanation, String reason) {
         return new Recommend(null, phrase, phraseType, explanation, false, reason, diary);
     }
-
-    public void updateMarkStatus(boolean isBookmarked) {
-        this.isBookmarked = isBookmarked;
-    }
 }

@@ -3,6 +3,8 @@ package org.sopt.voca.facade;
 import lombok.RequiredArgsConstructor;
 import org.sopt.voca.domain.Voca;
 import org.sopt.voca.dto.VocaListRes;
+import org.sopt.voca.exception.VocaCoreErrorCode;
+import org.sopt.voca.exception.VocaNotFoundException;
 import org.sopt.voca.repository.VocaRepository;
 import org.springframework.stereotype.Component;
 
@@ -30,4 +32,8 @@ public class VocaRetriever {
         return vocaRepository.findAllByUserIdAndPhraseStartsWith(userId, keyword);
     }
 
+    public Voca findDetailByUserIdAndPhraseId(final Long userId, final Long phraseId) {
+        return vocaRepository.findDetailByUserIdAndPhraseId(userId, phraseId)
+                .orElseThrow(() -> new VocaNotFoundException(VocaCoreErrorCode.VOCA_NOT_FOUND));
+    }
 }

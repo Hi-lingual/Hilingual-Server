@@ -1,17 +1,18 @@
 package org.sopt.controller.follow.api;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.controller.follow.dto.FollowerListRes;
 import org.sopt.controller.follow.dto.NewFollowInfoRes;
+import org.sopt.controller.follow.dto.FollowingListRes;
 import org.sopt.controller.follow.service.FollowService;
 import org.sopt.jwt.annotation.UserId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.sopt.controller.follow.dto.FollowerListDtoRes;
-import org.sopt.controller.follow.dto.FollowingListDtoRes;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -37,21 +38,27 @@ public class FollowController {
         return ResponseEntity.ok(followService.unfollow(userId, targetUserId));
     }
 
-    @GetMapping("/{userId}/followers")
-    public ResponseEntity<FollowerListDtoRes> getFollowerList(
-            @PathVariable Long userId
+    @GetMapping("/{targetUserId}/followers")
+    public ResponseEntity<FollowerListRes> getFollowerList(
+            @UserId Long userId,
+            @PathVariable Long targetUserId
     ) {
-        // TODO 수정
-        Long mockUserId = 1L;
-        return ResponseEntity.ok(followService.getFollowerList(mockUserId));
+        if (targetUserId == 0) {
+            targetUserId = userId;
+        }
+
+        return ResponseEntity.ok(followService.getFollowerList(targetUserId));
     }
 
-    @GetMapping("/{userId}/followings")
-    public ResponseEntity<FollowingListDtoRes> getFollowingList(
-            @PathVariable Long userId
+    @GetMapping("/{targetUserId}/followings")
+    public ResponseEntity<FollowingListRes> getFollowingList(
+            @UserId Long userId,
+            @PathVariable Long targetUserId
     ) {
-        // TODO 수정
-        Long mockUserId = 1L;
-        return ResponseEntity.ok(followService.getFollowingList(mockUserId));
+        if (targetUserId == 0) {
+            targetUserId = userId;
+        }
+
+        return ResponseEntity.ok(followService.getFollowingList(targetUserId));
     }
 }

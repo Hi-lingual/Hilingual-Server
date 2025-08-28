@@ -2,16 +2,12 @@ services:
   nginx:
     image: nginx:1.25-alpine
     container_name: hilingual-nginx
-    ports: ["80:80"]
+    ports: ["80:80","443:443"]
     volumes:
       # 템플릿만 컨테이너에 제공(읽기전용 권장)
-      - ./nginx.template.conf:/etc/nginx/nginx.template.conf:ro
-      - ./includes/:/etc/nginx/includes/:rw
+      - /home/ubuntu/nginx/nginx.template.conf:/etc/nginx/conf.d/default.conf:ro
+      - /home/ubuntu/nginx/includes:/etc/nginx/includes:rw
+      - /home/ubuntu/nginx/certbot/www:/var/www/certbot:ro
+      - /home/ubuntu/nginx/certs:/etc/letsencrypt:ro
     restart: unless-stopped
 
-      # (선택) 스크립트는 자동 실행 안 되게 다른 경로로 마운트만 해둠
-      # - ./start-nginx.sh:/opt/start-nginx.sh:ro
-
-    # ❌ compose에서 TARGET_UPSTREAM 주입하지 않음 (우리 워크플로우가 exec -e로 주입)
-    # environment:
-    #   - TARGET_UPSTREAM=${TARGET_UPSTREAM}
