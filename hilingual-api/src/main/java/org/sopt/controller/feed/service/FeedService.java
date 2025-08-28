@@ -1,12 +1,16 @@
 package org.sopt.controller.feed.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.aws.s3.service.S3Service;
 import org.sopt.block.facade.BlockFacade;
 import org.sopt.controller.feed.dto.FeedProfileRes;
 import org.sopt.controller.feed.dto.LikedDiaryListRes;
+import org.sopt.controller.feed.dto.RecommendFeedListRes;
 import org.sopt.controller.feed.dto.SharedDiaryListRes;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
+import org.sopt.feed.dto.RecommendFeedProjection;
+import org.sopt.feed.facade.FeedFacade;
 import org.sopt.follow.dto.FollowRelation;
 import org.sopt.follow.facade.FollowFacade;
 import org.sopt.likeddiary.domain.LikedDiary;
@@ -14,13 +18,18 @@ import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.facade.UserProfileFacade;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +41,8 @@ public class FeedService {
     private final FollowFacade followFacade;
     private final DiaryFacade diaryFacade;
     private final LikedDiaryFacade likedDiaryFacade;
+    private final FeedFacade feedFacade;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public FeedProfileRes getFeedProfile(Long userId, Long targetUserId) {
@@ -101,7 +112,46 @@ public class FeedService {
         );
     }
 
-    // TODO 사용위치 확인 후 Diary 쪽으로 옮기는 것도 고려해볼 것
+    public RecommendFeedListRes getRecommendFeeds(final long userId, final int page, final int size) {
+        Pageable pageable =  PageRequest.of(page, size);
+
+        List<RecommendFeedProjection> projections = feedFacade.findRecommendFeeds(userId, pageable);
+
+        List<RecommendFeedListRes.RecommendFeed> recommendFeeds = projections.stream()
+                .map(projection -> {
+                    // S3Service를 활용해 URL 변환
+                    String profileImageUrl = s3Service.toPublicUrl(projection.getProfileImg());
+                    String diaryImageUrl = s3Service.toPublicUrl(projection.getDiaryImg());
+
+                    // Projection 데이터로 DTO 생성
+                    RecommendFeedListRes.RecommendFeedProfile profile = new RecommendFeedListRes.RecommendFeedProfile(
+                            projection.getUserId(),
+                            projection.getIsMine(),
+                            profileImageUrl,
+                            projection.getNickname(),
+                            projection.getStreak()
+                    );
+
+                    LocalDateTime now = LocalDateTime.now();
+                    LocalDateTime sharedTime = projection.getSharedDate();
+                    long minutesDiff = Duration.between(sharedTime, now).toMinutes();
+
+                    RecommendFeedListRes.RecommendFeedDiary diary = new RecommendFeedListRes.RecommendFeedDiary(
+                            projection.getDiaryId(),
+                            (minutesDiff < 1) ? 0L : minutesDiff,
+                            projection.getLikeCount(),
+                            projection.getIsLiked(),
+                            diaryImageUrl,
+                            projection.getOriginalText()
+                    );
+
+                    return new RecommendFeedListRes.RecommendFeed(profile, diary);
+                })
+                .collect(Collectors.toList());
+
+        return new RecommendFeedListRes(recommendFeeds);
+    }
+
     private List<Map<String, Object>> getPublicDiariesWithIsLiked(Long userId) {
         // 해당 userId에 대해 공개된 다이어리 목록 조회
         List<Diary> diaries = diaryFacade.getPublicDiaries(userId);

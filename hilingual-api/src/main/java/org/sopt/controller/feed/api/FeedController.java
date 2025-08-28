@@ -3,6 +3,7 @@ package org.sopt.controller.feed.api;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.feed.dto.FeedProfileRes;
 import org.sopt.controller.feed.dto.LikedDiaryListRes;
+import org.sopt.controller.feed.dto.RecommendFeedListRes;
 import org.sopt.controller.feed.dto.SharedDiaryListRes;
 import org.sopt.controller.feed.service.FeedService;
 import org.sopt.jwt.annotation.UserId;
@@ -52,4 +53,12 @@ public class FeedController {
         return ResponseEntity.ok(feedService.getLikedDiaries(targetUserId));
     }
 
+    @GetMapping("/recommend")
+    public ResponseEntity<RecommendFeedListRes> getRecommendFeed(
+            @UserId Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size
+    ) {
+        return ResponseEntity.ok(feedService.getRecommendFeeds(userId,page,size));
+    }
 }
