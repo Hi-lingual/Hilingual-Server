@@ -2,7 +2,7 @@ package org.sopt.feed.dto;
 
 import java.time.LocalDateTime;
 
-public interface RecommendFeedProjection {
+public interface FeedProjection {
     // UserProfile
     Long getUserId();
     Boolean getIsMine();

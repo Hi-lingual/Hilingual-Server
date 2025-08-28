@@ -9,7 +9,7 @@ import org.sopt.controller.feed.dto.RecommendFeedListRes;
 import org.sopt.controller.feed.dto.SharedDiaryListRes;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
-import org.sopt.feed.dto.RecommendFeedProjection;
+import org.sopt.feed.dto.FeedProjection;
 import org.sopt.feed.facade.FeedFacade;
 import org.sopt.follow.dto.FollowRelation;
 import org.sopt.follow.facade.FollowFacade;
@@ -115,7 +115,7 @@ public class FeedService {
     public RecommendFeedListRes getRecommendFeeds(final long userId, final int page, final int size) {
         Pageable pageable =  PageRequest.of(page, size);
 
-        List<RecommendFeedProjection> projections = feedFacade.findRecommendFeeds(userId, pageable);
+        List<FeedProjection> projections = feedFacade.findRecommendFeeds(userId, pageable);
 
         List<RecommendFeedListRes.RecommendFeed> recommendFeeds = projections.stream()
                 .map(projection -> {

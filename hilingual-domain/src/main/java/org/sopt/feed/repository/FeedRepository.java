@@ -1,7 +1,7 @@
 package org.sopt.feed.repository;
 
 import org.sopt.diary.domain.Diary;
-import org.sopt.feed.dto.RecommendFeedProjection;
+import org.sopt.feed.dto.FeedProjection;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -41,7 +41,7 @@ public interface FeedRepository extends JpaRepository<Diary, Long> {
           )
         ORDER BY d.sharedTime DESC
     """)
-    List<RecommendFeedProjection> findRecommendFeeds(
+    List<FeedProjection> findRecommendFeeds(
             @Param("currentUserId") Long currentUserId,
             Pageable pageable
     );
