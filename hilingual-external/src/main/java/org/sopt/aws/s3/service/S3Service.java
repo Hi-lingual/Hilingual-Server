@@ -178,7 +178,7 @@ public class S3Service {
         String normKey = key.startsWith("/") ? key.substring(1) : key;
         String base = cdn.startsWith("http://")
                 ? cdn
-                : "http://" + (cdn.endsWith("/") ? cdn.substring(0, cdn.length() - 1) : cdn);
+                : "https://" + (cdn.endsWith("/") ? cdn.substring(0, cdn.length() - 1) : cdn);
         return base + "/" + normKey;
     }
 
