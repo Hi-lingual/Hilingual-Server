@@ -38,19 +38,18 @@ public class RecommendService {
     }
 
     public RecommendListRes getRecommendList(final long userId, final long diaryId){
-        diaryFacade.validateDiaryOwnership(userId, diaryId);
+        diaryFacade.validateReadable(userId, diaryId);
 
-        List<RecommendListRes.PhraseDto> phrases =
-                recommendFacade.findByDiaryId(diaryId).stream()
-                        .map(r -> new RecommendListRes.PhraseDto(
-                                r.getId(),
-                                parsePhraseType(r.getPhraseType()),
-                                r.getPhrase(),
-                                r.getExplanation(),
-                                r.getReason(),
-                                r.getIsBookmarked()
-                        ))
-                        .collect(Collectors.toList());
+        List<RecommendListRes.PhraseDto> phrases = recommendFacade.findByDiaryId(diaryId).stream()
+                .map(r -> new RecommendListRes.PhraseDto(
+                        r.getId(),
+                        parsePhraseType(r.getPhraseType()),
+                        r.getPhrase(),
+                        r.getExplanation(),
+                        r.getReason(),
+                        r.getIsBookmarked()
+                ))
+                .toList();
         return new RecommendListRes(phrases);
     }
 
@@ -83,6 +82,6 @@ public class RecommendService {
         return Arrays.stream(phraseType.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .collect(Collectors.toList());
+                .toList();
     }
 }
