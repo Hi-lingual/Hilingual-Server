@@ -20,6 +20,11 @@ public class DiaryFacade {
     private final DiaryRemover diaryRemover;
     private final DiaryUpdater diaryUpdater;
 
+
+    /**
+     * DiaryRetriever
+     */
+    // 특정 일기가 해당 userId 소유인지 검증
     public void validateDiaryOwnership(final long userId, final long diaryId) {
         Diary diary = diaryRetriever.findById(diaryId);
         if (!diary.getUser().getId().equals(userId)) {
@@ -27,28 +32,51 @@ public class DiaryFacade {
         }
     }
 
+    // 읽기 권한 검증 (내 일기 or 공개 일기)
+    public void validateReadable(final long userId, final long diaryId) {
+        Diary diary = diaryRetriever.findById(diaryId);
+        boolean mine = diary.getUser().getId().equals(userId);
+        boolean publicDiary = Boolean.TRUE.equals(diary.getIsPublic());
+
+        if (!mine && !publicDiary) {
+            throw new DiaryForbiddenException(DiaryCoreErrorCode.DIARY_FORBIDDEN);
+        }
+    }
+
+    // 같은 날짜에 이미 일기를 작성했는지 검증
+    public void validateNotExists(User user, LocalDate writtenDate) {
+        diaryRetriever.validateDiaryNotExists(user, writtenDate);
+    }
+
+    // 단건 조회
+    public Diary getDiaryById(long diaryId) {
+        return diaryRetriever.findById(diaryId);
+    }
+
+    // 특정 유저의 공개 일기 목록 조회
+    public List<Diary> getPublicDiaries(final long userId) {
+        return diaryRetriever.findByUserIdAndIsPublicTrue(userId);
+    }
+
+    /**
+     * DiarySaver
+     */
     @Transactional
     public Diary saveDiary(User user, String originalText, String rewriteText, String imageUrl, LocalDate writtenDate) {
         return diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate);
     }
 
-    public void validateNotExists(User user, LocalDate writtenDate) {
-        diaryRetriever.validateDiaryNotExists(user, writtenDate);
-    }
-
-    public Diary getDiaryById(long diaryId) {
-        return diaryRetriever.findById(diaryId);
-    }
-
+    /**
+     * DiaryRemover
+     */
     @Transactional
     public void deleteDiary(final long userId, final long diaryId) {
         diaryRemover.deleteDiary(userId, diaryId);
     }
 
-    public List<Diary> getPublicDiaries(final long userId) {
-        return diaryRetriever.findByUserIdAndIsPublicTrue(userId);
-    }
-
+    /**
+     * DiaryUpdater
+     */
     @Transactional
     public void publish(Long userId, Long diaryId) {
         Diary diary = diaryRetriever.findOwnedByIdOrThrow(userId, diaryId);
