@@ -1,7 +1,7 @@
 package org.sopt.controller.feed.api;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.feed.dto.DiaryWriterProfileRes;
 import org.sopt.controller.feed.dto.FeedProfileRes;

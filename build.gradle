@@ -67,5 +67,11 @@ subprojects {
     }
 }
 
+// 루트에서는 실행 JAR(bootJar) 금지, 일반 jar는 서브모듈에서 기본 활성
+subprojects {
+    tasks.matching { it.name == "bootJar" }.configureEach { enabled = false }
+    tasks.matching { it.name == "jar"     }.configureEach { enabled = true  }
+}
+
 bootJar { enabled = false }
-jar { enabled = true } // class 만 묶어서 빌드
+

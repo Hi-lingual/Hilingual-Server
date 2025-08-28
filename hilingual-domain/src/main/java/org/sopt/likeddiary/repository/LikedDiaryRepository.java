@@ -23,6 +23,12 @@ public interface LikedDiaryRepository extends JpaRepository<LikedDiary, Long> {
             JOIN FETCH d.user u
             JOIN FETCH u.userProfile up
             WHERE ld.user.id = :userId
+            AND d.user.id NOT IN (
+                    SELECT b.blocked.id FROM Block b WHERE b.blocker.id = :userId
+                )
+                AND d.user.id NOT IN (
+                    SELECT b.blocker.id FROM Block b WHERE b.blocked.id = :userId
+                )
             ORDER BY ld.createdAt DESC
             """)
     List<LikedDiary> findLikedDiariesWithDetailsByUserId(@Param("userId") Long userId);

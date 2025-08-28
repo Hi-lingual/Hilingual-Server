@@ -15,28 +15,23 @@ public record SharedDiaryListRes(
         Profile profile,
         List<SharedDiary> diaryList
 ) {
-    public static SharedDiaryListRes of(final UserProfile userProfile, final List<Diary> diaries, final List<Boolean> isLikedByUser) {
-        final List<SharedDiary> sharedDiaries = IntStream.range(0, diaries.size())
-                .mapToObj(i -> SharedDiary.of(diaries.get(i), isLikedByUser.get(i)))
-                .toList();
-
-        return new SharedDiaryListRes(Profile.from(userProfile), sharedDiaries);
+    public static SharedDiaryListRes of(final UserProfile userProfile, final String profileImgUrl, final List<SharedDiary> sharedDiaries) {
+        return new SharedDiaryListRes(Profile.from(userProfile, profileImgUrl), sharedDiaries);
     }
 
-    record Profile(
+    public record Profile(
             String profileImg,
             String nickname
     ) {
-        static Profile from(final UserProfile userProfile) {
+        public static Profile from(final UserProfile userProfile, final String profileImgUrl) {
             return new Profile(
-                    (userProfile.getProfileImg() != null) ? userProfile.getProfileImg() : " ",
+                    (profileImgUrl != null) ? profileImgUrl : " ", // 변환된 URL 사용
                     userProfile.getNickname()
             );
         }
     }
-    }
 
-    record SharedDiary(
+    public record SharedDiary(
             Long diaryId,
             Long sharedDate,
             Integer likeCount,
@@ -44,18 +39,19 @@ public record SharedDiaryListRes(
             String diaryImg,
             String originalText
     ) {
-        static SharedDiary of(final Diary diary, final boolean isLikedByUser) {
+        public static SharedDiary of(final Diary diary, final boolean isLikedByUser, final String diaryImgUrl) {
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime createdAt = diary.getCreatedAt();
-            long minutesDiff = Duration.between(createdAt, now).toMinutes();
+            LocalDateTime sharedTime = diary.getSharedTime();
+            long minutesDiff = Duration.between(sharedTime, now).toMinutes();
 
             return new SharedDiary(
                     diary.getId(),
                     (minutesDiff < ONE_MINUTE) ? LESS_THAN_MINUTE : minutesDiff,
                     diary.getIsLiked(),
                     isLikedByUser,
-                    (diary.getImageUrl() != null) ? diary.getImageUrl() : " ",
+                    diaryImgUrl, // 변환된 URL 사용
                     diary.getOriginalText()
             );
+        }
     }
 }
