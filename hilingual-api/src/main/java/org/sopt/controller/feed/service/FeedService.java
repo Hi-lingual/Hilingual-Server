@@ -3,6 +3,7 @@ package org.sopt.controller.feed.service;
 import lombok.RequiredArgsConstructor;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.block.facade.BlockFacade;
+import org.sopt.controller.feed.dto.DiaryWriterProfileRes;
 import org.sopt.controller.feed.dto.FeedProfileRes;
 import org.sopt.controller.feed.dto.LikedDiaryListRes;
 import org.sopt.controller.feed.dto.SharedDiaryListRes;
@@ -135,6 +136,18 @@ public class FeedService {
         );
     }
 
+    public DiaryWriterProfileRes getDiaryWriterProfile(Long userId, Long diaryId) {
+        Diary diary = diaryFacade.getDiaryWithDetails(diaryId);
+        final boolean isMine = diary.getUser().getId().equals(userId);
+        final boolean isLiked = likedDiaryFacade.findUserAndDiaryExist(userId, diaryId);
+
+        String profileImgUrl = diary.getUser().getUserProfile().getProfileImg();
+        if (profileImgUrl!= null) {
+            profileImgUrl = s3Service.toPublicUrl(profileImgUrl);
+        }
+        return DiaryWriterProfileRes.of(diary, isMine, isLiked, profileImgUrl);
+    }
+
     private List<Map<String, Object>> getPublicDiariesWithIsLiked(Long userId) {
         // 해당 userId에 대해 공개된 다이어리 목록 조회
         List<Diary> diaries = diaryFacade.getPublicDiaries(userId);
@@ -153,4 +166,5 @@ public class FeedService {
                 ))
                 .toList();
     }
+
 }

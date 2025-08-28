@@ -20,4 +20,8 @@ public class LikedDiaryRetriever {
     public List<LikedDiary> getLikedDiariesWithAllDetails(Long userId) {
         return likedDiaryRepository.findLikedDiariesWithDetailsByUserId(userId);
     }
+
+    public Boolean findUserAndDiaryExist(Long userId, Long diaryId) {
+        return likedDiaryRepository.existsByUserIdAndDiaryId(userId, diaryId);
+    }
 }

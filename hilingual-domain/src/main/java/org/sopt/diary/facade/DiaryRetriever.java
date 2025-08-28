@@ -39,4 +39,8 @@ public class DiaryRetriever {
                 .orElseThrow(() -> new DiaryForbiddenException(DiaryCoreErrorCode.DIARY_FORBIDDEN));
     }
 
+    public Diary findDiaryWithDetails(final long diaryId) {
+        return diaryRepository.findDiaryWithDetailsById(diaryId)
+                .orElseThrow(() -> new DiaryNotFoundException(DiaryCoreErrorCode.DIARY_NOT_FOUND));
+    }
 }

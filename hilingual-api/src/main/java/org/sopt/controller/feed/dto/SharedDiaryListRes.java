@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import static org.sopt.controller.feed.dto.FeedDtoConstants.*;
+
 public record SharedDiaryListRes(
         Profile profile,
         List<SharedDiary> diaryList
@@ -44,7 +46,7 @@ public record SharedDiaryListRes(
 
             return new SharedDiary(
                     diary.getId(),
-                    (minutesDiff < 1) ? 0L : minutesDiff,
+                    (minutesDiff < ONE_MINUTE) ? LESS_THAN_MINUTE : minutesDiff,
                     diary.getIsLiked(),
                     isLikedByUser,
                     diaryImgUrl, // 변환된 URL 사용

@@ -20,6 +20,9 @@ public class DiaryFacade {
     private final DiaryRemover diaryRemover;
     private final DiaryUpdater diaryUpdater;
 
+    /*
+     * Retriever
+     */
     public void validateDiaryOwnership(final long userId, final long diaryId) {
         Diary diary = diaryRetriever.findById(diaryId);
         if (!diary.getUser().getId().equals(userId)) {
@@ -27,9 +30,12 @@ public class DiaryFacade {
         }
     }
 
-    @Transactional
-    public Diary saveDiary(User user, String originalText, String rewriteText, String imageUrl, LocalDate writtenDate) {
-        return diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate);
+    public List<Diary> getPublicDiaries(final long userId) {
+        return diaryRetriever.findByUserIdAndIsPublicTrue(userId);
+    }
+
+    public Diary getDiaryWithDetails(final long diaryId) {
+        return diaryRetriever.findDiaryWithDetails(diaryId);
     }
 
     public void validateNotExists(User user, LocalDate writtenDate) {
@@ -40,15 +46,25 @@ public class DiaryFacade {
         return diaryRetriever.findById(diaryId);
     }
 
+    /*
+     * Saver
+     */
+    @Transactional
+    public Diary saveDiary(User user, String originalText, String rewriteText, String imageUrl, LocalDate writtenDate) {
+        return diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate);
+    }
+
+    /*
+     * Remover
+     */
     @Transactional
     public void deleteDiary(final long userId, final long diaryId) {
         diaryRemover.deleteDiary(userId, diaryId);
     }
 
-    public List<Diary> getPublicDiaries(final long userId) {
-        return diaryRetriever.findByUserIdAndIsPublicTrue(userId);
-    }
-
+    /*
+     * Updater
+     */
     @Transactional
     public void publish(Long userId, Long diaryId) {
         Diary diary = diaryRetriever.findOwnedByIdOrThrow(userId, diaryId);
