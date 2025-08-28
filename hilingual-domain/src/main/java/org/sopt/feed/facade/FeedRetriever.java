@@ -17,4 +17,8 @@ public class FeedRetriever {
     public List<FeedProjection> findRecommendFeeds(final long userId, final Pageable pageable) {
         return feedRepository.findRecommendFeeds(userId, pageable);
     }
+
+    public List<FeedProjection> findFollowingFeeds(final long userId, final Pageable pageable) {
+        return feedRepository.findFollowingFeeds(userId, pageable);
+    }
 }

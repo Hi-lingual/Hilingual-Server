@@ -19,4 +19,11 @@ public class FeedFacade {
     ) {
         return feedRetriever.findRecommendFeeds(userId, pageable);
     }
+
+    public List<FeedProjection> findFollowingFeeds(
+            final long userId,
+            Pageable pageable
+    ) {
+        return feedRetriever.findFollowingFeeds(userId, pageable);
+    }
 }
