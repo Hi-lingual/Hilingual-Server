@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -66,9 +67,15 @@ public class FeedService {
         );
     }
 
-    public SharedDiaryListRes getSharedDiaries(Long targetUserId){
+    public SharedDiaryListRes getSharedDiaries(Long targetUserId) {
         // 유저 프로필 조회
         UserProfile userProfile = userFacade.getUserById(targetUserId).getUserProfile();
+
+        // 프로필 이미지 URL 변환
+        String profileImgUrl = null;
+        if (userProfile.getProfileImg() != null) {
+            profileImgUrl = s3Service.toPublicUrl(userProfile.getProfileImg());
+        }
 
         // 다이어리 목록 조회
         List<Map<String, Object>> diaryData = getPublicDiariesWithIsLiked(targetUserId);
@@ -81,7 +88,19 @@ public class FeedService {
                 .map(data -> (Boolean) data.get("isLiked"))
                 .toList();
 
-        return SharedDiaryListRes.of(userProfile, diaries, isLikedByUser);
+        // 다이어리 이미지 URL 변환 및 DTO 생성
+        List<SharedDiaryListRes.SharedDiary> sharedDiaries = IntStream.range(0, diaries.size())
+                .mapToObj(i -> {
+                    Diary diary = diaries.get(i);
+                    String diaryImgUrl = null;
+                    if (diary.getImageUrl() != null) {
+                        diaryImgUrl = s3Service.toPublicUrl(diary.getImageUrl());
+                    }
+                    return SharedDiaryListRes.SharedDiary.of(diary, isLikedByUser.get(i), diaryImgUrl);
+                })
+                .toList();
+
+        return SharedDiaryListRes.of(userProfile, profileImgUrl, sharedDiaries);
     }
 
     public LikedDiaryListRes getLikedDiaries(Long targetUserId) {
