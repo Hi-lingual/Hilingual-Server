@@ -67,5 +67,8 @@ subprojects {
     }
 }
 
-bootJar { enabled = false }
-jar { enabled = true } // class 만 묶어서 빌드
+jar { enabled = false }
+bootJar {
+    enabled = true
+    archiveFileName = 'app.jar'   // 항상 build/libs/app.jar 로 고정
+}
