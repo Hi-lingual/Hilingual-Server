@@ -34,6 +34,7 @@ public class RecommendController {
             @PathVariable @Min(1) Long phraseId,
             @RequestBody @NotNull BookmarkReq bookmarkRequest
     ){
-        return ResponseEntity.ok(recommendService.bookMark(userId, phraseId, bookmarkRequest.isBookmarked()));
+        recommendService.updateBookmark(userId, phraseId, bookmarkRequest.isBookmarked());
+        return ResponseEntity.ok().build();
     }
 }
