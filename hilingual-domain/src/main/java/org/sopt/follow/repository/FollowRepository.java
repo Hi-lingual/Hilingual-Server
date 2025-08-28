@@ -20,6 +20,9 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     // 언팔로우 이후 상태 계산용 (you -> me)
     boolean existsByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
 
+    // 팔로우하는 유저 존재 유무 확인
+    boolean existsByFollowerId(Long followerId);
+
     // 언팔로우
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
