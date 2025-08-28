@@ -30,11 +30,11 @@ public record LikedDiaryListRes(
                 String nickname,
                 Integer streak
         ) {
-            public static Profile of(final UserProfile userProfile, final boolean isMine) {
+            public static Profile of(final UserProfile userProfile, final boolean isMine, final String profileImgUrl) {
                 return new Profile(
                         userProfile.getUser().getId(),
                         isMine,
-                        (userProfile.getProfileImg() != null) ? userProfile.getProfileImg() : " ",
+                        (profileImgUrl != null) ? profileImgUrl : " ",
                         userProfile.getNickname(),
                         userProfile.getStreak()
                 );
@@ -50,7 +50,7 @@ public record LikedDiaryListRes(
                 String diaryImg,
                 String originalText
         ) {
-            public static LikedDiary of(final Diary diary) {
+            public static LikedDiary of(final Diary diary, final String diaryImgUrl) {
                 LocalDateTime now = LocalDateTime.now();
                 LocalDateTime createdAt = diary.getCreatedAt();
                 long minutesDiff = Duration.between(createdAt, now).toMinutes();
@@ -60,7 +60,7 @@ public record LikedDiaryListRes(
                         (minutesDiff < 1) ? 0L : minutesDiff,
                         diary.getIsLiked(),
                         true,
-                        (diary.getImageUrl() != null) ? diary.getImageUrl() : " ",
+                        diaryImgUrl,
                         diary.getOriginalText()
                 );
             }

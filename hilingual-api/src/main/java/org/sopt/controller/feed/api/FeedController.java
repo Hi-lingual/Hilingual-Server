@@ -1,5 +1,6 @@
 package org.sopt.controller.feed.api;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.feed.dto.FeedProfileRes;
 import org.sopt.controller.feed.dto.LikedDiaryListRes;
@@ -31,7 +32,7 @@ public class FeedController {
     @GetMapping("/profiles/{targetUserId}/diaries/shared")
     public ResponseEntity<SharedDiaryListRes> getSharedDiaries(
             @UserId Long userId,
-            @PathVariable(value = "targetUserId") Long targetUserId
+            @PathVariable(value = "targetUserId") @NotNull Long targetUserId
     ) {
         if (targetUserId == 0) {
             targetUserId = userId;
@@ -43,7 +44,7 @@ public class FeedController {
     @GetMapping("/profiles/{targetUserId}/diaries/liked")
     public ResponseEntity<LikedDiaryListRes> getLikedDiaries(
             @UserId Long userId,
-            @PathVariable(value = "targetUserId") Long targetUserId
+            @PathVariable(value = "targetUserId") @NotNull Long targetUserId
     ) {
         if (targetUserId == 0) {
             targetUserId = userId;

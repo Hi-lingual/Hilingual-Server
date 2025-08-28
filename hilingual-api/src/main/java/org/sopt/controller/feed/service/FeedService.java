@@ -1,6 +1,7 @@
 package org.sopt.controller.feed.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.aws.s3.service.S3Service;
 import org.sopt.block.facade.BlockFacade;
 import org.sopt.controller.feed.dto.FeedProfileRes;
 import org.sopt.controller.feed.dto.LikedDiaryListRes;
@@ -32,6 +33,7 @@ public class FeedService {
     private final FollowFacade followFacade;
     private final DiaryFacade diaryFacade;
     private final LikedDiaryFacade likedDiaryFacade;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public FeedProfileRes getFeedProfile(Long userId, Long targetUserId) {
@@ -90,10 +92,23 @@ public class FeedService {
                         .map(likedDiary -> {
                             Diary diary = likedDiary.getDiary();
                             UserProfile diaryWriterProfile = diary.getUser().getUserProfile();
+
+                            // 프로필 이미지 URL 변환
+                            String profileImgUrl = diaryWriterProfile.getProfileImg();
+                            if (profileImgUrl != null) {
+                                profileImgUrl = s3Service.toPublicUrl(profileImgUrl);
+                            }
+
+                            // 일기 이미지 URL 변환
+                            String diaryImgUrl = diary.getImageUrl();
+                            if (diaryImgUrl != null){
+                                diaryImgUrl = s3Service.toPublicUrl(diaryImgUrl);
+                            }
+
                             boolean isMine = diaryWriterProfile.getUser().getId().equals(targetUserId);
 
-                            LikedDiaryListRes.LikedDiaryDetail.Profile profile = LikedDiaryListRes.LikedDiaryDetail.Profile.of(diaryWriterProfile, isMine);
-                            LikedDiaryListRes.LikedDiaryDetail.LikedDiary likedDiaryDto = LikedDiaryListRes.LikedDiaryDetail.LikedDiary.of(diary);
+                            LikedDiaryListRes.LikedDiaryDetail.Profile profile = LikedDiaryListRes.LikedDiaryDetail.Profile.of(diaryWriterProfile, isMine, profileImgUrl);
+                            LikedDiaryListRes.LikedDiaryDetail.LikedDiary likedDiaryDto = LikedDiaryListRes.LikedDiaryDetail.LikedDiary.of(diary, diaryImgUrl);
 
                             return LikedDiaryListRes.LikedDiaryDetail.of(profile, likedDiaryDto);
                         })
