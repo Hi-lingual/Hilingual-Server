@@ -1,10 +1,7 @@
 package org.sopt.controller.feed.api;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.controller.feed.dto.FeedProfileRes;
-import org.sopt.controller.feed.dto.LikedDiaryListRes;
-import org.sopt.controller.feed.dto.RecommendFeedListRes;
-import org.sopt.controller.feed.dto.SharedDiaryListRes;
+import org.sopt.controller.feed.dto.*;
 import org.sopt.controller.feed.service.FeedService;
 import org.sopt.jwt.annotation.UserId;
 import org.springframework.http.ResponseEntity;
@@ -60,5 +57,14 @@ public class FeedController {
             @RequestParam(defaultValue = "50") int size
     ) {
         return ResponseEntity.ok(feedService.getRecommendFeeds(userId,page,size));
+    }
+
+    @GetMapping("/following")
+    public ResponseEntity<FollowFeedListRes> getFollowFeed(
+            @UserId Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size
+    ) {
+        return ResponseEntity.ok(feedService.getFollowFeeds(userId,page,size));
     }
 }

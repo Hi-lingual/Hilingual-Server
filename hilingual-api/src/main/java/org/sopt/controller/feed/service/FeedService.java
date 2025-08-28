@@ -3,10 +3,7 @@ package org.sopt.controller.feed.service;
 import lombok.RequiredArgsConstructor;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.block.facade.BlockFacade;
-import org.sopt.controller.feed.dto.FeedProfileRes;
-import org.sopt.controller.feed.dto.LikedDiaryListRes;
-import org.sopt.controller.feed.dto.RecommendFeedListRes;
-import org.sopt.controller.feed.dto.SharedDiaryListRes;
+import org.sopt.controller.feed.dto.*;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.feed.dto.FeedProjection;
@@ -25,10 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -150,6 +144,54 @@ public class FeedService {
                 .collect(Collectors.toList());
 
         return new RecommendFeedListRes(recommendFeeds);
+    }
+
+    public FollowFeedListRes getFollowFeeds(final long userId, final int page, final int size) {
+        // 현재 유저가 팔로우하는 유저 존재 여부 확인
+        boolean hasFollowing = followFacade.haveFollowing(userId);
+
+        // 현재 유저가 팔로우하는 유저가 존재하지 않는 경우
+        if(!hasFollowing) {
+            return FollowFeedListRes.empty();
+        }
+
+        // 현재 유저가 팔로우하는 유저가 존재하는 경우
+        Pageable pageable =  PageRequest.of(page, size);
+        List<FeedProjection> projections = feedFacade.findFollowingFeeds(userId, pageable);
+
+        List<FollowFeedListRes.FollowFeed> followFeeds = projections.stream()
+                .map(projection -> {
+                    // S3Service를 활용해 URL 변환
+                    String profileImageUrl = s3Service.toPublicUrl(projection.getProfileImg());
+                    String diaryImageUrl = s3Service.toPublicUrl(projection.getDiaryImg());
+
+                    // Projection 데이터로 DTO 생성
+                    FollowFeedListRes.FollowFeedProfile profile = new FollowFeedListRes.FollowFeedProfile(
+                            projection.getUserId(),
+                            projection.getIsMine(),
+                            profileImageUrl,
+                            projection.getNickname(),
+                            projection.getStreak()
+                    );
+
+                    LocalDateTime now = LocalDateTime.now();
+                    LocalDateTime sharedTime = projection.getSharedDate();
+                    long minutesDiff = Duration.between(sharedTime, now).toMinutes();
+
+                    FollowFeedListRes.FollowFeedDiary diary = new FollowFeedListRes.FollowFeedDiary(
+                            projection.getDiaryId(),
+                            (minutesDiff < 1) ? 0L : minutesDiff,
+                            projection.getLikeCount(),
+                            projection.getIsLiked(),
+                            diaryImageUrl,
+                            projection.getOriginalText()
+                    );
+
+                    return new FollowFeedListRes.FollowFeed(profile, diary);
+                })
+                .collect(Collectors.toList());
+
+        return new FollowFeedListRes(followFeeds, true);
     }
 
     private List<Map<String, Object>> getPublicDiariesWithIsLiked(Long userId) {
