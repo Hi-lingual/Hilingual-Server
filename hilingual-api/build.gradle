@@ -48,6 +48,6 @@ dependencies {
 
 bootJar {
     enabled = true
-    archiveFileName = 'app.jar'   // ✅ 항상 app.jar 로 고정
+    archiveFileName = 'app.jar'
 }
 jar { enabled = false }
