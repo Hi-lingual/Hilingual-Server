@@ -65,16 +65,4 @@ public class UserProfile extends BaseTimeEntity {
     public void updateStreak(final int streak) {
         this.streak = streak;
     }
-
-    public void decrementFollowingCount() {
-        if (this.followingCount > 0) {
-            this.followingCount--;
-        }
-    }
-
-    public void decrementFollowerCount() {
-        if (this.followerCount > 0) {
-            this.followerCount--;
-        }
-    }
 }
