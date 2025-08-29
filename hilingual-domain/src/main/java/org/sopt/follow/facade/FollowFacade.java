@@ -78,4 +78,9 @@ public class FollowFacade {
     public FollowRelation findFollowRelation(Long userId, Long targetUserId) {
         return followRetriever.findFollowRelation(userId, targetUserId);
     }
+
+    @Transactional
+    public int deleteFollowRelations(final long userId, final long targetUserId) {
+        return followRemover.deleteFollowRelations(userId, targetUserId);
+    }
 }

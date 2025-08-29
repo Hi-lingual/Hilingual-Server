@@ -15,4 +15,9 @@ public class FollowRemover {
     public int deleteByFollowerIdAndFolloweeId(Long followerId, Long followeeId){
         return followRepository.deleteByFollowerIdAndFolloweeId(followerId, followeeId);
     }
+
+    @Transactional
+    public int deleteFollowRelations(final long userId, final long targetUserId) {
+        return followRepository.deleteFollowRelations(userId, targetUserId);
+    }
 }

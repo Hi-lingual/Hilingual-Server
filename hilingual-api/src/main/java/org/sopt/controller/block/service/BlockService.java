@@ -6,6 +6,7 @@ import org.sopt.controller.userprofile.dto.UserProfileSummaryRes;
 import org.sopt.controller.block.exception.BlockApiErrorCode;
 import org.sopt.controller.block.exception.CannotSelfBlockException;
 import org.sopt.controller.block.exception.CannotSelfUnblockException;
+import org.sopt.follow.facade.FollowFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
@@ -26,6 +27,7 @@ public class BlockService {
     private final UserFacade userFacade;
     private final BlockFacade blockFacade;
     private final UserProfileFacade userProfileFacade;
+    private final FollowFacade followFacade;
 
     @Transactional
     public Void blockUser(final Long blockerId, final Long blockedId) {
@@ -43,7 +45,12 @@ public class BlockService {
         final User blocker = (firstId == blockerId) ? firstUser : secondUser;
         final User blocked = (firstId == blockedId) ? firstUser : secondUser;
 
+        // 차단 관계 생성
         blockFacade.block(blocker, blocked);
+
+        // 차단된 두 유저 간 팔로우 관계 삭제
+        followFacade.deleteFollowRelations(blockedId, blockedId);
+
         return null;
     }
 
