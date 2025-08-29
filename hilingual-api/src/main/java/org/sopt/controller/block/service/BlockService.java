@@ -6,6 +6,7 @@ import org.sopt.controller.userprofile.dto.UserProfileSummaryRes;
 import org.sopt.controller.block.exception.BlockApiErrorCode;
 import org.sopt.controller.block.exception.CannotSelfBlockException;
 import org.sopt.controller.block.exception.CannotSelfUnblockException;
+import org.sopt.follow.dto.FollowRelation;
 import org.sopt.follow.facade.FollowFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
@@ -39,19 +40,44 @@ public class BlockService {
         final long firstId = Math.min(blockerId, blockedId);
         final long secondId = Math.max(blockerId, blockedId);
 
+        // 유저 및 유저 프로필 조회
         final User firstUser = userFacade.getUserByIdWithLock(firstId);
         final User secondUser = userFacade.getUserByIdWithLock(secondId);
 
         final User blocker = (firstId == blockerId) ? firstUser : secondUser;
         final User blocked = (firstId == blockedId) ? firstUser : secondUser;
 
-        // 차단 관계 생성
-        blockFacade.block(blocker, blocked);
+        // 유저 프로필 조회
+        final UserProfile blockerProfile = blocker.getUserProfile();
+        final UserProfile blockedProfile = blocked.getUserProfile();
 
-        // 차단된 두 유저 간 팔로우 관계 삭제
+        // 기존 팔로우 관계 확인
+        FollowRelation relation = followFacade.findFollowRelation(blockerId, blockedId);
+
+        // 차단 관계 생성 및 팔로우 삭제
+        blockFacade.block(blocker, blocked);
         followFacade.deleteFollowRelations(blockedId, blockedId);
 
+        // 유저 프로필 팔로워/팔로잉 카운트 업데이트
+        updateFollowerAndFollowingCount(relation, blockerProfile, blockedProfile);
+
         return null;
+    }
+
+    private void updateFollowerAndFollowingCount(
+            FollowRelation relation,
+            UserProfile blockerProfile,
+            UserProfile blockedProfile
+    ) {
+        if (relation.getIsFollowing()) { // blocker가 blocked를 팔로우하고 있던 경우
+            blockerProfile.decrementFollowingCount();
+            blockedProfile.decrementFollowerCount();
+        }
+
+        if (relation.getIsFollowed()) { // blocked가 blocker를 팔로우하고 있던 경우
+            blockedProfile.decrementFollowingCount();
+            blockerProfile.decrementFollowerCount();
+        }
     }
 
     @Transactional
