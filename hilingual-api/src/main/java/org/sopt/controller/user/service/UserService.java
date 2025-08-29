@@ -9,8 +9,16 @@ import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.user.domain.User;
 import org.sopt.controller.user.dto.HomeUserProfileRes;
 import org.sopt.user.facade.UserFacade;
+import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.sopt.controller.user.dto.NicknameAvailableRes;
+import org.sopt.controller.user.dto.NoticeDetailRes;
+import org.sopt.noticedelivery.domain.NoticeDelivery;
+import org.sopt.noticedelivery.facade.NoticeDeliveryFacade;
+
+
+import java.time.LocalDateTime;
 
 @Service
 @Transactional(readOnly = true)
@@ -19,6 +27,8 @@ public class UserService {
 
     private final TokenService tokenService;
     private final UserFacade userFacade;
+    private final UserProfileFacade userProfileFacade;
+    private final NoticeDeliveryFacade noticeDeliveryFacade;
 
     public UserDefaultInfoRes getUserDefaultInfo(final long userId) {
         User user = userFacade.getUserById(userId);
@@ -57,5 +67,19 @@ public class UserService {
                 throw new CannotLoadProviderException(UserApiErrorCode.PROVIDER_LOAD_ERROR);
         }
         return loginProviderInfo;
+    }
+
+    @Transactional
+    public NoticeDetailRes getNotificationDetail(final long userId, final long noticeId) {
+        NoticeDelivery delivery = noticeDeliveryFacade
+                .findByUserIdAndNoticeIdWithDetail(userId, noticeId);
+
+        delivery.markReadIfNeeded(LocalDateTime.now());
+
+        return NoticeDetailRes.from(
+                delivery.getNotice(),
+                delivery.getNotice().getNoticeDetail()
+        );
+
     }
 }
