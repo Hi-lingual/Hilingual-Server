@@ -90,4 +90,12 @@ public class UserProfileUpdater {
         }
         userProfileRepository.saveAll(all);
     }
+
+    public int decrementFollowingCountByUserId(final long userId) {
+        return userProfileRepository.decrementFollowingCountByUserId(userId);
+    }
+
+    public int decrementFollowerCountByUserId(final long userId) {
+        return userProfileRepository.decrementFollowerCountByUserId(userId);
+    }
 }

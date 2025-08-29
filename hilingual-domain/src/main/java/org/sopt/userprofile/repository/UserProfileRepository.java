@@ -3,6 +3,7 @@ package org.sopt.userprofile.repository;
 import org.sopt.user.domain.User;
 import org.sopt.userprofile.domain.UserProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -27,5 +28,13 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
            WHERE up.user.id IN :userIds
            """)
     List<UserProfile> findByUserIds(@Param("userIds") List<Long> userIds);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE UserProfile up SET up.followingCount = up.followingCount - 1 WHERE up.user.id = :userId AND up.followingCount > 0")
+    int decrementFollowingCountByUserId(@Param("userId") Long userId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE UserProfile up SET up.followerCount = up.followerCount - 1 WHERE up.user.id = :userId AND up.followerCount > 0")
+    int decrementFollowerCountByUserId(@Param("userId") Long userId);
 }
 

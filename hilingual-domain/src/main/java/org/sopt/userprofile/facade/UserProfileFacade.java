@@ -62,4 +62,12 @@ public class UserProfileFacade {
         userProfileUpdater.updateStreakOnWrite(userId, writtenDate);
     }
 
+    public int decrementFollowingCountByUserId(final long userId) {
+        return userProfileUpdater.decrementFollowingCountByUserId(userId);
+    }
+
+    public int decrementFollowerCountByUserId(final long userId) {
+        return userProfileUpdater.decrementFollowerCountByUserId(userId);
+    }
+
 }
