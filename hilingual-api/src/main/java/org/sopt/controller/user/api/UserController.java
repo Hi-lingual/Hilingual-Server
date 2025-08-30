@@ -3,6 +3,7 @@ package org.sopt.controller.user.api;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
+import org.sopt.controller.user.dto.NoticeDetailRes;
 import org.sopt.controller.user.dto.UserDefaultInfoRes;
 import org.sopt.controller.user.service.UserService;
 import org.sopt.dto.BaseResponseDto;
@@ -47,5 +48,14 @@ public class UserController {
             @UserId Long userId
     ) {
         return ResponseEntity.ok(userService.getUserDefaultInfo(userId));
+    }
+
+    // 공지 사항 알림 상세보기 API
+    @GetMapping("/notifications/{noticeId}")
+    public ResponseEntity<NoticeDetailRes> getNotificationDetail(
+            @UserId Long userId,
+            @PathVariable Long noticeId
+    ) {
+        return ResponseEntity.ok(userService.getNotificationDetail(userId, noticeId));
     }
 }
