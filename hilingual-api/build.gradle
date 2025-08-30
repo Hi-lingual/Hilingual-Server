@@ -44,6 +44,11 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
+    // OAuth
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'com.google.oauth-client:google-oauth-client-java6:1.36.0'
+    implementation 'com.google.oauth-client:google-oauth-client-jetty:1.36.0'
+    implementation 'com.google.api-client:google-api-client:2.4.0'
 }
 
 bootJar {
