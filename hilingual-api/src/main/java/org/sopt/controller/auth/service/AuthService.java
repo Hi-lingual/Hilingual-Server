@@ -10,11 +10,13 @@ import org.sopt.controller.auth.dto.SocialLoginRes;
 import org.sopt.controller.auth.exception.AuthApiErrorCode;
 import org.sopt.controller.auth.exception.GoogleServerErrorException;
 import org.sopt.controller.auth.exception.InvalidGoogleTokenException;
+import org.sopt.controller.auth.exception.InvalidProviderException;
 import org.sopt.controller.token.TokenService;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
 import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.jwt.auth.domain.TokenRepository;
+import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.core.TokenHasher;
 import org.sopt.user.domain.User;
@@ -45,10 +47,32 @@ public class AuthService {
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
+    @Value("${spring.security.oauth2.client.registration.apple.client-id}")
+    private String appleClientId;
+
+    @Value("${apple.oauth.team-id}")
+    private String appleTeamId;
+
+    @Value("${apple.oauth.private-key-value}")
+    private String applePrivateKey;
+
     public SocialLoginRes socialLogin(String providerToken, SocialLoginReq req) {
         if (providerToken == null || providerToken.length() < PROVIDER_TOKEN_MIN_LENGTH || req.role() != UserRole.USER) {
             throw new UnAuthorizedException(AuthErrorCode.UNAUTHORIZED);
         }
+
+        if (req.provider() == AuthProvider.GOOGLE) {
+            return googleLogin(providerToken, req);
+        }
+
+        if (req.provider() == AuthProvider.APPLE) {
+            return appleLogin(providerToken, req);
+        }
+
+        throw new InvalidProviderException(AuthApiErrorCode.INVALID_PROVIDER);
+    }
+
+    private SocialLoginRes googleLogin(String providerToken, SocialLoginReq req) {
 
         GoogleIdToken.Payload payload = verifyGoogleIdentityToken(providerToken);
         if (payload == null) {
@@ -86,6 +110,11 @@ public class AuthService {
             return tokenService.issueToken(req, newUser.getId(), RegisterStatus.SOCIAL_LOGIN_COMPLETED);
         }
     }
+
+    private SocialLoginRes appleLogin(String providerToken, SocialLoginReq req) {
+
+    }
+
 
     private GoogleIdToken.Payload verifyGoogleIdentityToken(String idTokenValue) {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
