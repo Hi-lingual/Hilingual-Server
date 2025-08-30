@@ -27,7 +27,6 @@ public class UserService {
 
     private final TokenService tokenService;
     private final UserFacade userFacade;
-    private final UserProfileFacade userProfileFacade;
     private final NoticeDeliveryFacade noticeDeliveryFacade;
 
     public UserDefaultInfoRes getUserDefaultInfo(final long userId) {
