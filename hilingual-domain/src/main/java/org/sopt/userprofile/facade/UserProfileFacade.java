@@ -2,8 +2,8 @@ package org.sopt.userprofile.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.userprofile.domain.UserProfile;
+import org.sopt.userprofile.dto.UserSearchProjection;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,6 +43,10 @@ public class UserProfileFacade {
 
     public boolean isNicknameExists(final String nickname) {
         return userProfileRetriever.isNicknameExists(nickname);
+    }
+
+    public List<UserSearchProjection> getUserListByNickname(Long userId, String keyword, String startKeyword) {
+        return userProfileRetriever.findUsersByNickname(userId, keyword, startKeyword);
     }
 
     /**
