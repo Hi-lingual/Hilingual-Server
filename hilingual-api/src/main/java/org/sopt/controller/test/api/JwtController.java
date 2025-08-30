@@ -59,7 +59,7 @@ public class JwtController {
                 .deviceName(req.deviceName())
                 .deviceType(req.deviceType())
                 .osType(req.osType())
-               .osVersion(req.osVersion())
+                .osVersion(req.osVersion())
                 .appVersion(req.appVersion())
                 .issuedAt(Instant.now())
                 .lastUsedAt(Instant.now())
