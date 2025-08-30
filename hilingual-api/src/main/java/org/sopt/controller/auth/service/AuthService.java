@@ -8,10 +8,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt.controller.auth.dto.ApplePublicKeyRes;
+import org.sopt.controller.auth.util.ApplePublicKeyList;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
 import org.sopt.controller.auth.exception.*;
+import org.sopt.controller.auth.util.GoogleOAuth2UserInfo;
+import org.sopt.controller.auth.util.MyKeyLocator;
 import org.sopt.controller.token.TokenService;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
@@ -152,15 +154,15 @@ public class AuthService {
      * Apple 공개 키를 JWKS 엔드포인트에서 조회
      */
     @Cacheable(value = "applePublicKeys", key = "'allKeys'") // key = "'allKeys'"를 사용하여 단일 캐시 엔트리로 관리
-    public List<ApplePublicKeyRes.ApplePublicKey> getPublicKeys() {
+    public List<ApplePublicKeyList.ApplePublicKey> getPublicKeys() {
         try {
-            ApplePublicKeyRes response = WebClient.builder()
+            ApplePublicKeyList response = WebClient.builder()
                     .baseUrl("https://appleid.apple.com")
                     .build()
                     .get()
                     .uri("/auth/keys")
                     .retrieve()
-                    .bodyToMono(ApplePublicKeyRes.class)
+                    .bodyToMono(ApplePublicKeyList.class)
                     .block();
 
             // Apple JWKS 응답 비어 있는 경우

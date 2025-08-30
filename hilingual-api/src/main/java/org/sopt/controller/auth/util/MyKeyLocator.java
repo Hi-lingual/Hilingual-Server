@@ -1,9 +1,8 @@
-package org.sopt.controller.auth.service;
+package org.sopt.controller.auth.util;
 
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.LocatorAdapter;
 import lombok.RequiredArgsConstructor;
-import org.sopt.controller.auth.dto.ApplePublicKeyRes;
 import org.sopt.controller.auth.exception.AppleServerErrorException;
 import org.sopt.controller.auth.exception.AuthApiErrorCode;
 
@@ -18,12 +17,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MyKeyLocator extends LocatorAdapter<Key> {
 
-    private final List<ApplePublicKeyRes.ApplePublicKey> publicKeyList;
+    private final List<ApplePublicKeyList.ApplePublicKey> publicKeyList;
 
     @Override
     protected Key locate(JwsHeader header) {
 
-        ApplePublicKeyRes.ApplePublicKey publicKey = publicKeyList.stream()
+        ApplePublicKeyList.ApplePublicKey publicKey = publicKeyList.stream()
                 .filter(applePublicKey -> applePublicKey.kid().equals(header.getKeyId()))
                 .findFirst()
                 .orElseThrow(() -> {

@@ -1,8 +1,8 @@
-package org.sopt.controller.auth.dto;
+package org.sopt.controller.auth.util;
 
 import java.util.List;
 
-public record ApplePublicKeyRes(
+public record ApplePublicKeyList(
         List<ApplePublicKey> keys
 ) {
 
