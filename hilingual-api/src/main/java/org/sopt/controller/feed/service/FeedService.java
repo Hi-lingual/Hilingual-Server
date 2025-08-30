@@ -155,7 +155,23 @@ public class FeedService {
         String startKeyword = keyword + "%";
 
         List<UserSearchProjection> userList = userProfileFacade.getUserListByNickname(userId, likeKeyword, startKeyword);
-        return UserListRes.of(userList);
+
+        List<UserListRes.SearchUser> searchUserList = userList.stream()
+                .map(projection -> {
+                    String originalImgUrl = projection.getProfileImg();
+                    String publicImgUrl = (originalImgUrl != null) ? s3Service.toPublicUrl(originalImgUrl) : " ";
+
+                    return new UserListRes.SearchUser(
+                            projection.getUserId(),
+                            (publicImgUrl != null) ? publicImgUrl : " ",
+                            projection.getNickname(),
+                            projection.getIsFollowing(),
+                            projection.getIsFollowed()
+                    );
+                })
+                .toList();
+
+        return new UserListRes(searchUserList);
     }
 
     private List<Map<String, Object>> getPublicDiariesWithIsLiked(Long userId) {
