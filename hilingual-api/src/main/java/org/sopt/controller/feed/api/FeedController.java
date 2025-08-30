@@ -1,6 +1,9 @@
 package org.sopt.controller.feed.api;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.sopt.controller.feed.dto.DiaryWriterProfileRes;
 import org.sopt.controller.feed.dto.FeedProfileRes;
 import org.sopt.controller.feed.dto.LikedDiaryListRes;
 import org.sopt.controller.feed.dto.SharedDiaryListRes;
@@ -20,7 +23,7 @@ public class FeedController {
     @GetMapping("/profiles/{targetUserId}")
     public ResponseEntity<FeedProfileRes> getFeedProfile(
             @UserId Long userId,
-            @PathVariable(value = "targetUserId") Long targetUserId
+            @PathVariable(value = "targetUserId") @NotNull Long targetUserId
     ) {
         if (targetUserId == 0) {
             targetUserId = userId;
@@ -44,7 +47,7 @@ public class FeedController {
     @GetMapping("/profiles/{targetUserId}/diaries/liked")
     public ResponseEntity<LikedDiaryListRes> getLikedDiaries(
             @UserId Long userId,
-            @PathVariable(value = "targetUserId") Long targetUserId
+            @PathVariable(value = "targetUserId") @NotNull Long targetUserId
     ) {
         if (targetUserId == 0) {
             targetUserId = userId;
@@ -59,5 +62,13 @@ public class FeedController {
             @RequestParam(value = "keyword") String keyword
     ) {
         return ResponseEntity.ok(feedService.getUserList(userId, keyword));
+    }
+
+    @GetMapping("/{diaryId}/users/profiles")
+    public ResponseEntity<DiaryWriterProfileRes> getDiaryWriterProfile(
+            @UserId Long userId,
+            @PathVariable(value = "diaryId") @NotNull @Min(1) Long diaryId
+    ) {
+        return ResponseEntity.ok(feedService.getDiaryWriterProfile(userId, diaryId));
     }
 }
