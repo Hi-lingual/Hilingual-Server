@@ -13,6 +13,7 @@ import org.sopt.controller.auth.exception.InvalidGoogleTokenException;
 import org.sopt.controller.token.TokenService;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
+import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.jwt.auth.domain.TokenRepository;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.core.TokenHasher;
@@ -45,7 +46,7 @@ public class AuthService {
     private String googleClientId;
 
     public SocialLoginRes socialLogin(String providerToken, SocialLoginReq req) {
-        if (providerToken == null || providerToken.length() < PROVIDER_TOKEN_MIN_LENGTH) {
+        if (providerToken == null || providerToken.length() < PROVIDER_TOKEN_MIN_LENGTH || req.role() != UserRole.USER) {
             throw new UnAuthorizedException(AuthErrorCode.UNAUTHORIZED);
         }
 
@@ -83,6 +84,7 @@ public class AuthService {
                     .providerId(providerId)
                     .notifyStatus(false)
                     .registerStatus(RegisterStatus.SOCIAL_LOGIN_COMPLETED)
+                    .role(UserRole.USER)
                     .build();
 
             User newUser = userFacade.save(user);
