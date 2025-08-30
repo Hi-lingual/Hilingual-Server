@@ -68,16 +68,11 @@ public class AuthService {
             if(optionalUser.get().getIsDeleted()) {
                 // 탈퇴한 회원인 경우 다시 회원 자격 복구
                 user.revertDeleteUser();
-
-                // 이미 가입된 유저 토큰 재발급
-                return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
             }
 
-            // 회원 프로필 등록 완료한 회원인 경우
-            if (user.getRegisterStatus() == RegisterStatus.PROFILE_COMPLETED) {
-                // 이미 가입된 유저 토큰 재발급(= 초기 유저와 동일한 로직)
-                return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
-            }
+            // 이미 가입된 유저 토큰 재발급(= 초기 유저와 동일한 로직)
+            return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
+
         } else {
             user = User.builder()
                     .provider(String.valueOf(req.provider()))
@@ -90,8 +85,6 @@ public class AuthService {
             User newUser = userFacade.save(user);
             return tokenService.issueToken(req, newUser.getId(), RegisterStatus.SOCIAL_LOGIN_COMPLETED);
         }
-
-        throw new GoogleServerErrorException(AuthApiErrorCode.AUTH_GOOGLE_SERVER_ERROR);
     }
 
     private GoogleIdToken.Payload verifyGoogleIdentityToken(String idTokenValue) {
@@ -105,9 +98,16 @@ public class AuthService {
             if (idToken != null) {
                 return idToken.getPayload();
             } else {
-                throw new  UnAuthorizedException(AuthErrorCode.UNAUTHORIZED);
+                // 토큰 형식이 유효하지 않거나 검증에 실패한 경우
+                throw new InvalidGoogleTokenException(AuthApiErrorCode.INVALID_GOOGLE_TOKEN);
             }
-        } catch (GeneralSecurityException | IOException e) {
+        } catch (GeneralSecurityException e) {
+            // 암호화 관련 보안 예외
+            // 클라이언트 ID 불일치, 토큰 위변조 가능성
+            throw new InvalidGoogleTokenException(AuthApiErrorCode.INVALID_GOOGLE_TOKEN);
+        } catch (IOException e) {
+            // 네트워크 통신 예외
+            // 구글 서버와 통신 중 발생한 문제
             throw new GoogleServerErrorException(AuthApiErrorCode.AUTH_GOOGLE_SERVER_ERROR);
         }
     }
