@@ -35,7 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final List<String> SKIP = List.of(
             "/actuator/**",
             "/api/v1/users/reissue",
-            "/test/jwt/token/issue"
+            "/test/jwt/token/issue",
+            "/api/v1/auth/verify"
     );
 
     private boolean shouldSkip(HttpServletRequest req) {
