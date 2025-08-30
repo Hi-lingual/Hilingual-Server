@@ -43,8 +43,16 @@ public class UserProfileService {
             throw new UserProfileImagePurposeMismatchException(UserProfileApiErrorCode.IMAGE_PURPOSE_INVALID);
         }
 
+        // 기존 프로필 이미지 키 조회
+        String previousFileKey = userProfileFacade.getProfileByUserId(userId).getProfileImg();
+
         final String fileKey = s3Service.bindProfileImage(userId, userProfileImgReq.image().fileKey());
         userProfileFacade.updateProfileImgByUserId(userId, fileKey);
+
+        // 업로드 성공 시 기존 프로필 이미지 S3에서 삭제
+        if (previousFileKey != null && !previousFileKey.isBlank()) {
+            s3Service.deleteObject(previousFileKey);
+        }
 
         return null;
     }
