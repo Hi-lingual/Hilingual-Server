@@ -8,9 +8,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.sopt.controller.auth.dto.ApplePublicKeyRes;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
@@ -20,26 +17,16 @@ import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
 import org.sopt.exception.code.GlobalErrorCode;
 import org.sopt.jwt.auth.authentication.UserRole;
-import org.sopt.jwt.auth.domain.TokenRepository;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
-import org.sopt.jwt.core.JwtTokenProvider;
-import org.sopt.jwt.core.TokenHasher;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
-import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-
 import java.io.IOException;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
 import java.util.*;
 
 @Slf4j
@@ -49,28 +36,11 @@ public class AuthService {
 
     private final TokenService tokenService;
     private final UserFacade userFacade;
-    private final UserProfileFacade userProfileFacade;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final TokenRepository tokenRepository;
-    private final TokenHasher tokenHasher;
 
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
-    private static final long THIRTY_DAYS_MS = 1000L * 60 * 60 * 24 * 30;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
-
-    @Value("${spring.security.oauth2.client.registration.apple.client-id}")
-    private String appleClientId;
-
-    @Value("${apple.oauth.key-id}")
-    private String appleKeyId;
-
-    @Value("${apple.oauth.team-id}")
-    private String appleTeamId;
-
-    @Value("${apple.oauth.private-key-value}")
-    private String applePrivateKey;
 
     public SocialLoginRes socialLogin(String providerToken, SocialLoginReq req) {
         if (providerToken == null || providerToken.length() < PROVIDER_TOKEN_MIN_LENGTH || req.role() != UserRole.USER) {
@@ -98,33 +68,7 @@ public class AuthService {
         GoogleOAuth2UserInfo userInfo = new GoogleOAuth2UserInfo(payload);
         String providerId = userInfo.id();
 
-        User user;
-        Optional<User> optionalUser = userFacade.getByProviderAndProviderId(String.valueOf(req.provider()), providerId);
-
-        // 이미 유저가 존재하는 경우
-        if(optionalUser.isPresent()) {
-            user = optionalUser.get();
-
-            if(optionalUser.get().getIsDeleted()) {
-                // 탈퇴한 회원인 경우 다시 회원 자격 복구
-                user.revertDeleteUser();
-            }
-
-            // 이미 가입된 유저 토큰 재발급(= 초기 유저와 동일한 로직)
-            return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
-
-        } else {
-            user = User.builder()
-                    .provider(String.valueOf(req.provider()))
-                    .providerId(providerId)
-                    .notifyStatus(false)
-                    .registerStatus(RegisterStatus.SOCIAL_LOGIN_COMPLETED)
-                    .role(UserRole.USER)
-                    .build();
-
-            User newUser = userFacade.save(user);
-            return tokenService.issueToken(req, newUser.getId(), RegisterStatus.SOCIAL_LOGIN_COMPLETED);
-        }
+        return findUserAndIssueToken(providerId, req);
     }
 
     private SocialLoginRes appleLogin(String providerToken, SocialLoginReq req) {
@@ -146,7 +90,10 @@ public class AuthService {
         }
 
         String providerId = claims.getSubject();
+        return findUserAndIssueToken(providerId, req);
+    }
 
+    private SocialLoginRes findUserAndIssueToken(String providerId, SocialLoginReq req) {
         User user;
         Optional<User> optionalUser = userFacade.getByProviderAndProviderId(String.valueOf(req.provider()), providerId);
 
