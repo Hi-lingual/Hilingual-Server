@@ -21,7 +21,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     boolean existsByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
 
     // 언팔로우
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying(flushAutomatically = true)
     @Query("""
            delete from Follow f
             where f.follower.id = :followerId
