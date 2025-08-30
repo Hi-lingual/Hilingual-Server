@@ -9,6 +9,7 @@ public enum AuthApiErrorCode implements ErrorCode {
     // 400
     INVALID_GOOGLE_TOKEN(HttpStatus.BAD_REQUEST, 40007, "올바르지 않은 Google Token입니다."),
     INVALID_APPLE_TOKEN(HttpStatus.BAD_REQUEST, 40008, "올바르지 않은 Apple Token입니다."),
+    INVALID_PROVIDER(HttpStatus.BAD_REQUEST, 40031, "지원하지 않는 Provider입니다."),
 
     // 503
     AUTH_GOOGLE_SERVER_ERROR(HttpStatus.SERVICE_UNAVAILABLE, 50305, "구글 로그인에서 에러가 발생했습니다."),
