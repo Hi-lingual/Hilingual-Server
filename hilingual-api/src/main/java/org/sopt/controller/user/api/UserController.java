@@ -58,4 +58,14 @@ public class UserController {
     ) {
         return ResponseEntity.ok(userService.getNotificationDetail(userId, noticeId));
     }
+
+    // 알림 읽음 처리 API
+    @PatchMapping("/notifications/{noticeId}/read")
+    public ResponseEntity<Void> markNoticeRead(
+            @UserId Long userId,
+            @PathVariable Long noticeId
+    ) {
+        userService.markNoticeRead(userId, noticeId);
+        return ResponseEntity.ok().build();
+    }
 }
