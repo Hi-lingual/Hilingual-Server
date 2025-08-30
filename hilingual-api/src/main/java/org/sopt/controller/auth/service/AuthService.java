@@ -4,16 +4,21 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.sopt.controller.auth.dto.ApplePublicKeyRes;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
-import org.sopt.controller.auth.exception.AuthApiErrorCode;
-import org.sopt.controller.auth.exception.GoogleServerErrorException;
-import org.sopt.controller.auth.exception.InvalidGoogleTokenException;
-import org.sopt.controller.auth.exception.InvalidProviderException;
+import org.sopt.controller.auth.exception.*;
 import org.sopt.controller.token.TokenService;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
+import org.sopt.exception.code.GlobalErrorCode;
 import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.jwt.auth.domain.TokenRepository;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
@@ -24,13 +29,20 @@ import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
 import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.Optional;
+import java.security.PrivateKey;
+import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -43,12 +55,16 @@ public class AuthService {
     private final TokenHasher tokenHasher;
 
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
+    private static final long THIRTY_DAYS_MS = 1000L * 60 * 60 * 24 * 30;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
     @Value("${spring.security.oauth2.client.registration.apple.client-id}")
     private String appleClientId;
+
+    @Value("${apple.oauth.key-id}")
+    private String appleKeyId;
 
     @Value("${apple.oauth.team-id}")
     private String appleTeamId;
@@ -112,9 +128,53 @@ public class AuthService {
     }
 
     private SocialLoginRes appleLogin(String providerToken, SocialLoginReq req) {
+        if (providerToken == null || providerToken.isEmpty()) {
+            throw new UnAuthorizedException(GlobalErrorCode.UNAUTHORIZED);
+        }
 
+        Claims claims;
+        try {
+            MyKeyLocator myKeyLocator = new MyKeyLocator(getPublicKeys()); // 캐시된 키 목록 사용
+            claims = Jwts.parser()
+                    .keyLocator(myKeyLocator)
+                    .build()
+                    .parseSignedClaims(providerToken) // Apple ID Token
+                    .getPayload();
+        } catch (Exception e) {
+            // 애플 ID Token 검증 실패
+            throw new AppleServerErrorException(AuthApiErrorCode.AUTH_APPLE_SERVER_ERROR);
+        }
+
+        String providerId = claims.getSubject();
+
+        User user;
+        Optional<User> optionalUser = userFacade.getByProviderAndProviderId(String.valueOf(req.provider()), providerId);
+
+        // 이미 유저가 존재하는 경우
+        if(optionalUser.isPresent()) {
+            user = optionalUser.get();
+
+            if(optionalUser.get().getIsDeleted()) {
+                // 탈퇴한 회원인 경우 다시 회원 자격 복구
+                user.revertDeleteUser();
+            }
+
+            // 이미 가입된 유저 토큰 재발급(= 초기 유저와 동일한 로직)
+            return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
+
+        } else {
+            user = User.builder()
+                    .provider(String.valueOf(req.provider()))
+                    .providerId(providerId)
+                    .notifyStatus(false)
+                    .registerStatus(RegisterStatus.SOCIAL_LOGIN_COMPLETED)
+                    .role(UserRole.USER)
+                    .build();
+
+            User newUser = userFacade.save(user);
+            return tokenService.issueToken(req, newUser.getId(), RegisterStatus.SOCIAL_LOGIN_COMPLETED);
+        }
     }
-
 
     private GoogleIdToken.Payload verifyGoogleIdentityToken(String idTokenValue) {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
@@ -138,6 +198,33 @@ public class AuthService {
             // 네트워크 통신 예외
             // 구글 서버와 통신 중 발생한 문제
             throw new GoogleServerErrorException(AuthApiErrorCode.AUTH_GOOGLE_SERVER_ERROR);
+        }
+    }
+
+    /*
+     * Apple 공개 키를 JWKS 엔드포인트에서 조회
+     */
+    @Cacheable(value = "applePublicKeys", key = "'allKeys'") // key = "'allKeys'"를 사용하여 단일 캐시 엔트리로 관리
+    public List<ApplePublicKeyRes.ApplePublicKey> getPublicKeys() {
+        try {
+            ApplePublicKeyRes response = WebClient.builder()
+                    .baseUrl("https://appleid.apple.com")
+                    .build()
+                    .get()
+                    .uri("/auth/keys")
+                    .retrieve()
+                    .bodyToMono(ApplePublicKeyRes.class)
+                    .block();
+
+            // Apple JWKS 응답 비어 있는 경우
+            if (response == null || response.keys() == null || response.keys().isEmpty()) {
+                throw new AppleServerErrorException(AuthApiErrorCode.AUTH_APPLE_SERVER_ERROR);
+            }
+
+            return response.keys();
+        } catch (Exception e) {
+            // 공개 키 로드 실패
+            throw new AppleServerErrorException(AuthApiErrorCode.AUTH_APPLE_SERVER_ERROR);
         }
     }
 }
