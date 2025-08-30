@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.sopt.common.config.BaseTimeEntity;
 import org.sopt.user.domain.User;
 
 import static org.sopt.follow.domain.FollowTableConstants.*;
@@ -23,7 +24,7 @@ import static org.sopt.follow.domain.FollowTableConstants.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Follow {
+public class Follow extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
