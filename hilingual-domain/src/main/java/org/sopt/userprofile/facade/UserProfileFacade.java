@@ -62,4 +62,8 @@ public class UserProfileFacade {
         userProfileUpdater.updateStreakOnWrite(userId, writtenDate);
     }
 
+    public int updateProfileImgByUserId(final long userId, final String newImgUrl) {
+        return userProfileUpdater.updateProfileImgByUserId(userId, newImgUrl);
+    }
+
 }
