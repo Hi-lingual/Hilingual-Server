@@ -46,8 +46,8 @@ public class FollowFacade {
 
     // 언팔로우
     @Transactional
-    public void deleteIfExists(User follower, User followee) {
-        followRemover.deleteByFollowerIdAndFolloweeId(follower.getId(), followee.getId());
+    public boolean deleteIfExists(User follower, User followee) {
+        return followRemover.deleteByFollowerIdAndFolloweeId(follower.getId(), followee.getId()) > 0;
     }
 
     // a -> b 팔로우 여부 확인

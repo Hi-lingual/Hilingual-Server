@@ -31,7 +31,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class FollowService {
 
@@ -55,6 +54,9 @@ public class FollowService {
         followFacade.assertNotFollowing(follower, followee);
 
         followFacade.save(follower, followee);
+
+        follower.getUserProfile().increaseFollowingCount();
+        followee.getUserProfile().increaseFollowerCount();
     }
 
     @Transactional
@@ -66,7 +68,11 @@ public class FollowService {
         User me = userFacade.getUserById(userId);
         User you = userFacade.getUserById(targetUserId);
 
-        followFacade.deleteIfExists(me, you);
+        boolean removed = followFacade.deleteIfExists(me, you);
+        if (removed) {
+            me.getUserProfile().decreaseFollowingCount();
+            you.getUserProfile().decreaseFollowerCount();
+        }
 
         // 언팔 직후 me->you는 항상 false, you->me만 확인
         boolean followedBy = followFacade.isFollowing(you, me);
