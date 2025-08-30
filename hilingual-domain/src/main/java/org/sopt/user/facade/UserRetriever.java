@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 public class UserRetriever {
 
     private final UserRepository userRepository;
-    private final UserProfileRepository userProfileRepository;
 
     public User findByUserId(final long userId) {
         return userRepository.findById(userId)
@@ -24,10 +23,6 @@ public class UserRetriever {
     public User findByUserIdWithLock(final long userId) {
         return userRepository.findByIdWithLock(userId)
                 .orElseThrow(() -> new UserNotFoundException(UserCoreErrorCode.USER_NOT_FOUND));
-    }
-
-    public boolean isNicknameExists(String nickname) {
-        return userProfileRepository.existsByNickname(nickname);
     }
   
 }

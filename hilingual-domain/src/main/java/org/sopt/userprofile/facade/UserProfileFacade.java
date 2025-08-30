@@ -40,6 +40,11 @@ public class UserProfileFacade {
         return userProfileRetriever.findByUserId(userId);
     }
 
+
+    public boolean isNicknameExists(final String nickname) {
+        return userProfileRetriever.isNicknameExists(nickname);
+    }
+
     /**
     saver
      */

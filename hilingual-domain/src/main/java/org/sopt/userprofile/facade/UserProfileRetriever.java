@@ -16,7 +16,6 @@ public class UserProfileRetriever {
 
     private final UserProfileRepository userProfileRepository;
 
-
     public UserProfile findByUserId(final Long userId) {
         return userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserProfileNotFoundException(UserProfileCoreErrorCode.USER_PROFILE_NOT_FOUND));
@@ -32,5 +31,9 @@ public class UserProfileRetriever {
 
     public List<UserProfile> findByUserIds(List<Long> userIds) {
         return userProfileRepository.findByUserIds(userIds);
+    }
+
+    public boolean isNicknameExists(String nickname) {
+        return userProfileRepository.existsByNickname(nickname);
     }
 }
