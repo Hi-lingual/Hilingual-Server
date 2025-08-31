@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # 명령 실패 시 종료
+set -e  # 명령 실패 시 즉시 종료
 
 # 입력 환경변수:
 # - APP_HOST:   App EC2 Private IP (예: 10.0.2.177)
