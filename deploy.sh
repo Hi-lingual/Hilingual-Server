@@ -103,3 +103,13 @@ switch_upstream () {
     echo "⚠️  ${SSH_KEY} 가 없어 Nginx 스위치를 건너뜁니다."
   fi
 }
+
+######## 3) ✅ 헬스 성공 시 업스트림 전환 + 이전 컨테이너 stop
+if [ "$SUCCESS" -eq 1 ]; then
+  TARGET="${APP_HOST}:${PORT_NEW}"
+  echo "[INFO] Switching Nginx upstream to ${TARGET} (UPSTREAM_ENV=${UPSTREAM_ENV})"
+  switch_upstream "${TARGET}"
+
+  echo "[INFO] Stopping old container: hilingual-${OLD}"
+  docker stop "hilingual-${OLD}" || true
+fi
