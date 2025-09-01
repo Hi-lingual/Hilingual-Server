@@ -3,11 +3,13 @@ package org.sopt.userprofile.repository;
 import org.sopt.user.domain.User;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.dto.UserSearchProjection;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,8 +33,12 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     List<UserProfile> findByUserIds(@Param("userIds") List<Long> userIds);
 
     @Modifying
-    @Query("UPDATE UserProfile up SET up.profileImg = :profileImg WHERE up.user.id = :userId")
-    int updateProfileImgByUserId(@Param("userId") Long userId, @Param("profileImg") String profileImg);
+    @Query("UPDATE UserProfile up SET up.profileImg = :profileImg, up.updatedAt = :updatedAt WHERE up.user.id = :userId")
+    int updateProfileImgByUserId(
+            @Param("userId") Long userId,
+            @Param("profileImg") String profileImg,
+            @Param("updatedAt") LocalDateTime updatedAt
+    );
 
     /*
      * 검색 nickname에 해당하는 유저 리스트 검색
@@ -72,9 +78,15 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE UserProfile up SET up.followingCount = up.followingCount - 1 WHERE up.user.id = :userId AND up.followingCount > 0")
-    int decrementFollowingCountByUserId(@Param("userId") Long userId);
+    int decrementFollowingCountByUserId(
+            @Param("userId") Long userId,
+            @Param("updatedAt") LocalDateTime updatedAt
+    );
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE UserProfile up SET up.followerCount = up.followerCount - 1 WHERE up.user.id = :userId AND up.followerCount > 0")
-    int decrementFollowerCountByUserId(@Param("userId") Long userId);
+    int decrementFollowerCountByUserId(
+            @Param("userId") Long userId,
+            @Param("updatedAt") LocalDateTime updatedAt
+    );
 }

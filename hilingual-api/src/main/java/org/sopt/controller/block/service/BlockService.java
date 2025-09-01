@@ -16,6 +16,8 @@ import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -67,14 +69,15 @@ public class BlockService {
             Long blockerId,
             Long blockedId
     ) {
+        LocalDateTime now = LocalDateTime.now();
         if (relation.getIsFollowing()) { // blocker가 blocked를 팔로우하고 있던 경우
-            userProfileFacade.decrementFollowingCountByUserId(blockerId);
-            userProfileFacade.decrementFollowerCountByUserId(blockedId);
+            userProfileFacade.decrementFollowingCountByUserId(blockerId, now);
+            userProfileFacade.decrementFollowerCountByUserId(blockedId, now);
         }
 
         if (relation.getIsFollowed()) { // blocked가 blocker를 팔로우하고 있던 경우
-            userProfileFacade.decrementFollowingCountByUserId(blockedId);
-            userProfileFacade.decrementFollowerCountByUserId(blockerId);
+            userProfileFacade.decrementFollowingCountByUserId(blockedId, now);
+            userProfileFacade.decrementFollowerCountByUserId(blockerId, now);
         }
     }
 

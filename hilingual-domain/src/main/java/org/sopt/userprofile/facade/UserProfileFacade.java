@@ -6,6 +6,7 @@ import org.sopt.userprofile.dto.UserSearchProjection;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,16 +72,16 @@ public class UserProfileFacade {
         userProfileUpdater.updateStreakOnWrite(userId, writtenDate);
     }
 
-    public int updateProfileImgByUserId(final long userId, final String newImgUrl) {
-        return userProfileUpdater.updateProfileImgByUserId(userId, newImgUrl);
+    public int updateProfileImgByUserId(final long userId, final String newImgUrl, final LocalDateTime updatedAt) {
+        return userProfileUpdater.updateProfileImgByUserId(userId, newImgUrl, updatedAt);
     }
 
-    public int decrementFollowingCountByUserId(final long userId) {
-        return userProfileUpdater.decrementFollowingCountByUserId(userId);
+    public int decrementFollowingCountByUserId(final long userId, final LocalDateTime updatedAt) {
+        return userProfileUpdater.decrementFollowingCountByUserId(userId, updatedAt);
     }
 
-    public int decrementFollowerCountByUserId(final long userId) {
-        return userProfileUpdater.decrementFollowerCountByUserId(userId);
+    public int decrementFollowerCountByUserId(final long userId, final LocalDateTime updatedAt) {
+        return userProfileUpdater.decrementFollowerCountByUserId(userId, updatedAt);
     }
 
 }
