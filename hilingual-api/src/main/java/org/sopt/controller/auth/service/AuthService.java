@@ -60,6 +60,12 @@ public class AuthService {
         throw new InvalidProviderException(AuthApiErrorCode.INVALID_PROVIDER);
     }
 
+    public Void logout(String accessToken) {
+        tokenService.logout(accessToken);
+
+        return null;
+    }
+
     private SocialLoginRes googleLogin(String providerToken, SocialLoginReq req) {
 
         GoogleIdToken.Payload payload = verifyGoogleIdentityToken(providerToken);
