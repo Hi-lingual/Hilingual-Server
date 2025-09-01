@@ -13,7 +13,6 @@ import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.facade.UserProfileFacade;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,12 +55,6 @@ public class BlockService {
         // 차단 관계 생성 및 팔로우 삭제
         blockFacade.block(blocker, blocked);
         int deletedCount = followFacade.deleteFollowRelations(blockerId, blockedId);
-/*
-        // 영속성 컨텍스트 강제 동기화
-        if (deletedCount > 0) {
-            entityManager.flush();
-            entityManager.clear();
-        }*/
 
         // 유저 프로필 팔로워/팔로잉 카운트 업데이트
         updateFollowerAndFollowingCount(relation, blockerId, blockedId);

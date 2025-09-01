@@ -4,6 +4,7 @@ import org.sopt.user.domain.User;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.dto.UserSearchProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
