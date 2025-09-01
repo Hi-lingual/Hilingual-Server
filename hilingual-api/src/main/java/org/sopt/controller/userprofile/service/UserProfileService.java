@@ -1,9 +1,14 @@
 package org.sopt.controller.userprofile.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.aws.s3.dto.Purpose;
+import org.sopt.aws.s3.service.S3Service;
+import org.sopt.controller.userprofile.dto.UserProfileImgReq;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
 import org.sopt.controller.userprofile.exception.UserProfileSuccessCode;
 import org.sopt.controller.userprofile.dto.UserProfileReq;
+import org.sopt.controller.userprofile.exception.UserProfileApiErrorCode;
+import org.sopt.controller.userprofile.exception.UserProfileImagePurposeMismatchException;
 import org.sopt.dto.BaseResponseDto;
 import org.sopt.forbiddenword.facade.ForbiddenWordFacade;
 import org.sopt.user.facade.UserFacade;
@@ -19,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class UserProfileService {
     private final UserFacade userFacade;
     private final UserProfileFacade userProfileFacade;
+    private final S3Service s3Service;
     private final ForbiddenWordFacade forbiddenWordFacade;
 
     // TODO : 닉네임 중복 체크 아예 Custom Validator 로 빼자
@@ -74,6 +80,26 @@ public class UserProfileService {
 
     private BaseResponseDto<NicknameAvailableRes> unavailableNickname(UserProfileSuccessCode code) {
         return BaseResponseDto.success(code, new NicknameAvailableRes(false));
+    }
+
+
+    public Void changeUserProfileImg(Long userId, UserProfileImgReq userProfileImgReq) {
+        if(userProfileImgReq.image().purpose() != Purpose.PROFILE_UPDATE) {
+            throw new UserProfileImagePurposeMismatchException(UserProfileApiErrorCode.IMAGE_PURPOSE_INVALID);
+        }
+
+        // 기존 프로필 이미지 키 조회
+        String previousFileKey = userProfileFacade.getProfileByUserId(userId).getProfileImg();
+
+        final String fileKey = s3Service.bindProfileImage(userId, userProfileImgReq.image().fileKey());
+        userProfileFacade.updateProfileImgByUserId(userId, fileKey);
+
+        // 업로드 성공 시 기존 프로필 이미지 S3에서 삭제
+        if (previousFileKey != null && !previousFileKey.isBlank()) {
+            s3Service.deleteObject(previousFileKey);
+        }
+
+        return null;
     }
 
 }
