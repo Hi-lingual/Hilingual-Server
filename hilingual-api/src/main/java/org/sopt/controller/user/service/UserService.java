@@ -1,6 +1,8 @@
 package org.sopt.controller.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
+import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.controller.token.TokenService;
 import org.sopt.controller.user.dto.NotiStatusRes;
 import org.sopt.controller.user.dto.UserDefaultInfoRes;
@@ -29,6 +31,7 @@ public class UserService {
     private final UserFacade userFacade;
     private final NoticeDeliveryFacade noticeDeliveryFacade;
     private final FeedAlarmFacade feedAlarmFacade;
+    private final AlarmPreferenceFacade alarmPreferenceFacade;
 
     public UserDefaultInfoRes getUserDefaultInfo(final long userId) {
         User user = userFacade.getUserById(userId);
