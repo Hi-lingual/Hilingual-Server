@@ -32,4 +32,13 @@ public class AlarmPreference {
     @Column(name = AlarmPreferenceTableConstants.COLUMN_IS_ENABLED, nullable = false)
     private Boolean isEnabled;
 
+    public static AlarmPreference create(User user, AlarmType alarmType, Boolean isEnabled) {
+        return new AlarmPreference(
+                null,
+                user,
+                alarmType,
+                isEnabled
+        );
+    }
+
 }
