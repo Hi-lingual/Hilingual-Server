@@ -36,14 +36,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/actuator/**",
             "/api/v1/users/reissue",
             "/test/jwt/token/issue",
-            "/api/v1/auth/verify"
+            "/api/v1/auth/verify",
+            "/test/jwt/token/issue",
+            "/api/v1/auth/login"
     );
 
-    private boolean shouldSkip(HttpServletRequest req) {
-        String path = req.getServletPath();
-        boolean matched = SKIP.stream().anyMatch(p -> PM.match(p, path));
-        log.debug("skipCheck path='{}' matched={}", path, matched);
-        return matched;
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        String path = request.getServletPath();
+        // SKIP 리스트에 있는 경로라면 true를 반환하여 필터가 실행되지 않도록 함
+        return SKIP.stream().anyMatch(p -> PM.match(p, path));
     }
 
     @Override
@@ -52,11 +54,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-
-        if (shouldSkip(request)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);

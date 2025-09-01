@@ -78,4 +78,8 @@ public class FollowFacade {
     public FollowRelation findFollowRelation(Long userId, Long targetUserId) {
         return followRetriever.findFollowRelation(userId, targetUserId);
     }
+
+    public boolean haveFollowing(Long followerId) {
+        return followRetriever.existsByFollowerId(followerId);
+    }
 }

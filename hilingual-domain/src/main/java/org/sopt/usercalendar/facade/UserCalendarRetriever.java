@@ -1,6 +1,7 @@
 package org.sopt.usercalendar.facade;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.diary.domain.Diary;
 import org.sopt.diary.repository.DiaryRepository;
 import org.sopt.user.domain.User;
 import org.sopt.usercalendar.domain.UserCalendar;
@@ -33,16 +34,9 @@ public class UserCalendarRetriever {
         return userCalendarRepository.findWrittenDatesByUserIdAndYearAndMonth(userId, year, month);
     }
 
-    public UserCalendarDiarySummaryRes findDiaryByDate(final Long userId, final LocalDate date) {
+    public Diary findDiaryByDate(final Long userId, final LocalDate date) {
         return diaryRepository.findFirstByUserIdAndWrittenDate(userId, date)
-                .map(diary -> UserCalendarDiarySummaryRes.of(
-                        diary.getId(),
-                        diary.getCreatedAt(),
-                        diary.getImageUrl(),
-                        diary.getOriginalText()))
-                .orElseThrow(() ->
-                        new UserCalendarDiaryNotFoundException(
-                                UserCalendarCoreErrorCode.DIARY_NOT_FOUND));
+                .orElseThrow(() -> new UserCalendarDiaryNotFoundException(UserCalendarCoreErrorCode.DIARY_NOT_FOUND));
     }
 
 }

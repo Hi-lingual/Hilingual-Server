@@ -5,6 +5,7 @@ import org.sopt.controller.token.TokenService;
 import org.sopt.controller.user.dto.UserDefaultInfoRes;
 import org.sopt.controller.user.exception.CannotLoadProviderException;
 import org.sopt.controller.user.exception.UserApiErrorCode;
+import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.user.domain.User;
 import org.sopt.controller.user.dto.HomeUserProfileRes;
@@ -12,7 +13,6 @@ import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.sopt.controller.user.dto.NicknameAvailableRes;
 import org.sopt.controller.user.dto.NoticeDetailRes;
 import org.sopt.noticedelivery.domain.NoticeDelivery;
 import org.sopt.noticedelivery.facade.NoticeDeliveryFacade;
@@ -27,8 +27,8 @@ public class UserService {
 
     private final TokenService tokenService;
     private final UserFacade userFacade;
-    private final UserProfileFacade userProfileFacade;
     private final NoticeDeliveryFacade noticeDeliveryFacade;
+    private final FeedAlarmFacade feedAlarmFacade;
 
     public UserDefaultInfoRes getUserDefaultInfo(final long userId) {
         User user = userFacade.getUserById(userId);
@@ -82,4 +82,11 @@ public class UserService {
         );
 
     }
+
+    @Transactional
+    public void markNoticeRead(final long userId, final long noticeId){
+        feedAlarmFacade.markAlarmAsRead(userId, noticeId);
+        return;
+    }
+
 }

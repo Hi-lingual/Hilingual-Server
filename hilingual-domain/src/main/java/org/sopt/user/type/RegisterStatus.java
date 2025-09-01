@@ -11,8 +11,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum RegisterStatus {
     SOCIAL_LOGIN_COMPLETED(1),
-    VERIFIED(2),
-    PROFILE_COMPLETED(3);
+    PROFILE_COMPLETED(2);
 
     private final int code;
 

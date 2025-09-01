@@ -27,3 +27,6 @@ $RECYCLE.BIN/
 ...
 README.md
 data.sql
+
+
+nginx/includes/*.inc

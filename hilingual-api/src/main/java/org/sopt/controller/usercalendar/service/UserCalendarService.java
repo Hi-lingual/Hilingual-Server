@@ -1,9 +1,10 @@
 package org.sopt.controller.usercalendar.service;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.aws.s3.utils.S3UrlResolver;
+import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.usercalendar.exception.FutureDateNotAllowedException;
 import org.sopt.controller.usercalendar.exception.UserCalendarApiErrorCode;
+import org.sopt.diary.domain.Diary;
 import org.sopt.topic.facade.TopicFacade;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.sopt.usercalendar.dto.UserCalendarDiarySummaryRes;
@@ -22,18 +23,14 @@ public class UserCalendarService {
 
     private final UserCalendarFacade userCalendarFacade;
     private final TopicFacade topicFacade;
+    private final S3Service s3Service;
 
     public UserCalendarDiarySummaryRes getDiarySummary(final LocalDate date, final Long userId) {
         validateNotFuture(date);
 
-        var raw = userCalendarFacade.findDiaryByDate(userId, date);
-
-        return new UserCalendarDiarySummaryRes(
-                raw.diaryId(),
-                raw.createdAt(),
-                S3UrlResolver.resolve(raw.imageUrl()),
-                raw.originalText()
-        );
+        final Diary diary = userCalendarFacade.findDiaryByDate(userId, date);
+        final String diaryImgUrl = s3Service.toPublicUrl(diary.getImageUrl());
+        return UserCalendarDiarySummaryRes.of(diary, diaryImgUrl);
 
     }
 

@@ -24,6 +24,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     /** 본인 소유의 일기 단건 조회*/
     Optional<Diary> findFirstByUserIdAndWrittenDate(Long userId, LocalDate writtenDate);
+
     Optional<Diary> findByIdAndUserId(Long diaryId, Long userId);
 
     List<Diary> findByUserIdAndIsPublicTrueOrderBySharedTimeDesc(Long userId);
