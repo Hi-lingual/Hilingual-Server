@@ -3,6 +3,7 @@ package org.sopt.controller.userprofile.api;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
+import org.sopt.controller.userprofile.dto.UserProfileImgReq;
 import org.sopt.controller.userprofile.dto.UserProfileReq;
 import org.sopt.dto.BaseResponseDto;
 import org.sopt.jwt.annotation.UserId;
@@ -32,5 +33,13 @@ public class UserProfileController {
     ) {
         userProfileService.save(userId, userProfileReq);
         return ResponseEntity.ok(GlobalSuccessCode.OK);
+    }
+
+    @PatchMapping("/mypage/profileImg")
+    public ResponseEntity<Void> changeUserProfileImg(
+            @UserId Long userId,
+            @RequestBody @NotNull UserProfileImgReq userProfileImgReq
+    ) {
+        return ResponseEntity.ok(userProfileService.changeUserProfileImg(userId, userProfileImgReq));
     }
 }
