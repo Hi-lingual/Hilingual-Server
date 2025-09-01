@@ -1,9 +1,13 @@
 package org.sopt.controller.userprofile.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.alarmpreference.domain.AlarmPreference;
+import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
+import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.aws.s3.dto.Purpose;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.userprofile.dto.UserProfileImgReq;
+import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
 import org.sopt.controller.userprofile.exception.UserProfileSuccessCode;
 import org.sopt.controller.userprofile.dto.UserProfileReq;
@@ -25,8 +29,9 @@ import org.springframework.stereotype.Service;
 public class UserProfileService {
     private final UserFacade userFacade;
     private final UserProfileFacade userProfileFacade;
-    private final S3Service s3Service;
     private final ForbiddenWordFacade forbiddenWordFacade;
+    private final AlarmPreferenceFacade alarmPreferenceFacade;
+    private final S3Service s3Service;
 
     // TODO : 닉네임 중복 체크 아예 Custom Validator 로 빼자
 
@@ -51,17 +56,29 @@ public class UserProfileService {
     }
 
     public void save(Long userId, UserProfileReq userProfileReq) {
-        // TODO : Custom error
         User user = userFacade.getUserById(userId);
-
         userProfileFacade.findOptionalByUserId(userId)
                 .ifPresent(profile -> {
                     throw new UserProfileAlreadyExistException(UserProfileCoreErrorCode.USER_PROFILE_ALREADY_EXIST);
                 });
 
-        UserProfile profile = UserProfile.create(user, userProfileReq.nickname(), userProfileReq.profileImg());
-        userProfileFacade.save(profile);
+        String profileImageFileKey = null;
+        if (userProfileReq.image() != null) {
+            if (userProfileReq.image().purpose() != Purpose.PROFILE_UPDATE) {
+                throw new UserProfileImagePurposeMismatchException(UserProfileApiErrorCode.IMAGE_PURPOSE_INVALID);
+            }
+            profileImageFileKey = s3Service.bindProfileImage(userId, userProfileReq.image().fileKey());
+        }
 
+        // fileKey 바인딩 및 UserProfile 저장
+        UserProfile userProfile = UserProfile.create(user, userProfileReq.nickname(), profileImageFileKey);
+        userProfileFacade.save(userProfile);
+
+        // AlarmPreference에 Marketing 동의 여부 저장
+        AlarmPreference alarmPreference = AlarmPreference.create(user, AlarmType.MARKETING, userProfileReq.adAlarmAgree());
+        alarmPreferenceFacade.save(alarmPreference);
+
+        // User의 가입 상태 변경
         user.updateRegisterStatus(RegisterStatus.PROFILE_COMPLETED);
         userFacade.save(user);
     }

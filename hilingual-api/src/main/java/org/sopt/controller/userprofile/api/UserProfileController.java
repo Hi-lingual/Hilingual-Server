@@ -29,7 +29,7 @@ public class UserProfileController {
     @PostMapping("/profile")
     public ResponseEntity<?> saveUserProfile(
             @UserId Long userId,
-            @RequestBody UserProfileReq userProfileReq
+            @RequestBody @NotNull UserProfileReq userProfileReq
     ) {
         userProfileService.save(userId, userProfileReq);
         return ResponseEntity.ok(GlobalSuccessCode.OK);
