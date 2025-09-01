@@ -8,9 +8,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.exception.AuthErrorCode;
+import org.sopt.exception.InvalidTokenException;
+import org.sopt.exception.UnAuthorizedException;
+import org.sopt.exception.code.ErrorCode;
 import org.sopt.jwt.core.JwtClaimsKeys;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.auth.authentication.UserAuthenticationFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -30,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserAuthenticationFactory userAuthenticationFactory;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private static final AntPathMatcher PM = new AntPathMatcher();
     private static final List<String> SKIP = List.of(
@@ -62,6 +68,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         /** 헤더에서 토큰 추출 */
         final String token = jwtTokenProvider.getJwtFromRequest(request);
+        if(redisTemplate.hasKey("blacklist:" + token)){
+            throw new UnAuthorizedException(AuthErrorCode.UNAUTHORIZED);
+        }
+
         /** 유효하면 파싱 및 검증해서 Claim 획득 */
         if (StringUtils.hasText(token)) {
             Claims claims = jwtTokenProvider.parseAndVerify(token);
