@@ -33,7 +33,6 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     @Modifying
     @Query("UPDATE UserProfile up SET up.profileImg = :profileImg WHERE up.user.id = :userId")
     int updateProfileImgByUserId(@Param("userId") Long userId, @Param("profileImg") String profileImg);
-}
 
     /*
      * 검색 nickname에 해당하는 유저 리스트 검색
