@@ -14,7 +14,9 @@ public class AuthConstants {
             "/callback",
             "/test/jwt/token/issue",
             "/api/v1/users/reissue",
-            "/api/v1/auth/login"
+            "/api/v1/auth/login",
+            "/api/v1/users/reissue",
+            "/api/v1/auth/verify"
     };
 
     private AuthConstants() {

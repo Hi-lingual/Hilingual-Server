@@ -36,6 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/actuator/**",
             "/api/v1/users/reissue",
             "/test/jwt/token/issue",
+            "/api/v1/auth/verify",
+            "/test/jwt/token/issue",
             "/api/v1/auth/login"
     );
 
