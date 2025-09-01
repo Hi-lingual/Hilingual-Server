@@ -36,4 +36,10 @@ public class NoticeDelivery {
     @Column(name = NoticeDeliveryTableConstants.COLUMN_READ_AT)
     private LocalDateTime readAt;
 
+    public void markReadIfNeeded(LocalDateTime now) {
+        if (this.readAt == null) {
+            this.readAt = now;
+        }
+    }
+
 }

@@ -31,7 +31,7 @@ public class DiaryRetriever {
     }
 
     public List<Diary> findByUserIdAndIsPublicTrue(final Long userId) {
-        return diaryRepository.findByUserIdAndIsPublicTrueOrderByCreatedAtDesc(userId);
+        return diaryRepository.findByUserIdAndIsPublicTrueOrderBySharedTimeDesc(userId);
     }
 
     public Diary findOwnedByIdOrThrow(Long userId, Long diaryId) {
@@ -39,4 +39,8 @@ public class DiaryRetriever {
                 .orElseThrow(() -> new DiaryForbiddenException(DiaryCoreErrorCode.DIARY_FORBIDDEN));
     }
 
+    public Diary findDiaryWithDetails(final long diaryId) {
+        return diaryRepository.findDiaryWithDetailsById(diaryId)
+                .orElseThrow(() -> new DiaryNotFoundException(DiaryCoreErrorCode.DIARY_NOT_FOUND));
+    }
 }

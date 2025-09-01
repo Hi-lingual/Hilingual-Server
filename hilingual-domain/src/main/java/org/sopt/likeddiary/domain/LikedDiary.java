@@ -16,6 +16,7 @@ import static org.sopt.likeddiary.domain.LikedDiaryTableConstants.*;
         name = TABLE_LIKED_DIARY,
         uniqueConstraints = {
                 @UniqueConstraint(
+                        name = UK_USER_DIARY,
                         columnNames = {COLUMN_USER_ID, COLUMN_DIARY_ID}
                 )
         }

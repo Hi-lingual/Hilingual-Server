@@ -2,6 +2,7 @@ package org.sopt.userprofile.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.userprofile.domain.UserProfile;
+import org.sopt.userprofile.dto.UserSearchProjection;
 import org.sopt.userprofile.exception.UserProfileNotFoundException;
 import org.sopt.userprofile.exception.UserProfileCoreErrorCode;
 import org.sopt.userprofile.repository.UserProfileRepository;
@@ -15,7 +16,6 @@ import java.util.Optional;
 public class UserProfileRetriever {
 
     private final UserProfileRepository userProfileRepository;
-
 
     public UserProfile findByUserId(final Long userId) {
         return userProfileRepository.findByUserId(userId)
@@ -32,5 +32,13 @@ public class UserProfileRetriever {
 
     public List<UserProfile> findByUserIds(List<Long> userIds) {
         return userProfileRepository.findByUserIds(userIds);
+    }
+
+    public boolean isNicknameExists(String nickname) {
+        return userProfileRepository.existsByNickname(nickname);
+    }
+
+    public List<UserSearchProjection> findUsersByNickname(Long userId, String keyword, String startKeyword) {
+        return userProfileRepository.searchUserListByKeyword(userId, keyword, startKeyword);
     }
 }

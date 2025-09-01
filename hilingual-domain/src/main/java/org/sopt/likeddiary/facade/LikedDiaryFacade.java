@@ -19,4 +19,8 @@ public class LikedDiaryFacade {
     public List<LikedDiary> getLikedDiariesWithAllDetails(Long userId) {
         return likedDiaryRetriever.getLikedDiariesWithAllDetails(userId);
     }
+
+    public Boolean findUserAndDiaryExist(Long userId, Long diaryId) {
+        return likedDiaryRetriever.findUserAndDiaryExist(userId, diaryId);
+    }
 }

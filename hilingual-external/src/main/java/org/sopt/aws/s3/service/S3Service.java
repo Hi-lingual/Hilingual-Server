@@ -106,18 +106,36 @@ public class S3Service {
         };
     }
 
+    public String bindProfileImage(Long userId, String tmpKey) {
+        String expectedPrefix = prefix("/tmp/users/%d/images/profile".formatted(userId));
+        validateTmpKeyOwnership(tmpKey, expectedPrefix);
+
+        String filename = tmpKey.substring(tmpKey.lastIndexOf('/') + 1);
+        String finalKey = prefix("users/%d/images/profile/%s".formatted(userId, filename));
+
+        return bindImageFromTmp(tmpKey, finalKey);
+    }
+
     /*
      * tmp 키를 최종 위치로 이동(finalKey 반환) 후 tmp 삭제
      */
     public String bindDiaryImage(Long userId, String tmpKey, LocalDate date) {
         String expectedPrefix = prefix("/tmp/users/%d/images/diaries".formatted(userId));
-        validateTmpKeyOwnership(userId, tmpKey, expectedPrefix);
+        validateTmpKeyOwnership(tmpKey, expectedPrefix);
 
         String dateDir = date.toString();
         String filename = tmpKey.substring(tmpKey.lastIndexOf('/') + 1);
-        String bucket = awsProperties.getBucketName();
         String finalKey = prefix("users/%d/images/diaries/%s/%s".formatted(userId, dateDir, filename));
 
+        return bindImageFromTmp(tmpKey, finalKey);
+    }
+
+    /**
+     * 임시 키(tmpKey)의 S3 객체를 최종 키(finalKey)로 이동하고 임시 객체를 삭제합니다.
+     * 이 로직은 두 bind 메서드에서 공통으로 사용됩니다.
+     */
+    private String bindImageFromTmp(String tmpKey, String finalKey) {
+        String bucket = awsProperties.getBucketName();
         String copySourceRaw = bucket + "/" + tmpKey;
         String copySource = SdkHttpUtils.urlEncode(copySourceRaw);
 
@@ -142,7 +160,7 @@ public class S3Service {
         return finalKey;
     }
 
-    private static void validateTmpKeyOwnership(Long userId, String tmpKey, String expectedPrefix) {
+    private static void validateTmpKeyOwnership(String tmpKey, String expectedPrefix) {
         if (!Objects.requireNonNull(tmpKey, "tmpKey").startsWith(expectedPrefix)) {
             throw new S3BaseException(S3ErrorCode.INVALID_TMP_FILE_KEY);
         }
@@ -178,7 +196,7 @@ public class S3Service {
         String normKey = key.startsWith("/") ? key.substring(1) : key;
         String base = cdn.startsWith("http://")
                 ? cdn
-                : "http://" + (cdn.endsWith("/") ? cdn.substring(0, cdn.length() - 1) : cdn);
+                : "https://" + (cdn.endsWith("/") ? cdn.substring(0, cdn.length() - 1) : cdn);
         return base + "/" + normKey;
     }
 
