@@ -16,13 +16,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 @RestController
-@RequestMapping("/api/v1/calendar")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class UserCalendarController {
 
     private final UserCalendarService userCalendarService;
 
-    @GetMapping("/{date}")
+    @GetMapping("/home/calendar/{date}")
     public ResponseEntity<UserCalendarDiarySummaryRes> getDiarySummaryByDate(
             @UserId Long userId,
             @PathVariable final String date
@@ -38,7 +38,7 @@ public class UserCalendarController {
         return ResponseEntity.ok(userCalendarService.getDiarySummary(parsedDate, userId));
     }
 
-    @GetMapping("/{date}/topic")
+    @GetMapping("/calendar/{date}/topic")
     public ResponseEntity<UserCalendarTopicRes> getTopicByDate(@PathVariable final String date) {
         final LocalDate parsedDate;
 
@@ -51,7 +51,7 @@ public class UserCalendarController {
         return ResponseEntity.ok(userCalendarService.getTopicByDate(parsedDate));
     }
 
-    @GetMapping("/month")
+    @GetMapping("/calendar/month")
     public ResponseEntity<UserCalendarMonthlyRes> getMonthlyCalendar(
             @UserId Long userId,
             @RequestParam final int year,
