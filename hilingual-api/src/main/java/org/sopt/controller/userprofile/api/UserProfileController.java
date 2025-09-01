@@ -1,5 +1,6 @@
 package org.sopt.controller.userprofile.api;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
 import org.sopt.controller.userprofile.dto.UserProfileReq;
@@ -27,7 +28,7 @@ public class UserProfileController {
     @PostMapping("/profile")
     public ResponseEntity<?> saveUserProfile(
             @UserId Long userId,
-            @RequestBody UserProfileReq userProfileReq
+            @RequestBody @NotNull UserProfileReq userProfileReq
     ) {
         userProfileService.save(userId, userProfileReq);
         return ResponseEntity.ok(GlobalSuccessCode.OK);

@@ -1,6 +1,7 @@
 package org.sopt.controller.userprofile.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
 import org.sopt.controller.userprofile.exception.UserProfileSuccessCode;
 import org.sopt.controller.userprofile.dto.UserProfileReq;
@@ -20,6 +21,7 @@ public class UserProfileService {
     private final UserFacade userFacade;
     private final UserProfileFacade userProfileFacade;
     private final ForbiddenWordFacade forbiddenWordFacade;
+    private final S3Service s3Service;
 
     // TODO : 닉네임 중복 체크 아예 Custom Validator 로 빼자
 
@@ -52,7 +54,7 @@ public class UserProfileService {
                     throw new UserProfileAlreadyExistException(UserProfileCoreErrorCode.USER_PROFILE_ALREADY_EXIST);
                 });
 
-        UserProfile profile = UserProfile.create(user, userProfileReq.nickname(), userProfileReq.profileImg());
+        UserProfile profile = UserProfile.create(user, userProfileReq.nickname(), " ");
         userProfileFacade.save(profile);
 
         user.setIsCompleted(true);
