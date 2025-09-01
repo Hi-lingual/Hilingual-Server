@@ -3,16 +3,16 @@ package org.sopt.controller.user.api;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.sopt.alarmpreference.type.AlarmType;
-import org.sopt.controller.user.dto.NotiStatusRes;
-import org.sopt.controller.user.dto.NoticeDetailRes;
-import org.sopt.controller.user.dto.UserDefaultInfoRes;
-import org.sopt.controller.user.dto.HomeUserProfileRes;
+import org.sopt.controller.user.dto.*;
 import org.sopt.controller.user.service.UserService;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.jwt.annotation.UserId;
+import org.sopt.user.type.NotificationTab;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -82,4 +82,20 @@ public class UserController {
         userService.markNoticeRead(userId, noticeId);
         return ResponseEntity.ok().build();
     }
+
+    // 알림 리스트 확인하기 API
+    @GetMapping("/notifications")
+    public ResponseEntity<List<? extends NotificationItemRes>> getNotifications(
+            @UserId Long userId,
+            @RequestParam(defaultValue = "FEED") String tab
+    ) {
+        NotificationTab t = NotificationTab.from(tab);
+
+        if (t == NotificationTab.FEED) {
+            return ResponseEntity.ok(userService.getFeedAlarms(userId));
+        } else {
+            return ResponseEntity.ok(userService.getNoticeAlarms(userId));
+        }
+    }
+
 }
