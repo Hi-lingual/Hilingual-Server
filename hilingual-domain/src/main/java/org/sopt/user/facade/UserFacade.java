@@ -22,8 +22,4 @@ public class UserFacade {
     public void save(final User user){
         userSaver.save(user);
     }
-
-    public boolean isNicknameExists(final String nickname) {
-        return userRetriever.isNicknameExists(nickname);
-    }
 }

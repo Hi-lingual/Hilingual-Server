@@ -3,6 +3,7 @@ package org.sopt.controller.user.api;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
+import org.sopt.controller.user.dto.NoticeDetailRes;
 import org.sopt.controller.user.dto.UserDefaultInfoRes;
 import org.sopt.controller.user.service.UserService;
 import org.sopt.dto.BaseResponseDto;
@@ -20,13 +21,6 @@ public class UserController {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
-
-    @GetMapping("/profile")
-    public BaseResponseDto<NicknameAvailableRes> getUserProfile(
-            @RequestParam(value = "nickname") String nickname
-    ) {
-        return userService.getNicknameAvailable(nickname);
-    }
 
     @PostMapping("/reissue")
     public ResponseEntity<ReissueTokensRes> reissue(
@@ -54,5 +48,24 @@ public class UserController {
             @UserId Long userId
     ) {
         return ResponseEntity.ok(userService.getUserDefaultInfo(userId));
+    }
+
+    // 공지 사항 알림 상세보기 API
+    @GetMapping("/notifications/{noticeId}")
+    public ResponseEntity<NoticeDetailRes> getNotificationDetail(
+            @UserId Long userId,
+            @PathVariable Long noticeId
+    ) {
+        return ResponseEntity.ok(userService.getNotificationDetail(userId, noticeId));
+    }
+
+    // 알림 읽음 처리 API
+    @PatchMapping("/notifications/{noticeId}/read")
+    public ResponseEntity<Void> markNoticeRead(
+            @UserId Long userId,
+            @PathVariable Long noticeId
+    ) {
+        userService.markNoticeRead(userId, noticeId);
+        return ResponseEntity.ok().build();
     }
 }

@@ -4,6 +4,7 @@ package org.sopt.user.domain;
 public class UserTableConstants {
     public static final String TABLE_USER = "users";
     public static final String COLUMN_ID = "id";
+    public static final String COLUMN_ROLE = "role";
     public static final String COLUMN_PROVIDER = "provider";
     public static final String COLUMN_PROVIDER_ID = "provider_id";
     public static final String COLUMN_IS_COMPLETED = "is_completed";
