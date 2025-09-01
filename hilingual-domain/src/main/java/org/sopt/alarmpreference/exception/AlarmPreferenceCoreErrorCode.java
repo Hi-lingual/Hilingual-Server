@@ -9,6 +9,9 @@ public enum AlarmPreferenceCoreErrorCode implements ErrorCode {
 
     // 400
     INVALID_ALARM_TYPE(HttpStatus.BAD_REQUEST, 40017, "올바르지 않은 알림 타입입니다."),
+
+    // 500
+    NOT_FOUND_ALARM_PREFERENCE_ROW(HttpStatus.INTERNAL_SERVER_ERROR, 50009, "AlarmPreference row가 존재하지 않습니다.");
     ;
 
     public final HttpStatus httpStatus;

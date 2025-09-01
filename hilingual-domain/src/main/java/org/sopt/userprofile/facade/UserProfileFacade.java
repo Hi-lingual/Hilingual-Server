@@ -2,10 +2,11 @@ package org.sopt.userprofile.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.userprofile.domain.UserProfile;
+import org.sopt.userprofile.dto.UserSearchProjection;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +41,15 @@ public class UserProfileFacade {
         return userProfileRetriever.findByUserId(userId);
     }
 
+
+    public boolean isNicknameExists(final String nickname) {
+        return userProfileRetriever.isNicknameExists(nickname);
+    }
+
+    public List<UserSearchProjection> getUserListByNickname(Long userId, String keyword, String startKeyword) {
+        return userProfileRetriever.findUsersByNickname(userId, keyword, startKeyword);
+    }
+
     /**
     saver
      */
@@ -60,6 +70,18 @@ public class UserProfileFacade {
 
     public void updateStreakOnWrite(Long userId, LocalDate writtenDate) {
         userProfileUpdater.updateStreakOnWrite(userId, writtenDate);
+    }
+
+    public int updateProfileImgByUserId(final long userId, final String newImgUrl, final LocalDateTime updatedAt) {
+        return userProfileUpdater.updateProfileImgByUserId(userId, newImgUrl, updatedAt);
+    }
+
+    public int decrementFollowingCountByUserId(final long userId, final LocalDateTime updatedAt) {
+        return userProfileUpdater.decrementFollowingCountByUserId(userId, updatedAt);
+    }
+
+    public int decrementFollowerCountByUserId(final long userId, final LocalDateTime updatedAt) {
+        return userProfileUpdater.decrementFollowerCountByUserId(userId, updatedAt);
     }
 
 }

@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.repository.UserProfileRepository;
+import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -89,5 +91,18 @@ public class UserProfileUpdater {
             }
         }
         userProfileRepository.saveAll(all);
+    }
+
+    @Transactional
+    public int updateProfileImgByUserId(final long userId, final String newImgUrl, final LocalDateTime updatedAt) {
+        return userProfileRepository.updateProfileImgByUserId(userId, newImgUrl, updatedAt);
+    }
+
+    public int decrementFollowingCountByUserId(final long userId, final LocalDateTime updatedAt) {
+        return userProfileRepository.decrementFollowingCountByUserId(userId, updatedAt);
+    }
+
+    public int decrementFollowerCountByUserId(final long userId, final LocalDateTime updatedAt) {
+        return userProfileRepository.decrementFollowerCountByUserId(userId, updatedAt);
     }
 }

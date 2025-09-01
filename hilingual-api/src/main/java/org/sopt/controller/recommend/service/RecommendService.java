@@ -54,11 +54,11 @@ public class RecommendService {
     }
 
     @Transactional
-    public Void bookMark(final long userId, final long phraseId, final boolean isBookmarked) {
+    public void updateBookmark(final long userId, final long phraseId, final boolean isBookmarked) {
 
         if (!isBookmarked) {
             vocaRemover.delete(userId, phraseId);
-            return null;
+            return;
         }
 
         Recommend recommend = recommendFacade.findById(phraseId);
@@ -72,7 +72,7 @@ public class RecommendService {
 
         User user = userFacade.getUserById(userId);
         vocaSaver.saveIfNotExists(user, recommend);
-        return null;
+        return;
     }
 
     private List<String> parsePhraseType(String phraseType) {

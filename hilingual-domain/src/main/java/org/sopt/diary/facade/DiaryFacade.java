@@ -20,9 +20,8 @@ public class DiaryFacade {
     private final DiaryRemover diaryRemover;
     private final DiaryUpdater diaryUpdater;
 
-
-    /**
-     * DiaryRetriever
+    /*
+     * Retriever
      */
     // 특정 일기가 해당 userId 소유인지 검증
     public void validateDiaryOwnership(final long userId, final long diaryId) {
@@ -43,6 +42,14 @@ public class DiaryFacade {
         }
     }
 
+    public List<Diary> getPublicDiaries(final long userId) {
+        return diaryRetriever.findByUserIdAndIsPublicTrue(userId);
+    }
+
+    public Diary getDiaryWithDetails(final long diaryId) {
+        return diaryRetriever.findDiaryWithDetails(diaryId);
+    }
+
     // 같은 날짜에 이미 일기를 작성했는지 검증
     public void validateNotExists(User user, LocalDate writtenDate) {
         diaryRetriever.validateDiaryNotExists(user, writtenDate);
@@ -53,29 +60,24 @@ public class DiaryFacade {
         return diaryRetriever.findById(diaryId);
     }
 
-    // 특정 유저의 공개 일기 목록 조회
-    public List<Diary> getPublicDiaries(final long userId) {
-        return diaryRetriever.findByUserIdAndIsPublicTrue(userId);
-    }
-
-    /**
-     * DiarySaver
+    /*
+     * Saver
      */
     @Transactional
     public Diary saveDiary(User user, String originalText, String rewriteText, String imageUrl, LocalDate writtenDate) {
         return diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate);
     }
 
-    /**
-     * DiaryRemover
+    /*
+     * Remover
      */
     @Transactional
     public void deleteDiary(final long userId, final long diaryId) {
         diaryRemover.deleteDiary(userId, diaryId);
     }
 
-    /**
-     * DiaryUpdater
+    /*
+     * Updater
      */
     @Transactional
     public void publish(Long userId, Long diaryId) {

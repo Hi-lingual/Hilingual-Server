@@ -2,15 +2,16 @@ package org.sopt.controller.user.api;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.sopt.controller.user.dto.NicknameAvailableRes;
+import org.sopt.alarmpreference.type.AlarmType;
+import org.sopt.controller.user.dto.NotiStatusRes;
+import org.sopt.controller.user.dto.NoticeDetailRes;
 import org.sopt.controller.user.dto.UserDefaultInfoRes;
+import org.sopt.controller.user.dto.HomeUserProfileRes;
 import org.sopt.controller.user.service.UserService;
-import org.sopt.dto.BaseResponseDto;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
-import org.springframework.http.ResponseEntity;
 import org.sopt.jwt.annotation.UserId;
-import org.sopt.controller.user.dto.HomeUserProfileRes;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,13 +22,6 @@ public class UserController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @GetMapping("/profile")
-    public BaseResponseDto<NicknameAvailableRes> getUserProfile(
-            @RequestParam(value = "nickname") String nickname
-    ) {
-        return userService.getNicknameAvailable(nickname);
-    }
-
     @PostMapping("/reissue")
     public ResponseEntity<ReissueTokensRes> reissue(
             HttpServletRequest request
@@ -36,9 +30,7 @@ public class UserController {
         return ResponseEntity.ok(userService.reissue(refreshToken));
     }
 
-    /*
-     * 홈
-     */
+    // 홈
     @GetMapping("/home/info")
     public ResponseEntity<HomeUserProfileRes> getUserProfile(
             @UserId Long userId
@@ -46,13 +38,48 @@ public class UserController {
         return ResponseEntity.ok(userService.getHomeUserInfo(userId));
     }
 
-    /*
-     * 마이페이지
-     */
+    // 마이페이지
     @GetMapping("/mypage/info")
     public ResponseEntity<UserDefaultInfoRes> getUserDefaultInfo(
             @UserId Long userId
     ) {
         return ResponseEntity.ok(userService.getUserDefaultInfo(userId));
+    }
+
+    // 유저의 현재 알림 설정 상태 확인 API
+    @GetMapping("/mypage/noti")
+    public ResponseEntity<NotiStatusRes> getUserNotiStatus(
+            @UserId Long userId
+    ){
+        return ResponseEntity.ok(userService.getUserNotiSatus(userId));
+    }
+
+    // 알림 설정 ON/OFF API
+    @PatchMapping("/mypage/noti")
+    public ResponseEntity<NotiStatusRes> toggleAlarmStatus(
+            @UserId Long userId,
+            @RequestParam String notiType
+    ) {
+        AlarmType type = AlarmType.from(notiType);
+        return ResponseEntity.ok(userService.toggleAlarmStatus(userId, String.valueOf(type)));
+    }
+
+    // 공지 사항 알림 상세보기 API
+    @GetMapping("/notifications/{noticeId}")
+    public ResponseEntity<NoticeDetailRes> getNotificationDetail(
+            @UserId Long userId,
+            @PathVariable Long noticeId
+    ) {
+        return ResponseEntity.ok(userService.getNotificationDetail(userId, noticeId));
+    }
+
+    // 알림 읽음 처리 API
+    @PatchMapping("/notifications/{noticeId}/read")
+    public ResponseEntity<Void> markNoticeRead(
+            @UserId Long userId,
+            @PathVariable Long noticeId
+    ) {
+        userService.markNoticeRead(userId, noticeId);
+        return ResponseEntity.ok().build();
     }
 }

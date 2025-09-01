@@ -46,8 +46,8 @@ public class FollowFacade {
 
     // 언팔로우
     @Transactional
-    public void deleteIfExists(User follower, User followee) {
-        followRemover.deleteByFollowerIdAndFolloweeId(follower.getId(), followee.getId());
+    public boolean deleteIfExists(User follower, User followee) {
+        return followRemover.deleteByFollowerIdAndFolloweeId(follower.getId(), followee.getId()) > 0;
     }
 
     // a -> b 팔로우 여부 확인
@@ -77,5 +77,14 @@ public class FollowFacade {
     @Transactional(readOnly = true)
     public FollowRelation findFollowRelation(Long userId, Long targetUserId) {
         return followRetriever.findFollowRelation(userId, targetUserId);
+    }
+
+    @Transactional
+    public int deleteFollowRelations(final long userId, final long targetUserId) {
+        return followRemover.deleteFollowRelations(userId, targetUserId);
+    }
+
+    public boolean haveFollowing(Long followerId) {
+        return followRetriever.existsByFollowerId(followerId);
     }
 }

@@ -140,11 +140,13 @@ public class DiaryService {
 
     @Transactional
     public void publishDiary(final Long userId, final Long diaryId) {
+        diaryFacade.validateDiaryOwnership(userId, diaryId);
         diaryFacade.publish(userId, diaryId);
     }
 
     @Transactional
     public void unpublishDiary(final Long userId, final Long diaryId) {
+        diaryFacade.validateDiaryOwnership(userId, diaryId);
         diaryFacade.unpublish(userId, diaryId);
 
     }

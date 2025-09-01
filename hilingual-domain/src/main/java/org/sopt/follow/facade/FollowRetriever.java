@@ -27,6 +27,12 @@ public class FollowRetriever {
         }
     }
 
+    /** 팔로우하는 상대가 1명이라도 존재하는지 */
+    @Transactional(readOnly = true)
+    public boolean existsByFollowerId(Long followerId) {
+        return followRepository.existsByFollowerId(followerId);
+    }
+
     /** (a -> b) 팔로우 존재 여부 */
     @Transactional(readOnly = true)
     public boolean existsByFollowerIdAndFolloweeId(Long aId, Long bId) {

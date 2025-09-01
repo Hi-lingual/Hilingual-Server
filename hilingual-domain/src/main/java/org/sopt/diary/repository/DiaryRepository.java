@@ -24,7 +24,18 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     /** 본인 소유의 일기 단건 조회*/
     Optional<Diary> findFirstByUserIdAndWrittenDate(Long userId, LocalDate writtenDate);
+
     Optional<Diary> findByIdAndUserId(Long diaryId, Long userId);
 
-    List<Diary> findByUserIdAndIsPublicTrueOrderByCreatedAtDesc(Long userId);
+    List<Diary> findByUserIdAndIsPublicTrueOrderBySharedTimeDesc(Long userId);
+
+    // ID를 통해 다이어리 조회(+User, UserProfile 함께 조회)
+    @Query("""
+           SELECT d
+           FROM Diary d
+           JOIN FETCH d.user u
+           JOIN FETCH u.userProfile up
+           WHERE d.id = :diaryId AND d.isPublic = TRUE
+           """)
+    Optional<Diary> findDiaryWithDetailsById(@Param("diaryId") Long diaryId);
 }

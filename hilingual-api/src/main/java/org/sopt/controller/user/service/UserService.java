@@ -1,20 +1,26 @@
 package org.sopt.controller.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
+import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.controller.token.TokenService;
-import org.sopt.controller.user.dto.NicknameAvailableRes;
+import org.sopt.controller.user.dto.NotiStatusRes;
 import org.sopt.controller.user.dto.UserDefaultInfoRes;
 import org.sopt.controller.user.exception.CannotLoadProviderException;
 import org.sopt.controller.user.exception.UserApiErrorCode;
-import org.sopt.controller.user.exception.UserSuccessCode;
-import org.sopt.dto.BaseResponseDto;
+import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.user.domain.User;
 import org.sopt.controller.user.dto.HomeUserProfileRes;
 import org.sopt.user.facade.UserFacade;
-import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.sopt.controller.user.dto.NoticeDetailRes;
+import org.sopt.noticedelivery.domain.NoticeDelivery;
+import org.sopt.noticedelivery.facade.NoticeDeliveryFacade;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,28 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final TokenService tokenService;
-
-    // TODO : 닉네임 중복 체크 아예 Custom Validator 로 빼자. 현재 UserService 의 책임이 너무 무거움.
-
-    private static final String NICKNAME_PATTERN = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]+$";
-    private static final int MIN_NICKNAME_LENGTH = 2;
-    private static final int MAX_NICKNAME_LENGTH = 10;
-
     private final UserFacade userFacade;
-    private final UserProfileFacade userProfileFacade;
-
-    public BaseResponseDto<NicknameAvailableRes> getNicknameAvailable(String nickname) {
-        if (!isValidFormat(nickname)) {
-            return unavailableNickname(UserSuccessCode.NICKNAME_SPECIAL_SYMBOLS);
-        }
-        if (!isValidLength(nickname)) {
-            return unavailableNickname(UserSuccessCode.NICKNAME_COUNT);
-        }
-        if (userFacade.isNicknameExists(nickname)) {
-            return unavailableNickname(UserSuccessCode.NICKNAME_DUPLICATED);
-        }
-        return availableNickname();
-    }
+    private final NoticeDeliveryFacade noticeDeliveryFacade;
+    private final FeedAlarmFacade feedAlarmFacade;
+    private final AlarmPreferenceFacade alarmPreferenceFacade;
 
     public UserDefaultInfoRes getUserDefaultInfo(final long userId) {
         User user = userFacade.getUserById(userId);
@@ -61,23 +49,6 @@ public class UserService {
                 user.getUserProfile(),
                 user.getNotifyStatus()
         );
-    }
-
-    private boolean isValidFormat(String nickname) {
-        return nickname.matches(NICKNAME_PATTERN);
-    }
-
-    private boolean isValidLength(String nickname) {
-        int length = nickname.length();
-        return length >= MIN_NICKNAME_LENGTH && length <= MAX_NICKNAME_LENGTH;
-    }
-
-    private BaseResponseDto<NicknameAvailableRes> availableNickname() {
-        return BaseResponseDto.success(UserSuccessCode.NICKNAME_AVAILABLE, new NicknameAvailableRes(true));
-    }
-
-    private BaseResponseDto<NicknameAvailableRes> unavailableNickname(UserSuccessCode code) {
-        return BaseResponseDto.success(code, new NicknameAvailableRes(false));
     }
 
     @Transactional
@@ -100,4 +71,40 @@ public class UserService {
         }
         return loginProviderInfo;
     }
+
+    public NotiStatusRes getUserNotiSatus(final Long userId) {
+        Map<AlarmType, Boolean> map = alarmPreferenceFacade.getAlarmStatusMap(userId);
+
+        boolean marketing = Boolean.TRUE.equals(map.get(AlarmType.MARKETING));
+        boolean feed = Boolean.TRUE.equals(map.get(AlarmType.FEED));
+
+        return new NotiStatusRes(marketing, feed);
+    }
+
+    @Transactional
+    public NotiStatusRes toggleAlarmStatus(final Long userId, final String type) {
+        alarmPreferenceFacade.toggle(userId, AlarmType.from(type));
+        return getUserNotiSatus(userId);
+    }
+
+    @Transactional
+    public NoticeDetailRes getNotificationDetail(final long userId, final long noticeId) {
+        NoticeDelivery delivery = noticeDeliveryFacade
+                .findByUserIdAndNoticeIdWithDetail(userId, noticeId);
+
+        delivery.markReadIfNeeded(LocalDateTime.now());
+
+        return NoticeDetailRes.from(
+                delivery.getNotice(),
+                delivery.getNotice().getNoticeDetail()
+        );
+
+    }
+
+    @Transactional
+    public void markNoticeRead(final long userId, final long noticeId){
+        feedAlarmFacade.markAlarmAsRead(userId, noticeId);
+        return;
+    }
+
 }

@@ -25,7 +25,7 @@ public class UserProfile extends BaseTimeEntity {
     @Column(name = COLUMN_NICKNAME, nullable = false, length = 20, unique = true)
     private String nickname;
 
-    @Column(name = COLUMN_PROFILE_IMG, nullable = false, length = 512)
+    @Column(name = COLUMN_PROFILE_IMG, length = 512)
     private String profileImg;
 
     @Column(name = COLUMN_TOTAL_DIARIES, nullable = false)
@@ -65,4 +65,21 @@ public class UserProfile extends BaseTimeEntity {
     public void updateStreak(final int streak) {
         this.streak = streak;
     }
+
+    public void increaseFollowingCount() {
+        this.followingCount = this.followingCount + 1;
+    }
+
+    public void decreaseFollowingCount() {
+        this.followingCount = Math.max(0, this.followingCount - 1);
+    }
+
+    public void increaseFollowerCount() {
+        this.followerCount = this.followerCount + 1;
+    }
+
+    public void decreaseFollowerCount() {
+        this.followerCount = Math.max(0, this.followerCount - 1);
+    }
+
 }

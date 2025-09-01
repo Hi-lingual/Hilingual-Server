@@ -20,8 +20,11 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     // 언팔로우 이후 상태 계산용 (you -> me)
     boolean existsByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
 
+    // 팔로우하는 유저 존재 유무 확인
+    boolean existsByFollowerId(Long followerId);
+
     // 언팔로우
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying(flushAutomatically = true)
     @Query("""
            delete from Follow f
             where f.follower.id = :followerId
@@ -52,7 +55,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
                ON f2.followee.id = :userId
               AND f2.follower.id = f1.followee.id
             WHERE f1.follower.id = :userId
-           """)
+        """)
     List<FolloweeIdAndIsFollowed> findFolloweeAndIsFollowedByUserId(@Param("userId") Long userId);
 
     // 나와 대상자에 대해 isFollowed, isFollowing 여부 확인
@@ -65,4 +68,17 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
             @Param("userId") Long userId,
             @Param("targetUserId") Long targetUserId
     );
+
+    // 나와 상대 간 팔로우 관계가 존재하는 경우 모두 삭제
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+       DELETE FROM Follow f
+        WHERE (f.follower.id = :userId AND f.followee.id = :targetUserId)
+           OR (f.follower.id = :targetUserId AND f.followee.id = :userId)
+       """)
+    int deleteFollowRelations(
+            @Param("userId") Long userId,
+            @Param("targetUserId") Long targetUserId
+    );
+
 }
