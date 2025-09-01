@@ -47,12 +47,7 @@ public class User extends BaseTimeEntity {
 
     @Convert(converter = RegisterStatusConverter.class)
     @Column(name = COLUMN_REGISTER_STATUS, nullable = false)
-    private RegisterStatus registerStatus;
-
-    @Column(name = COLUMN_IS_COMPLETED, nullable = false)
-    @ColumnDefault("false")
-    @Builder.Default
-    private Boolean isCompleted = false; // TODO 소셜로그인 붙이며 registerStatus 활용하는 로직으로 변경
+    private RegisterStatus registerStatus = RegisterStatus.SOCIAL_LOGIN_COMPLETED;
 
     @Column(name = COLUMN_IS_DELETED, nullable = false)
     @ColumnDefault("false")
@@ -72,4 +67,12 @@ public class User extends BaseTimeEntity {
 
     @Column(name = UserTableConstants.COLUMN_NOTIFY_STATUS, nullable = false)
     private Boolean notifyStatus = false;
+
+    public void updateRegisterStatus(final RegisterStatus registerStatus) {
+        this.registerStatus = registerStatus;
+    }
+
+    public void revertDeleteUser() {
+        this.isDeleted = false;
+    }
 }

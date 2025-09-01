@@ -14,6 +14,7 @@ import org.sopt.dto.BaseResponseDto;
 import org.sopt.forbiddenword.facade.ForbiddenWordFacade;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.domain.User;
+import org.sopt.user.type.RegisterStatus;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.exception.UserProfileAlreadyExistException;
 import org.sopt.userprofile.exception.UserProfileCoreErrorCode;
@@ -62,7 +63,7 @@ public class UserProfileService {
         UserProfile profile = UserProfile.create(user, userProfileReq.nickname(), " ");
         userProfileFacade.save(profile);
 
-        user.setIsCompleted(true);
+        user.updateRegisterStatus(RegisterStatus.PROFILE_COMPLETED);
         userFacade.save(user);
     }
 
