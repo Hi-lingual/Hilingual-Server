@@ -33,11 +33,12 @@ public interface FeedRepository extends JpaRepository<Diary, Long> {
                 SELECT 1 FROM LikedDiary l WHERE l.user.id = :currentUserId AND l.diary.id = d.id
             ) THEN true ELSE false END) AS isLiked
         FROM Diary d
-        WHERE d.isPublic = true AND d.user.id NOT IN (
-              SELECT b.blocked.id FROM Block b WHERE b.blocker.id = :currentUserId
+        WHERE d.isPublic = true
+          AND NOT EXISTS (
+              SELECT 1 FROM Block b WHERE b.blocker.id = :currentUserId AND b.blocked.id = d.user.id
           )
-          AND d.user.id NOT IN (
-              SELECT b.blocker.id FROM Block b WHERE b.blocked.id = :currentUserId
+          AND NOT EXISTS (
+              SELECT 1 FROM Block b WHERE b.blocker.id = d.user.id AND b.blocked.id = :currentUserId
           )
         ORDER BY d.sharedTime DESC
     """)
@@ -68,14 +69,15 @@ public interface FeedRepository extends JpaRepository<Diary, Long> {
                 SELECT 1 FROM LikedDiary l WHERE l.user.id = :currentUserId AND l.diary.id = d.id
             ) THEN true ELSE false END) AS isLiked
         FROM Diary d
-        WHERE d.isPublic = true AND d.user.id IN (
-              SELECT f.followee.id FROM Follow f WHERE f.follower.id = :currentUserId
+        WHERE d.isPublic = true
+          AND EXISTS (
+              SELECT 1 FROM Follow f WHERE f.follower.id = :currentUserId AND f.followee.id = d.user.id
           )
-          AND d.user.id NOT IN (
-              SELECT b.blocked.id FROM Block b WHERE b.blocker.id = :currentUserId
+          AND NOT EXISTS (
+              SELECT 1 FROM Block b WHERE b.blocker.id = :currentUserId AND b.blocked.id = d.user.id
           )
-          AND d.user.id NOT IN (
-              SELECT b.blocker.id FROM Block b WHERE b.blocked.id = :currentUserId
+          AND NOT EXISTS (
+              SELECT 1 FROM Block b WHERE b.blocker.id = d.user.id AND b.blocked.id = :currentUserId
           )
         ORDER BY d.sharedTime DESC
     """)
