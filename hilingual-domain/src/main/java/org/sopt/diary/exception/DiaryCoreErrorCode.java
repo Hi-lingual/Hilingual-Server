@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 public enum DiaryCoreErrorCode implements ErrorCode {
 
     // 403
-    DIARY_FORBIDDEN(HttpStatus.FORBIDDEN, 40300, "해당 유저의 일기가 아닙니다."),
+    DIARY_FORBIDDEN(HttpStatus.FORBIDDEN, 40300, "공개되지 않은 일기입니다."),
 
     // 404
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, 40004, "id에 해당하는 일기가 존재하지 않습니다."),

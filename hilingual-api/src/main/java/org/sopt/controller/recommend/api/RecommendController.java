@@ -19,6 +19,7 @@ public class RecommendController {
 
     private final RecommendService recommendService;
 
+    // 추천표현 탭 API
     @GetMapping("/{diaryId}/recommended")
     public ResponseEntity<RecommendListRes> getRecommendList(
             @UserId Long userId,
