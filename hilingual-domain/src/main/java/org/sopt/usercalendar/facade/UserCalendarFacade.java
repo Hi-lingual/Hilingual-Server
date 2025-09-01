@@ -1,6 +1,7 @@
 package org.sopt.usercalendar.facade;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.diary.domain.Diary;
 import org.sopt.user.domain.User;
 import org.sopt.usercalendar.domain.UserCalendar;
 import org.sopt.usercalendar.dto.UserCalendarDiarySummaryRes;
@@ -26,7 +27,7 @@ public class UserCalendarFacade {
                 );
     }
 
-    public UserCalendarDiarySummaryRes findDiaryByDate(Long userId, LocalDate date) {
+    public Diary findDiaryByDate(Long userId, LocalDate date) {
         return userCalendarRetriever.findDiaryByDate(userId, date);
     }
 

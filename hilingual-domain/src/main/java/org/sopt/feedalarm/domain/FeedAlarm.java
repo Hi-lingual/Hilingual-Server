@@ -13,9 +13,10 @@ import org.sopt.feedalarm.type.TargetTypeConverter;
 import org.sopt.user.domain.User;
 
 import java.time.LocalDateTime;
+import static org.sopt.feedalarm.domain.FeedAlarmTableConstants.*;
 
 @Entity
-@Table(name = FeedAlarmTableConstants.TABLE_FEED_ALARM)
+@Table(name = TABLE_FEED_ALARM)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -23,30 +24,37 @@ public class FeedAlarm extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = FeedAlarmTableConstants.COLUMN_ID)
+    @Column(name = COLUMN_ID)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = FeedAlarmTableConstants.COLUMN_USER_ID, nullable = false)
+    @JoinColumn(name = COLUMN_USER_ID, nullable = false)
     private User user;
 
     @Convert(converter = FeedAlarmTypeConverter.class)
-    @Column(name = FeedAlarmTableConstants.COLUMN_TYPE, nullable = false)
+    @Column(name = COLUMN_TYPE, nullable = false)
     private FeedAlarmType type;
 
     @Convert(converter = TargetTypeConverter.class)
-    @Column(name = FeedAlarmTableConstants.COLUMN_TARGET_TYPE, nullable = false)
+    @Column(name = COLUMN_TARGET_TYPE, nullable = false)
     private TargetType targetType;
 
-    @Column(name = FeedAlarmTableConstants.COLUMN_TARGET_ID, nullable = false)
+    @Column(name = COLUMN_TARGET_ID, nullable = false)
     private Long targetId;
 
-    @Column(name = FeedAlarmTableConstants.COLUMN_ACTOR_ID, nullable = false)
+    @Column(name = COLUMN_ACTOR_ID, nullable = false)
     private Long actorId;
 
-    @Column(name = FeedAlarmTableConstants.COLUMN_TITLE, nullable = false, length = 100)
+    @Column(name = COLUMN_TITLE, nullable = false, length = 100)
     private String title;
 
-    @Column(name = FeedAlarmTableConstants.COLUMN_READ_AT)
+    @Column(name = COLUMN_READ_AT)
     private LocalDateTime readAt;
+
+    public void markAsRead() {
+        if (this.readAt == null) {
+            this.readAt = LocalDateTime.now();
+        }
+    }
+
 }

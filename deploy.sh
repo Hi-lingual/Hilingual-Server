@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e  # 명령 실패 시 즉시 종료
 
+# ──[환경 고정: 개발]────────────────────────────────────────────
+UPSTREAM_ENV=dev
+NGINX_HOST=10.0.1.18                          # nginx EC2 프라이빗 IP (필요시 수정)
+APP_HOST="${APP_HOST:-$(hostname -I | awk '{print $1}')}"  # 현재 서버 IP 기본값
+# ────────────────────────────────────────────────────────────
+
 # 입력 환경변수:
 # - APP_HOST:   App EC2 Private IP (예: 10.0.2.177)
 # - NGINX_HOST: Nginx EC2 Private IP (예: 10.0.1.18)
@@ -84,11 +90,11 @@ switch_upstream () {
       sudo docker exec \"\$cid\" /bin/sh -lc 'mkdir -p /etc/nginx/includes'
 
       # (A) 환경 inc 파일 원자적 갱신
-      if [ '${UPSTREAM_ENV}' = 'dev' ]; then
+      if [ "$UPSTREAM_ENV" = 'dev' ]; then
         sudo docker exec \"\$cid\" /bin/sh -lc \
           \"printf 'set \\\$service_url \\\"http://${TARGET}\\\";\\n' > /etc/nginx/includes/dev.inc.new && \
            mv /etc/nginx/includes/dev.inc.new /etc/nginx/includes/dev.inc\"
-      elif [ '${UPSTREAM_ENV}' = 'prod' ]; then
+      elif [ "$UPSTREAM_ENV" = 'prod' ]; then
         sudo docker exec \"\$cid\" /bin/sh -lc \
           \"printf 'set \\\$service_url \\\"http://${TARGET}\\\";\\n' > /etc/nginx/includes/prod.inc.new && \
            mv /etc/nginx/includes/prod.inc.new /etc/nginx/includes/prod.inc\"
@@ -103,3 +109,13 @@ switch_upstream () {
     echo "⚠️  ${SSH_KEY} 가 없어 Nginx 스위치를 건너뜁니다."
   fi
 }
+
+######## 3) ✅ 헬스 성공 시 업스트림 전환 + 이전 컨테이너 stop
+if [ "$SUCCESS" -eq 1 ]; then
+  TARGET="${APP_HOST}:${PORT_NEW}"
+  echo "[INFO] Switching Nginx upstream to ${TARGET} (UPSTREAM_ENV=${UPSTREAM_ENV})"
+  switch_upstream "${TARGET}"
+
+  echo "[INFO] Stopping old container: hilingual-${OLD}"
+  docker stop "hilingual-${OLD}" || true
+fi

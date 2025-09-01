@@ -11,7 +11,7 @@ public class UserSaver {
 
     private final UserRepository userRepository;
 
-    public void save(final User user){
-        userRepository.save(user);
+    public User save(final User user){
+        return userRepository.save(user);
     }
 }

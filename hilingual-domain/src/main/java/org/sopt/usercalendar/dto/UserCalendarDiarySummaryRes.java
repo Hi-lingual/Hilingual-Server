@@ -1,21 +1,19 @@
 package org.sopt.usercalendar.dto;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import org.sopt.diary.domain.Diary;
 
 public record UserCalendarDiarySummaryRes(
         Long diaryId,
-        String createdAt,
         String imageUrl,
-        String originalText
+        String originalText,
+        Boolean isPublished
 ) {
-    public static UserCalendarDiarySummaryRes of(
-            Long diaryId,
-            LocalDateTime createdAt,
-            String imageUrl,
-            String originalText
-    ) {
-        String formattedTime = createdAt.format(DateTimeFormatter.ofPattern("HH:mm"));
-        return new UserCalendarDiarySummaryRes(diaryId, formattedTime, imageUrl, originalText);
+    public static UserCalendarDiarySummaryRes of(Diary diary, String diaryImgUrl) {
+        return new UserCalendarDiarySummaryRes(
+                diary.getId(),
+                diaryImgUrl,
+                diary.getOriginalText(),
+                diary.getIsPublic()
+        );
     }
 }

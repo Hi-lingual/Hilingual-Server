@@ -91,6 +91,11 @@ public class UserProfileUpdater {
         userProfileRepository.saveAll(all);
     }
 
+    @Transactional
+    public int updateProfileImgByUserId(final long userId, final String newImgUrl) {
+        return userProfileRepository.updateProfileImgByUserId(userId, newImgUrl);
+    }
+
     public int decrementFollowingCountByUserId(final long userId) {
         return userProfileRepository.decrementFollowingCountByUserId(userId);
     }

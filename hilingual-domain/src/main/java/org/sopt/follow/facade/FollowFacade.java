@@ -83,4 +83,8 @@ public class FollowFacade {
     public int deleteFollowRelations(final long userId, final long targetUserId) {
         return followRemover.deleteFollowRelations(userId, targetUserId);
     }
+
+    public boolean haveFollowing(Long followerId) {
+        return followRetriever.existsByFollowerId(followerId);
+    }
 }
