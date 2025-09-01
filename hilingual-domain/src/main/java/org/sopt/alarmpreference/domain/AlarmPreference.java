@@ -54,4 +54,8 @@ public class AlarmPreference {
         );
     }
 
+    public void toggle() {
+        this.isEnabled = !Boolean.TRUE.equals(this.isEnabled);
+    }
+
 }
