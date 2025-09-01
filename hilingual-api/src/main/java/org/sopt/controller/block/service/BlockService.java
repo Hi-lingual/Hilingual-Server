@@ -1,11 +1,14 @@
 package org.sopt.controller.block.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.sopt.block.facade.BlockFacade;
 import org.sopt.controller.userprofile.dto.UserProfileSummaryRes;
 import org.sopt.controller.block.exception.BlockApiErrorCode;
 import org.sopt.controller.block.exception.CannotSelfBlockException;
 import org.sopt.controller.block.exception.CannotSelfUnblockException;
+import org.sopt.follow.dto.FollowRelation;
+import org.sopt.follow.facade.FollowFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
@@ -13,6 +16,8 @@ import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +31,8 @@ public class BlockService {
     private final UserFacade userFacade;
     private final BlockFacade blockFacade;
     private final UserProfileFacade userProfileFacade;
+    private final FollowFacade followFacade;
+    private final EntityManager entityManager;
 
     @Transactional
     public Void blockUser(final Long blockerId, final Long blockedId) {
@@ -37,14 +44,41 @@ public class BlockService {
         final long firstId = Math.min(blockerId, blockedId);
         final long secondId = Math.max(blockerId, blockedId);
 
+        // 유저 및 유저 프로필 조회
         final User firstUser = userFacade.getUserByIdWithLock(firstId);
         final User secondUser = userFacade.getUserByIdWithLock(secondId);
 
         final User blocker = (firstId == blockerId) ? firstUser : secondUser;
         final User blocked = (firstId == blockedId) ? firstUser : secondUser;
 
+        // 기존 팔로우 관계 확인
+        FollowRelation relation = followFacade.findFollowRelation(blockerId, blockedId);
+
+        // 차단 관계 생성 및 팔로우 삭제
         blockFacade.block(blocker, blocked);
+        int deletedCount = followFacade.deleteFollowRelations(blockerId, blockedId);
+
+        // 유저 프로필 팔로워/팔로잉 카운트 업데이트
+        updateFollowerAndFollowingCount(relation, blockerId, blockedId);
+
         return null;
+    }
+
+    private void updateFollowerAndFollowingCount(
+            FollowRelation relation,
+            Long blockerId,
+            Long blockedId
+    ) {
+        LocalDateTime now = LocalDateTime.now();
+        if (relation.getIsFollowing()) { // blocker가 blocked를 팔로우하고 있던 경우
+            userProfileFacade.decrementFollowingCountByUserId(blockerId, now);
+            userProfileFacade.decrementFollowerCountByUserId(blockedId, now);
+        }
+
+        if (relation.getIsFollowed()) { // blocked가 blocker를 팔로우하고 있던 경우
+            userProfileFacade.decrementFollowingCountByUserId(blockedId, now);
+            userProfileFacade.decrementFollowerCountByUserId(blockerId, now);
+        }
     }
 
     @Transactional

@@ -24,6 +24,8 @@ import org.sopt.userprofile.exception.UserProfileCoreErrorCode;
 import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class UserProfileService {
@@ -110,7 +112,7 @@ public class UserProfileService {
         String previousFileKey = userProfileFacade.getProfileByUserId(userId).getProfileImg();
 
         final String fileKey = s3Service.bindProfileImage(userId, userProfileImgReq.image().fileKey());
-        userProfileFacade.updateProfileImgByUserId(userId, fileKey);
+        userProfileFacade.updateProfileImgByUserId(userId, fileKey, LocalDateTime.now());
 
         // 업로드 성공 시 기존 프로필 이미지 S3에서 삭제
         if (previousFileKey != null && !previousFileKey.isBlank()) {
