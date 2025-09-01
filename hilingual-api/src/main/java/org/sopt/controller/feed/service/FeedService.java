@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
 import java.util.stream.Collectors;
 import java.util.HashSet;
 import java.util.List;
@@ -189,6 +188,7 @@ public class FeedService {
 
         List<FeedProjection> projections = feedFacade.findRecommendFeeds(userId, pageable);
 
+        LocalDateTime now = LocalDateTime.now();
         List<RecommendFeedListRes.RecommendFeed> recommendFeeds = projections.stream()
                 .map(projection -> {
                     // S3Service를 활용해 URL 변환
@@ -204,7 +204,6 @@ public class FeedService {
                             projection.getStreak()
                     );
 
-                    LocalDateTime now = LocalDateTime.now();
                     LocalDateTime sharedTime = projection.getSharedDate();
                     long minutesDiff = Duration.between(sharedTime, now).toMinutes();
 
@@ -237,6 +236,7 @@ public class FeedService {
         Pageable pageable =  PageRequest.of(page, size);
         List<FeedProjection> projections = feedFacade.findFollowingFeeds(userId, pageable);
 
+        LocalDateTime now = LocalDateTime.now();
         List<FollowFeedListRes.FollowFeed> followFeeds = projections.stream()
                 .map(projection -> {
                     // S3Service를 활용해 URL 변환
@@ -252,7 +252,6 @@ public class FeedService {
                             projection.getStreak()
                     );
 
-                    LocalDateTime now = LocalDateTime.now();
                     LocalDateTime sharedTime = projection.getSharedDate();
                     long minutesDiff = Duration.between(sharedTime, now).toMinutes();
 

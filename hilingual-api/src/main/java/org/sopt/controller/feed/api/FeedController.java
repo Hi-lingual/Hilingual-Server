@@ -79,7 +79,7 @@ public class FeedController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size
     ) {
-        return ResponseEntity.ok(feedService.getRecommendFeeds(userId,page,size));
+        return ResponseEntity.ok(feedService.getRecommendFeeds(userId, page, size));
     }
 
     @GetMapping("/following")
@@ -88,6 +88,6 @@ public class FeedController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size
     ) {
-        return ResponseEntity.ok(feedService.getFollowFeeds(userId,page,size));
+        return ResponseEntity.ok(feedService.getFollowFeeds(userId, page, size));
     }
 }
