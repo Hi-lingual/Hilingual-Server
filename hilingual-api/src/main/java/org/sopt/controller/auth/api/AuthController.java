@@ -40,4 +40,16 @@ public class AuthController {
         String accessToken = jwtTokenProvider.getJwtFromRequest(request);
         return ResponseEntity.ok(authService.logout(accessToken));
     }
+
+    /*
+     * 회원탈퇴
+     */
+    @PostMapping("/leave")
+    public ResponseEntity<Void> leave(
+            @UserId Long userId,
+            HttpServletRequest request
+    ) {
+        String accessToken = jwtTokenProvider.getJwtFromRequest(request);
+        return ResponseEntity.ok(authService.leave(userId, accessToken));
+    }
 }
