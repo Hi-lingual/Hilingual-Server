@@ -13,6 +13,7 @@ import org.sopt.controller.follow.dto.FollowerListRes;
 import org.sopt.controller.follow.dto.FollowingListRes;
 import org.sopt.controller.userprofile.dto.UserProfileSummaryRes;
 
+import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.follow.dto.FolloweeIdAndIsFollowed;
 import org.sopt.follow.dto.FollowerIdAndIsFollowing;
 import org.sopt.follow.facade.FollowFacade;
@@ -38,6 +39,7 @@ public class FollowService {
     private final FollowFacade followFacade;
     private final BlockFacade blockFacade;
     private final UserProfileFacade userProfileFacade;
+    private final FeedAlarmFacade feedAlarmFacade;
 
     @Transactional
     public void follow(Long userId, Long targetUserId) {
@@ -57,6 +59,8 @@ public class FollowService {
 
         follower.getUserProfile().increaseFollowingCount();
         followee.getUserProfile().increaseFollowerCount();
+
+        feedAlarmFacade.createFollowAlarm(followee, follower);
     }
 
     @Transactional

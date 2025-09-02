@@ -6,6 +6,9 @@ import org.sopt.noticedelivery.exception.NoticeDeliveryErrorCode;
 import org.sopt.noticedelivery.exception.NoticeDeliveryNoFoundException;
 import org.sopt.noticedelivery.repository.NoticeDeliveryRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -17,4 +20,10 @@ public class NoticeDeliveryRetriever {
         return noticeDeliveryRepository.findByUserIdAndNoticeIdWithDetail(userId, noticeId)
                 .orElseThrow(() -> new NoticeDeliveryNoFoundException(NoticeDeliveryErrorCode.NOTICE_DELIVERY_NOT_FOUND));
     }
+
+    @Transactional(readOnly = true)
+    public List<NoticeDelivery> findLatestByUserId(final long userId) {
+        return noticeDeliveryRepository.findTop500ByUserIdOrderByDeliveredAtDesc(userId);
+    }
+
 }

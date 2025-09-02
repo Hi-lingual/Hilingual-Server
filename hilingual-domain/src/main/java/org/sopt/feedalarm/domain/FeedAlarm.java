@@ -57,4 +57,17 @@ public class FeedAlarm extends BaseTimeEntity {
         }
     }
 
+    public static FeedAlarm createFollowUser(User targetUser, Long actorId, String title) {
+        return new FeedAlarm(
+                null,
+                targetUser,
+                FeedAlarmType.FOLLOW_USER,
+                TargetType.USER,
+                actorId,
+                actorId,
+                title,
+                null
+        );
+    }
+
 }
