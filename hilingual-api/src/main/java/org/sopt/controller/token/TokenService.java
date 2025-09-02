@@ -157,4 +157,12 @@ public class TokenService {
             );
         }
     }
+
+
+    @Transactional
+    public String extractRefreshToken(final String accessToken){
+        // RefreshToken 추출
+        Claims claims = jwtTokenProvider.parseAndVerify(accessToken);
+        return claims.get(JwtClaimsKeys.REFRESH, String.class);
+    }
 }

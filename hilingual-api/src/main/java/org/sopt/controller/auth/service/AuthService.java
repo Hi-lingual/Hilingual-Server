@@ -8,6 +8,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.controller.auth.util.AppleKeyService;
 import org.sopt.controller.auth.util.ApplePublicKeyList;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
@@ -22,22 +23,33 @@ import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
+import org.sopt.user.repository.UserRepository;
 import org.sopt.user.type.RegisterStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    private final UserRepository userRepository;
 
     private final TokenService tokenService;
     private final UserFacade userFacade;
+    private final WebClient webClient;
+    private final AppleKeyService appleKeyService;
+    private final TaskScheduler taskScheduler;
 
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
 
@@ -62,8 +74,91 @@ public class AuthService {
 
     public Void logout(String accessToken) {
         tokenService.logout(accessToken);
+        return null;
+    }
+
+    public Void leave(Long userId, String accessToken) {
+        // 토큰 삭제 및 무효화
+        tokenService.logout(accessToken);
+
+        // User 정보 Soft Delete
+        User user = userFacade.getUserById(userId);
+        user.setIsDeleted(true);
+        user.setDeletedAt(LocalDateTime.now());
+        userFacade.save(user);
+
+        // Refresh Token 및 User Provider 조회
+        final String refreshToken = tokenService.extractRefreshToken(accessToken);
+
+        // 30일 후 실행되도록 스케줄링
+        Runnable unlinkTask = getUnlinkTask(user, refreshToken);
+        Instant scheduledTime = Instant.now().plusSeconds(60 * 60 * 24 * 30);
+        taskScheduler.schedule(unlinkTask, scheduledTime);
 
         return null;
+    }
+
+    private Runnable getUnlinkTask(User user, String refreshToken) {
+        final String authProvider = user.getProvider();
+
+        // User Provider에 따라 google unlink, apple unlink 스케줄링
+        return () -> {
+          try {
+              switch (authProvider) {
+                  case "GOOGLE":
+                      googleUnlink(refreshToken);
+                      break;
+                  case "APPLE":
+                      appleUnlink(refreshToken);
+                      break;
+                  default:
+                      // 소셜로그인이 아닌 경우 Unlink 작업 불필요
+                      throw new InvalidProviderException(AuthApiErrorCode.INVALID_PROVIDER);
+              }
+
+              // unlink 성공 시 DB에서 사용자 정보 삭제
+              userFacade.deleteUserById(user.getId());
+          } catch (Exception e) {
+              throw new InvalidProviderException(AuthApiErrorCode.INVALID_PROVIDER);
+          }
+        };
+    }
+
+    private void googleUnlink(String refreshToken) {
+        String revokeUrl = "https://accounts.google.com/o/oauth2/revoke?token=" + refreshToken;
+
+        try {
+            webClient.post()
+                    .uri(revokeUrl)
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .block();
+        } catch (Exception e) {
+            throw new GoogleUnlinkErrorException(AuthApiErrorCode.AUTH_GOOGLE_UNLINK_ERROR);
+        }
+    }
+
+    private void appleUnlink(String refreshToken) {
+        try {
+            String clientSecret = appleKeyService.makeClientSecretToken();
+
+            // revoke API에 전달할 폼 데이터
+            MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+            formData.add("client_id", appleKeyService.appleClientId);
+            formData.add("client_secret", clientSecret);
+            formData.add("token", refreshToken);
+            formData.add("token_type_hint", "refresh_token");
+
+            // Apple revoke api 호출
+            webClient.post()
+                    .uri("https://appleid.apple.com/auth/oauth2/v2/revoke")
+                    .body(BodyInserters.fromFormData(formData))
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .block();
+        } catch (Exception e) {
+            throw new AppleUnlinkErrorException(AuthApiErrorCode.AUTH_APPLE_UNLINK_ERROR);
+        }
     }
 
     private SocialLoginRes googleLogin(String providerToken, SocialLoginReq req) {
