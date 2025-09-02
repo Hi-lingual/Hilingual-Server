@@ -12,6 +12,7 @@ public class UserFacade {
 
     private final UserRetriever userRetriever;
     private final UserSaver userSaver;
+    private final UserRemover userRemover;
 
     public Optional<User> getByProviderAndProviderId(final String provider, final String providerId) {
         return userRetriever.findByProviderAndProviderId(provider, providerId);
@@ -27,5 +28,9 @@ public class UserFacade {
 
     public User save(final User user){
         return userSaver.save(user);
+    }
+
+    public void deleteUserById(final long userId) {
+        userRemover.deleteUserById(userId);
     }
 }
