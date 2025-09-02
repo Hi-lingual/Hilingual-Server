@@ -47,7 +47,6 @@ public class AuthService {
 
     private final TokenService tokenService;
     private final UserFacade userFacade;
-    private final WebClient webClient;
     private final AppleKeyService appleKeyService;
     private final TaskScheduler taskScheduler;
 
@@ -79,7 +78,7 @@ public class AuthService {
 
     public Void leave(Long userId, String accessToken) {
         // 토큰 삭제 및 무효화
-        tokenService.logout(accessToken);
+        tokenService.leave(accessToken);
 
         // User 정보 Soft Delete
         User user = userFacade.getUserById(userId);
@@ -92,7 +91,7 @@ public class AuthService {
 
         // 30일 후 실행되도록 스케줄링
         Runnable unlinkTask = getUnlinkTask(user, refreshToken);
-        Instant scheduledTime = Instant.now().plusSeconds(60 * 60 * 24 * 30);
+        Instant scheduledTime = Instant.now().plusSeconds(60);
         taskScheduler.schedule(unlinkTask, scheduledTime);
 
         return null;
@@ -113,12 +112,13 @@ public class AuthService {
                       break;
                   default:
                       // 소셜로그인이 아닌 경우 Unlink 작업 불필요
-                      throw new InvalidProviderException(AuthApiErrorCode.INVALID_PROVIDER);
+                      log.warn("유저 {}는 소셜 로그인 유저가 아닙니다.", user.getId());
               }
 
               // unlink 성공 시 DB에서 사용자 정보 삭제
               userFacade.deleteUserById(user.getId());
           } catch (Exception e) {
+              log.error("언링크 실패. 유저{}: {}", user.getId(), e.getMessage());
               throw new InvalidProviderException(AuthApiErrorCode.INVALID_PROVIDER);
           }
         };
@@ -128,6 +128,7 @@ public class AuthService {
         String revokeUrl = "https://accounts.google.com/o/oauth2/revoke?token=" + refreshToken;
 
         try {
+            WebClient webClient = WebClient.builder().build();
             webClient.post()
                     .uri(revokeUrl)
                     .retrieve()
@@ -150,6 +151,7 @@ public class AuthService {
             formData.add("token_type_hint", "refresh_token");
 
             // Apple revoke api 호출
+            WebClient webClient = WebClient.builder().build();
             webClient.post()
                     .uri("https://appleid.apple.com/auth/oauth2/v2/revoke")
                     .body(BodyInserters.fromFormData(formData))
