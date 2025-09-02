@@ -13,8 +13,9 @@ public enum AuthApiErrorCode implements ErrorCode {
 
     // 503
     AUTH_GOOGLE_SERVER_ERROR(HttpStatus.SERVICE_UNAVAILABLE, 50305, "구글 로그인에서 에러가 발생했습니다."),
-    AUTH_APPLE_SERVER_ERROR(HttpStatus.SERVICE_UNAVAILABLE, 50306, "애플 로그인에서 에러가 발생했습니다.");
-    ;
+    AUTH_APPLE_SERVER_ERROR(HttpStatus.SERVICE_UNAVAILABLE, 50306, "애플 로그인에서 에러가 발생했습니다."),
+    AUTH_GOOGLE_UNLINK_ERROR(HttpStatus.SERVICE_UNAVAILABLE, 50307, "구글 회원탈퇴에서 에러가 발생했습니다."),
+    AUTH_APPLE_UNLINK_ERROR(HttpStatus.SERVICE_UNAVAILABLE, 50308, "애플 회원탈퇴에서 에러가 발생했습니다.");
 
     public final HttpStatus httpStatus;
     private final int code;
