@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -168,6 +169,33 @@ public class TokenService {
             throw new InvalidTokenException(AuthErrorCode.TYPE_ERROR_JWT_TOKEN);
         }
 
+        // Claim 에서 정보 추출
+        Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
+
+        // Unlink에 사용할 모든 RefreshToken 조회 및 임시저장
+        List<Token> userTokens = tokenRepository.findByUserId(userId);
+        if (!userTokens.isEmpty()) {
+            Token firstToken = userTokens.getFirst();
+            String refreshTokenHash = firstToken.getRefreshTokenHash();
+
+            redisTemplate.opsForValue().set(
+                    "unlink_token:" + userId,
+                    refreshTokenHash, // 토큰 해시값을 저장
+                    31,
+                    TimeUnit.DAYS
+            );
+
+            redisTemplate.opsForValue().set(
+                    "unlink_provider:" + userId,
+                    firstToken.getAuthProvider().name(),
+                    31,
+                    TimeUnit.DAYS
+            );
+        }
+
+        // 기존의 모든 RefreshToken을 Redis에서 삭제
+        tokenRepository.deleteByUserId(userId);
+
         // 현재 Access Token을 Redis 블랙리스트에 추가
         long expirationTime = claims.getExpiration().getTime();
         long now = System.currentTimeMillis();
@@ -181,10 +209,6 @@ public class TokenService {
                     TimeUnit.SECONDS
             );
         }
-
-        // Claim 에서 정보 추출 및 Redis 에서 회원에 대한 모든 리프레쉬 토큰 삭제
-        Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
-        tokenRepository.deleteByUserId(userId);
     }
 
     @Transactional
