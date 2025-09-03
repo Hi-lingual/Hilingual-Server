@@ -2,6 +2,8 @@ package org.sopt.controller.follow.service;
 
 import lombok.RequiredArgsConstructor;
 
+import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
+import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.block.facade.BlockFacade;
 
 import org.sopt.controller.follow.dto.NewFollowInfoRes;
@@ -40,6 +42,7 @@ public class FollowService {
     private final BlockFacade blockFacade;
     private final UserProfileFacade userProfileFacade;
     private final FeedAlarmFacade feedAlarmFacade;
+    private final AlarmPreferenceFacade alarmPreferenceFacade;
 
     @Transactional
     public void follow(Long userId, Long targetUserId) {
@@ -60,7 +63,9 @@ public class FollowService {
         follower.getUserProfile().increaseFollowingCount();
         followee.getUserProfile().increaseFollowerCount();
 
-        feedAlarmFacade.createFollowAlarm(followee, follower);
+        if (alarmPreferenceFacade.isEnabled(followee.getId(), AlarmType.FEED)) {
+            feedAlarmFacade.createFollowAlarm(followee, follower);
+        }
     }
 
     @Transactional
