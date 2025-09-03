@@ -10,7 +10,6 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AlarmPreferenceFacade {
 
     private final AlarmPreferenceRetriever alarmPreferenceRetriever;
@@ -26,6 +25,7 @@ public class AlarmPreferenceFacade {
         alarmPreferenceUpdater.toggle(userId, type);
     }
 
+    @Transactional
     public AlarmPreference save(AlarmPreference alarmPreference) {
         return alarmPreferenceSaver.save(alarmPreference);
     }
