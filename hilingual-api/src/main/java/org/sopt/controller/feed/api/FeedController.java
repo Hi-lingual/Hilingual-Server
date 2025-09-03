@@ -90,4 +90,14 @@ public class FeedController {
     ) {
         return ResponseEntity.ok(feedService.getFollowFeeds(userId, page, size));
     }
+
+    // 피드 좋아요 지정/해제 API
+    @PostMapping("/likes/{diaryId}")
+    public ResponseEntity<LikeToggleRes> toggleLike(
+            @UserId Long userId,
+            @PathVariable Long diaryId,
+            @RequestBody LikeToggleReq req
+    ) {
+        return ResponseEntity.ok(feedService.toggleLike(userId, diaryId, req.isLiked()));
+    }
 }

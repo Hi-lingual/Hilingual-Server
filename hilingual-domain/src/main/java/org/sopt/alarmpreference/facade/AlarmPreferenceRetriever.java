@@ -30,4 +30,12 @@ public class AlarmPreferenceRetriever {
         prefs.forEach(p -> map.put(p.getAlarmType(), Boolean.TRUE.equals(p.getIsEnabled())));
         return map;
     }
+
+    @Transactional(readOnly = true)
+    public boolean isEnabled(Long userId, AlarmType type) {
+        return alarmPreferenceRepository.findByUserIdAndAlarmType(userId, type)
+                .map(AlarmPreference::getIsEnabled)
+                .orElse(false);
+    }
+
 }

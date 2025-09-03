@@ -70,4 +70,17 @@ public class FeedAlarm extends BaseTimeEntity {
         );
     }
 
+    public static FeedAlarm createLikeDiary(User targetUser, Long diaryId, Long actorId, String title) {
+        return new FeedAlarm(
+                null,
+                targetUser,
+                FeedAlarmType.LIKE_DIARY,
+                TargetType.DIARY,
+                diaryId,
+                actorId,
+                title,
+                null
+        );
+    }
+
 }
