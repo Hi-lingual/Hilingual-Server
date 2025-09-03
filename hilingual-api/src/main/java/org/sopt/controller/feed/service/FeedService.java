@@ -1,6 +1,8 @@
 package org.sopt.controller.feed.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
+import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.block.facade.BlockFacade;
 import org.sopt.controller.feed.dto.*;
@@ -13,10 +15,12 @@ import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.feed.dto.FeedProjection;
 import org.sopt.feed.facade.FeedFacade;
+import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.follow.dto.FollowRelation;
 import org.sopt.follow.facade.FollowFacade;
 import org.sopt.likeddiary.domain.LikedDiary;
 import org.sopt.likeddiary.facade.LikedDiaryFacade;
+import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.dto.UserSearchProjection;
@@ -47,6 +51,8 @@ public class FeedService {
     private final LikedDiaryFacade likedDiaryFacade;
     private final FeedFacade feedFacade;
     private final S3Service s3Service;
+    private final FeedAlarmFacade feedAlarmFacade;
+    private final AlarmPreferenceFacade alarmPreferenceFacade;
 
     @Transactional(readOnly = true)
     public FeedProfileRes getFeedProfile(Long userId, Long targetUserId) {
@@ -288,6 +294,35 @@ public class FeedService {
                         "isLiked", likedDiaryIds.contains(diary.getId())
                 ))
                 .toList();
+    }
+
+    @Transactional
+    public LikeToggleRes toggleLike(Long userId, Long diaryId, boolean wantLike) {
+        diaryFacade.validateReadable(userId, diaryId);
+
+        User user  = userFacade.getUserById(userId);
+        Diary diary = diaryFacade.getDiaryById(diaryId);
+
+        boolean alreadyLiked = likedDiaryFacade.findUserAndDiaryExist(user.getId(), diary.getId());
+
+        if (wantLike && !alreadyLiked) {
+            likedDiaryFacade.like(user, diary);
+            diaryFacade.increaseLikeCount(diaryId);
+
+            // FEED 알림 허용 사용자만 알림 생성
+            if (alarmPreferenceFacade.isEnabled(diary.getUser().getId(), AlarmType.FEED)) {
+                // 같은 다이어리/같은 액터의 중복 알림 방지 로직은 Facade 내부에서 처리
+                feedAlarmFacade.createLikeDiaryAlarm(diary, user);
+            }
+            return LikeToggleRes.of(true);
+        }
+
+        if (!wantLike && alreadyLiked) {
+            likedDiaryFacade.unlike(user.getId(), diary.getId());
+            diaryFacade.decreaseLikeCount(diaryId);
+            return LikeToggleRes.of(false);
+        }
+        return LikeToggleRes.of(alreadyLiked);
     }
 
 }
