@@ -66,7 +66,7 @@ public class UserProfileService {
 
         String profileImageFileKey = null;
         if (userProfileReq.image() != null) {
-            if (userProfileReq.image().purpose() != Purpose.PROFILE_UPDATE) {
+            if (userProfileReq.image().purpose() != Purpose.PROFILE_UPLOAD) {
                 throw new UserProfileImagePurposeMismatchException(UserProfileApiErrorCode.IMAGE_PURPOSE_INVALID);
             }
             profileImageFileKey = s3Service.bindProfileImage(userId, userProfileReq.image().fileKey());
