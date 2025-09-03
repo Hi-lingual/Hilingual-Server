@@ -17,4 +17,12 @@ public class DiaryUpdater {
         diary.unpublish();
     }
 
+    public void increaseLike(Diary diary) {
+        diary.increaseLikeCount();
+    }
+
+    public void decreaseLike(Diary diary) {
+        diary.decreaseLikeCount();
+    }
+
 }

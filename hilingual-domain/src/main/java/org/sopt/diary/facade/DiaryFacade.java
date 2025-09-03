@@ -90,4 +90,17 @@ public class DiaryFacade {
         Diary diary = diaryRetriever.findOwnedByIdOrThrow(userId, diaryId);
         diaryUpdater.unpublish(diary);
     }
+
+    @Transactional
+    public void increaseLikeCount(Long diaryId) {
+        Diary diary = diaryRetriever.findById(diaryId);
+        diaryUpdater.increaseLike(diary);
+    }
+
+    @Transactional
+    public void decreaseLikeCount(Long diaryId) {
+        Diary diary = diaryRetriever.findById(diaryId);
+        diaryUpdater.decreaseLike(diary);
+    }
+
 }
