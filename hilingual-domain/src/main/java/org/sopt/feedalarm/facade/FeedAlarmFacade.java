@@ -27,12 +27,22 @@ public class FeedAlarmFacade {
 
     @Transactional
     public void createFollowAlarm(User targetUser, User actor) {
-        FeedAlarm alarm = FeedAlarm.createFollowUser(
-                targetUser,
-                actor.getId(),       
-                actor.getUserProfile().getNickname() + "님이 당신을 팔로우했습니다."
-        );
-        feedAlarmSaver.save(alarm);
+        final Long targetUserId = targetUser.getId();
+        final Long actorId = actor.getId();
+
+        // 이미 동일 알림 있으면 생성 X
+        if (feedAlarmRetriever.existsFollowAlarm(targetUserId, actorId)) {
+            return;
+        }
+
+        final String title = actor.getUserProfile().getNickname() + "님이 당신을 팔로우했습니다.";
+        final FeedAlarm alarm = FeedAlarm.createFollow(targetUser, actorId, title);
+
+        try {
+            feedAlarmSaver.save(alarm);
+        } catch (org.springframework.dao.DataIntegrityViolationException ignore) {
+            // 동시성 환경에서 중복 insert 시 무시
+        }
     }
 
     @Transactional

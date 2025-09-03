@@ -6,6 +6,7 @@ import org.sopt.feedalarm.exception.FeedAlarmCoreErrorCode;
 import org.sopt.feedalarm.exception.FeedAlarmNotFoundException;
 import org.sopt.feedalarm.repository.FeedAlarmRepository;
 import org.sopt.feedalarm.type.FeedAlarmType;
+import org.sopt.feedalarm.type.TargetType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,4 +38,10 @@ public class FeedAlarmRetriever {
         );
     }
 
+    @Transactional(readOnly = true)
+    public boolean existsFollowAlarm(final long userId, final long actorId) {
+        return feedAlarmRepository.existsByUserIdAndActorIdAndTypeAndTargetType(
+                userId, actorId, FeedAlarmType.FOLLOW_USER, TargetType.USER
+        );
+    }
 }
