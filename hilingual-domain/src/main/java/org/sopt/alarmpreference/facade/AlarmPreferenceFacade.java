@@ -29,4 +29,10 @@ public class AlarmPreferenceFacade {
     public AlarmPreference save(AlarmPreference alarmPreference) {
         return alarmPreferenceSaver.save(alarmPreference);
     }
+
+    // type 에 해당하는 알람 수신 여부
+    @Transactional(readOnly = true)
+    public boolean isEnabled(final long userId, final AlarmType type) {
+        return alarmPreferenceRetriever.isEnabled(userId, type);
+    }
 }
