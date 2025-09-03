@@ -1,11 +1,13 @@
 package org.sopt.feedalarm.facade;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.diary.domain.Diary;
 import org.sopt.feedalarm.domain.FeedAlarm;
 import org.sopt.user.domain.User;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -31,6 +33,40 @@ public class FeedAlarmFacade {
                 actor.getUserProfile().getNickname() + "님이 당신을 팔로우했습니다."
         );
         feedAlarmSaver.save(alarm);
+    }
+
+    @Transactional
+    public void createLikeDiaryAlarm(Diary targetDiary, User actor) {
+        final Long targetUserId = targetDiary.getUser().getId();
+        final Long actorId = actor.getId();
+
+        // 자기 글이면 알림 생성 X
+        if (targetUserId.equals(actorId)) {
+            return;
+        }
+
+        // 이미 동일 알림 있으면 생성 X
+        if (feedAlarmRetriever.existsLikeDiaryAlarm(targetUserId, actorId, targetDiary.getId())) {
+            return;
+        }
+
+        String dateStr = targetDiary.getWrittenDate()
+                .format(DateTimeFormatter.ofPattern("M월 d일"));
+        String title = actor.getUserProfile().getNickname()
+                + "님이 당신의 " + dateStr + " 일기에 공감했습니다.";
+
+        final FeedAlarm alarm = FeedAlarm.createLikeDiary(
+                targetDiary.getUser(),
+                targetDiary.getId(),
+                actorId,
+                title
+        );
+
+        try {
+            feedAlarmSaver.save(alarm);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // 동시성 환경에서 중복 insert 시 무시
+        }
     }
 
 }
