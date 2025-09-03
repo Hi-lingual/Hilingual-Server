@@ -35,4 +35,8 @@ public interface LikedDiaryRepository extends JpaRepository<LikedDiary, Long> {
 
     // 유저ID와 다이어리ID가 존재하는지 확인(isLiked 여부 확인을 위해)
     boolean existsByUserIdAndDiaryId(@Param("userId") Long userId, @Param("diaryId") Long diaryId);
+
+    // 해제
+    void deleteByUserIdAndDiaryId(Long userId, Long diaryId);
+
 }
