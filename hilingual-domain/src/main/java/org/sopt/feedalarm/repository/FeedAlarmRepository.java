@@ -2,6 +2,7 @@ package org.sopt.feedalarm.repository;
 
 import org.sopt.feedalarm.domain.FeedAlarm;
 import org.sopt.feedalarm.type.FeedAlarmType;
+import org.sopt.feedalarm.type.TargetType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -38,6 +39,10 @@ public interface FeedAlarmRepository extends JpaRepository<FeedAlarm, Long> {
 
     boolean existsByUserIdAndActorIdAndTypeAndTargetId(
             Long userId, Long actorId, FeedAlarmType type, Long targetId
+    );
+
+    boolean existsByUserIdAndActorIdAndTypeAndTargetType(
+            Long userId, Long actorId, FeedAlarmType type, TargetType targetType
     );
 
 }

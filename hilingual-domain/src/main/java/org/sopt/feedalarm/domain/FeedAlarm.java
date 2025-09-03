@@ -16,7 +16,15 @@ import java.time.LocalDateTime;
 import static org.sopt.feedalarm.domain.FeedAlarmTableConstants.*;
 
 @Entity
-@Table(name = TABLE_FEED_ALARM)
+@Table(
+        name = TABLE_FEED_ALARM,
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = UK_FEED_ALARM_FOLLOW,
+                        columnNames = {COLUMN_TYPE, COLUMN_TARGET_TYPE, COLUMN_ACTOR_ID}
+                )
+        }
+)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -57,19 +65,6 @@ public class FeedAlarm extends BaseTimeEntity {
         }
     }
 
-    public static FeedAlarm createFollowUser(User targetUser, Long actorId, String title) {
-        return new FeedAlarm(
-                null,
-                targetUser,
-                FeedAlarmType.FOLLOW_USER,
-                TargetType.USER,
-                actorId,
-                actorId,
-                title,
-                null
-        );
-    }
-
     public static FeedAlarm createLikeDiary(User targetUser, Long diaryId, Long actorId, String title) {
         return new FeedAlarm(
                 null,
@@ -83,4 +78,16 @@ public class FeedAlarm extends BaseTimeEntity {
         );
     }
 
+    public static FeedAlarm createFollow(User targetUser, Long actorId, String title) {
+        return new FeedAlarm(
+                null,
+                targetUser,                   // 알림 받는 유저
+                FeedAlarmType.FOLLOW_USER,    // 알림 타입
+                TargetType.USER,              // 타겟은 USER
+                actorId,
+                actorId,
+                title,
+                null
+        );
+    }
 }
