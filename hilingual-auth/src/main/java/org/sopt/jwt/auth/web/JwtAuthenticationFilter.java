@@ -38,20 +38,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/test/jwt/token/issue",
             "/api/v1/auth/verify",
             "/test/jwt/token/issue",
-            "/api/v1/auth/login"
+            "/api/v1/auth/login",
+            "/api/v1/users/profile/check"
     );
 
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         String path = request.getServletPath();
         // SKIP 리스트에 있는 경로라면 true를 반환하여 필터가 실행되지 않도록 함
-        if (SKIP.stream().anyMatch(p -> PM.match(p, path))) {
-            return true;
-        }
-
-        return "GET".equalsIgnoreCase(request.getMethod()) &&
-                "/api/v1/users/profile".equals(path) &&
-                request.getParameter("nickname") != null;
+        return (SKIP.stream().anyMatch(p -> PM.match(p, path)));
     }
 
     @Override
