@@ -33,4 +33,8 @@ public class UserFacade {
     public void deleteUserById(final long userId) {
         userRemover.deleteUserById(userId);
     }
+
+    public boolean existsByProviderId(final String providerId) {
+        return userRetriever.existsByProviderId(providerId);
+    }
 }

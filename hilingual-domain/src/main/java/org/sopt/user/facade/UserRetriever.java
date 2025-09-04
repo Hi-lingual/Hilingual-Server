@@ -29,5 +29,9 @@ public class UserRetriever {
         return userRepository.findByIdWithLock(userId)
                 .orElseThrow(() -> new UserNotFoundException(UserCoreErrorCode.USER_NOT_FOUND));
     }
+
+    public boolean existsByProviderId(String providerId) {
+        return userRepository.existsByProviderId(providerId);
+    }
   
 }
