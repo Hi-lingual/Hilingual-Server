@@ -6,10 +6,10 @@ import org.sopt.feedalarm.exception.FeedAlarmCoreErrorCode;
 import org.sopt.feedalarm.exception.FeedAlarmNotFoundException;
 import org.sopt.feedalarm.repository.FeedAlarmRepository;
 import org.sopt.feedalarm.type.FeedAlarmType;
-import org.sopt.feedalarm.type.TargetType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -32,16 +32,18 @@ public class FeedAlarmRetriever {
     }
 
     @Transactional(readOnly = true)
-    public boolean existsLikeDiaryAlarm(final long userId, final long actorId, final long targetId) {
-        return feedAlarmRepository.existsByUserIdAndActorIdAndTypeAndTargetId(
-                userId, actorId, FeedAlarmType.LIKE_DIARY, targetId
+    public boolean existsRecentLikeDiaryAlarm(long userId, long actorId, long diaryId) {
+        LocalDateTime threshold = LocalDateTime.now().minusMinutes(1);
+        return feedAlarmRepository.existsRecentSameAlarm(
+                userId, actorId, FeedAlarmType.LIKE_DIARY, diaryId, threshold
         );
     }
 
     @Transactional(readOnly = true)
-    public boolean existsFollowAlarm(final long userId, final long actorId) {
-        return feedAlarmRepository.existsByUserIdAndActorIdAndTypeAndTargetType(
-                userId, actorId, FeedAlarmType.FOLLOW_USER, TargetType.USER
+    public boolean existsRecentFollowAlarm(long userId, long actorId) {
+        LocalDateTime threshold = LocalDateTime.now().minusMinutes(1);
+        return feedAlarmRepository.existsRecentSameAlarm(
+                userId, actorId, FeedAlarmType.FOLLOW_USER, actorId, threshold
         );
     }
 }
