@@ -31,7 +31,7 @@ public class FeedAlarmFacade {
         final Long actorId = actor.getId();
 
         // 이미 동일 알림 있으면 생성 X
-        if (feedAlarmRetriever.existsFollowAlarm(targetUserId, actorId)) {
+        if (feedAlarmRetriever.existsRecentFollowAlarm(targetUserId, actorId)) {
             return;
         }
 
@@ -55,8 +55,8 @@ public class FeedAlarmFacade {
             return;
         }
 
-        // 이미 동일 알림 있으면 생성 X
-        if (feedAlarmRetriever.existsLikeDiaryAlarm(targetUserId, actorId, targetDiary.getId())) {
+        // 최근 1분 내 동일 알림 존재 시 스킵
+        if (feedAlarmRetriever.existsRecentLikeDiaryAlarm(targetUserId, actorId, targetDiary.getId())) {
             return;
         }
 
