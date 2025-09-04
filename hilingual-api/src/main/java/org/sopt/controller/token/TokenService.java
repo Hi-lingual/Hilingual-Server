@@ -174,7 +174,8 @@ public class TokenService {
 
         // Unlink에 사용할 모든 RefreshToken 조회 및 임시저장
         List<Token> userTokens = tokenRepository.findByUserId(userId);
-        if (!userTokens.isEmpty()) {
+        /*if (!userTokens.isEmpty()) {
+            // TODO 수정
             Token firstToken = userTokens.getFirst();
             String refreshTokenHash = firstToken.getRefreshTokenHash();
 
@@ -191,7 +192,7 @@ public class TokenService {
                     31,
                     TimeUnit.DAYS
             );
-        }
+        }*/
 
         // 기존의 모든 RefreshToken을 Redis에서 삭제
         tokenRepository.deleteByUserId(userId);
