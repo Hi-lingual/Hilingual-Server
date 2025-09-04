@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,12 +38,22 @@ public interface FeedAlarmRepository extends JpaRepository<FeedAlarm, Long> {
         """, nativeQuery = true)
     void deleteAllUsersBeyondLimit(@Param("limit") int limit);
 
-    boolean existsByUserIdAndActorIdAndTypeAndTargetId(
-            Long userId, Long actorId, FeedAlarmType type, Long targetId
-    );
-
-    boolean existsByUserIdAndActorIdAndTypeAndTargetType(
-            Long userId, Long actorId, FeedAlarmType type, TargetType targetType
+    // 최근 1분 내 동일 알림 존재 여부 확인
+    @Query("""
+    select (count(a) > 0)
+    from FeedAlarm a
+    where a.user.id   = :userId
+      and a.actorId  = :actorId
+      and a.type     = :type
+      and a.targetId = :targetId
+      and a.createdAt >= :threshold
+""")
+    boolean existsRecentSameAlarm(
+            @Param("userId") Long userId,
+            @Param("actorId") Long actorId,
+            @Param("type") FeedAlarmType type,
+            @Param("targetId") Long targetId,  
+            @Param("threshold") LocalDateTime threshold
     );
 
 }
