@@ -9,10 +9,10 @@ public record HomeUserProfileRes(
         int streak,
         Boolean newAlarm
 ) {
-    public static HomeUserProfileRes from(final UserProfile profile, final Boolean newAlarm) {
+    public static HomeUserProfileRes from(final UserProfile profile, final Boolean newAlarm, final String profileImg) {
         return new HomeUserProfileRes(
                 profile.getNickname(),
-                profile.getProfileImg(),
+                (profileImg != null) ? profileImg : " ",
                 profile.getTotalDiaries(),
                 profile.getStreak(),
                 newAlarm

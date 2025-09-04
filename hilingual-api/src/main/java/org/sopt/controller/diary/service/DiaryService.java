@@ -122,6 +122,7 @@ public class DiaryService {
                 .rewriteText(rewriteText)
                 .diffRanges(diffRanges)
                 .imageUrl(imageUrl)
+                .isPublished(diary.getIsPublic())
                 .build();
     }
 

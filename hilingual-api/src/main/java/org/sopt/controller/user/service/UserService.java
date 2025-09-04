@@ -3,6 +3,7 @@ package org.sopt.controller.user.service;
 import lombok.RequiredArgsConstructor;
 import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
 import org.sopt.alarmpreference.type.AlarmType;
+import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.token.TokenService;
 import org.sopt.controller.user.dto.*;
 import org.sopt.controller.user.exception.CannotLoadProviderException;
@@ -11,6 +12,7 @@ import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
+import org.sopt.userprofile.domain.UserProfile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.sopt.noticedelivery.domain.NoticeDelivery;
@@ -30,22 +32,27 @@ public class UserService {
     private final NoticeDeliveryFacade noticeDeliveryFacade;
     private final FeedAlarmFacade feedAlarmFacade;
     private final AlarmPreferenceFacade alarmPreferenceFacade;
+    private final S3Service s3Service;
 
     public UserDefaultInfoRes getUserDefaultInfo(final long userId) {
         User user = userFacade.getUserById(userId);
+        UserProfile userProfile = user.getUserProfile();
 
         return UserDefaultInfoRes.from(
-                user.getUserProfile(),
-                parseProviderInfo(user.getProvider())
+                userProfile.getNickname(),
+                parseProviderInfo(user.getProvider()),
+                s3Service.toPublicUrl(userProfile.getProfileImg())
         );
     }
 
     public HomeUserProfileRes getHomeUserInfo(final long userId) {
         User user = userFacade.getUserById(userId);
+        UserProfile userProfile = user.getUserProfile();
 
         return HomeUserProfileRes.from(
-                user.getUserProfile(),
-                user.getNotifyStatus()
+                userProfile,
+                user.getNotifyStatus(),
+                s3Service.toPublicUrl(userProfile.getProfileImg())
         );
     }
 
