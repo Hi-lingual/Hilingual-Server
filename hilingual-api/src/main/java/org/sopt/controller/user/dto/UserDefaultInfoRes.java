@@ -1,16 +1,14 @@
 package org.sopt.controller.user.dto;
 
-import org.sopt.userprofile.domain.UserProfile;
-
 public record UserDefaultInfoRes(
         String profileImg,
         String nickname,
         String provider
 ) {
-    public static UserDefaultInfoRes from(final UserProfile profile, final String provider) {
+    public static UserDefaultInfoRes from(final String nickname, final String provider, final String profileImg) {
         return new UserDefaultInfoRes(
-                profile.getProfileImg(),
-                profile.getNickname(),
+                (profileImg != null) ? profileImg : " ",
+                nickname,
                 provider
         );
     }
