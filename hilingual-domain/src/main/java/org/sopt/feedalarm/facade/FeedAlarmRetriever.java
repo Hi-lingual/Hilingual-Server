@@ -5,8 +5,12 @@ import org.sopt.feedalarm.domain.FeedAlarm;
 import org.sopt.feedalarm.exception.FeedAlarmCoreErrorCode;
 import org.sopt.feedalarm.exception.FeedAlarmNotFoundException;
 import org.sopt.feedalarm.repository.FeedAlarmRepository;
+import org.sopt.feedalarm.type.FeedAlarmType;
+import org.sopt.feedalarm.type.TargetType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -19,5 +23,25 @@ public class FeedAlarmRetriever {
         FeedAlarm alarm = feedAlarmRepository.findByIdAndUserId(alarmId, userId)
                 .orElseThrow(() -> new FeedAlarmNotFoundException(FeedAlarmCoreErrorCode.FEED_ALARM_NOT_FOUND));
         alarm.markAsRead();
+    }
+
+    // 최근 N개의 알림 조회
+    @Transactional(readOnly = true)
+    public List<FeedAlarm> findLatestByUserId(final long userId) {
+        return feedAlarmRepository.findTop500ByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsLikeDiaryAlarm(final long userId, final long actorId, final long targetId) {
+        return feedAlarmRepository.existsByUserIdAndActorIdAndTypeAndTargetId(
+                userId, actorId, FeedAlarmType.LIKE_DIARY, targetId
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsFollowAlarm(final long userId, final long actorId) {
+        return feedAlarmRepository.existsByUserIdAndActorIdAndTypeAndTargetType(
+                userId, actorId, FeedAlarmType.FOLLOW_USER, TargetType.USER
+        );
     }
 }

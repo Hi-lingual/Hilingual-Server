@@ -32,6 +32,7 @@ public class DiaryController {
         );
     }
 
+    // AI가 교정한 일기 확인 API
     @GetMapping("/{diaryId}")
     public ResponseEntity<DiaryDetailsRes> getDiaryDetails(
             @UserId Long userId,

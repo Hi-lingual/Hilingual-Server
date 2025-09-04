@@ -2,6 +2,8 @@ package org.sopt.controller.follow.service;
 
 import lombok.RequiredArgsConstructor;
 
+import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
+import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.block.facade.BlockFacade;
 
 import org.sopt.controller.follow.dto.NewFollowInfoRes;
@@ -13,6 +15,7 @@ import org.sopt.controller.follow.dto.FollowerListRes;
 import org.sopt.controller.follow.dto.FollowingListRes;
 import org.sopt.controller.userprofile.dto.UserProfileSummaryRes;
 
+import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.follow.dto.FolloweeIdAndIsFollowed;
 import org.sopt.follow.dto.FollowerIdAndIsFollowing;
 import org.sopt.follow.facade.FollowFacade;
@@ -31,7 +34,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class FollowService {
 
@@ -39,6 +41,8 @@ public class FollowService {
     private final FollowFacade followFacade;
     private final BlockFacade blockFacade;
     private final UserProfileFacade userProfileFacade;
+    private final FeedAlarmFacade feedAlarmFacade;
+    private final AlarmPreferenceFacade alarmPreferenceFacade;
 
     @Transactional
     public void follow(Long userId, Long targetUserId) {
@@ -55,6 +59,13 @@ public class FollowService {
         followFacade.assertNotFollowing(follower, followee);
 
         followFacade.save(follower, followee);
+
+        follower.getUserProfile().increaseFollowingCount();
+        followee.getUserProfile().increaseFollowerCount();
+
+        if (alarmPreferenceFacade.isEnabled(followee.getId(), AlarmType.FEED)) {
+            feedAlarmFacade.createFollowAlarm(followee, follower);
+        }
     }
 
     @Transactional
@@ -66,7 +77,11 @@ public class FollowService {
         User me = userFacade.getUserById(userId);
         User you = userFacade.getUserById(targetUserId);
 
-        followFacade.deleteIfExists(me, you);
+        boolean removed = followFacade.deleteIfExists(me, you);
+        if (removed) {
+            me.getUserProfile().decreaseFollowingCount();
+            you.getUserProfile().decreaseFollowerCount();
+        }
 
         // 언팔 직후 me->you는 항상 false, you->me만 확인
         boolean followedBy = followFacade.isFollowing(you, me);

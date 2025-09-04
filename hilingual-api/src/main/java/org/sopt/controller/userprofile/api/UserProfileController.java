@@ -19,7 +19,7 @@ public class UserProfileController {
 
     private final UserProfileService userProfileService;
 
-    @GetMapping("/profile")
+    @GetMapping("/profile/check")
     public BaseResponseDto<NicknameAvailableRes> getUserProfile(
             @RequestParam(value = "nickname") String nickname
     ) {

@@ -16,7 +16,8 @@ public class AuthConstants {
             "/api/v1/users/reissue",
             "/api/v1/auth/login",
             "/api/v1/users/reissue",
-            "/api/v1/auth/verify"
+            "/api/v1/auth/verify",
+            "/api/v1/users/profile/check"
     };
 
     private AuthConstants() {

@@ -89,4 +89,12 @@ public class Diary extends BaseTimeEntity {
         );
     }
 
+    public void increaseLikeCount() {
+        this.isLiked = (this.isLiked == null ? 0 : this.isLiked) + 1;
+    }
+    public void decreaseLikeCount() {
+        int cur = (this.isLiked == null ? 0 : this.isLiked);
+        this.isLiked = Math.max(0, cur - 1);
+    }
+
 }

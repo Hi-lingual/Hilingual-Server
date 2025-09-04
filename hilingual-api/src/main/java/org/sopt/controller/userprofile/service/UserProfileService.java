@@ -23,6 +23,7 @@ import org.sopt.userprofile.exception.UserProfileAlreadyExistException;
 import org.sopt.userprofile.exception.UserProfileCoreErrorCode;
 import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -57,6 +58,7 @@ public class UserProfileService {
         return availableNickname();
     }
 
+    @Transactional
     public void save(Long userId, UserProfileReq userProfileReq) {
         User user = userFacade.getUserById(userId);
         userProfileFacade.findOptionalByUserId(userId)
@@ -66,22 +68,21 @@ public class UserProfileService {
 
         String profileImageFileKey = null;
         if (userProfileReq.image() != null) {
-            if (userProfileReq.image().purpose() != Purpose.PROFILE_UPDATE) {
+            if (userProfileReq.image().purpose() != Purpose.PROFILE_UPLOAD) {
                 throw new UserProfileImagePurposeMismatchException(UserProfileApiErrorCode.IMAGE_PURPOSE_INVALID);
             }
             profileImageFileKey = s3Service.bindProfileImage(userId, userProfileReq.image().fileKey());
         }
 
-        // fileKey 바인딩 및 UserProfile 저장
+        // fileKey 바인딩
         UserProfile userProfile = UserProfile.create(user, userProfileReq.nickname(), profileImageFileKey);
-        userProfileFacade.save(userProfile);
-
-        // AlarmPreference에 Marketing 동의 여부 저장
         AlarmPreference alarmPreference = AlarmPreference.create(user, AlarmType.MARKETING, userProfileReq.adAlarmAgree());
-        alarmPreferenceFacade.save(alarmPreference);
-
         // User의 가입 상태 변경
         user.updateRegisterStatus(RegisterStatus.PROFILE_COMPLETED);
+
+        // 문제 없는 경우 전부 저장
+        alarmPreferenceFacade.save(alarmPreference);
+        userProfileFacade.save(userProfile);
         userFacade.save(user);
     }
 

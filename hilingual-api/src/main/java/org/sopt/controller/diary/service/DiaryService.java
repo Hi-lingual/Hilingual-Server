@@ -101,7 +101,7 @@ public class DiaryService {
 
     // 일기 상세조회
     public DiaryDetailsRes getDiaryDetails(final Long userId, final Long diaryId) {
-        diaryFacade.validateDiaryOwnership(userId, diaryId);
+        diaryFacade.validateReadable(userId, diaryId);
 
         Diary diary = diaryFacade.getDiaryById(diaryId);
 

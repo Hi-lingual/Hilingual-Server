@@ -1,24 +1,24 @@
 package org.sopt.controller.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
+import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.controller.token.TokenService;
-import org.sopt.controller.user.dto.UserDefaultInfoRes;
+import org.sopt.controller.user.dto.*;
 import org.sopt.controller.user.exception.CannotLoadProviderException;
 import org.sopt.controller.user.exception.UserApiErrorCode;
 import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.user.domain.User;
-import org.sopt.controller.user.dto.HomeUserProfileRes;
 import org.sopt.user.facade.UserFacade;
-import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.sopt.controller.user.dto.NoticeDetailRes;
 import org.sopt.noticedelivery.domain.NoticeDelivery;
 import org.sopt.noticedelivery.facade.NoticeDeliveryFacade;
 
-
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,6 +29,7 @@ public class UserService {
     private final UserFacade userFacade;
     private final NoticeDeliveryFacade noticeDeliveryFacade;
     private final FeedAlarmFacade feedAlarmFacade;
+    private final AlarmPreferenceFacade alarmPreferenceFacade;
 
     public UserDefaultInfoRes getUserDefaultInfo(final long userId) {
         User user = userFacade.getUserById(userId);
@@ -69,6 +70,21 @@ public class UserService {
         return loginProviderInfo;
     }
 
+    public NotiStatusRes getUserNotiSatus(final Long userId) {
+        Map<AlarmType, Boolean> map = alarmPreferenceFacade.getAlarmStatusMap(userId);
+
+        boolean marketing = Boolean.TRUE.equals(map.get(AlarmType.MARKETING));
+        boolean feed = Boolean.TRUE.equals(map.get(AlarmType.FEED));
+
+        return new NotiStatusRes(marketing, feed);
+    }
+
+    @Transactional
+    public NotiStatusRes toggleAlarmStatus(final Long userId, final String type) {
+        alarmPreferenceFacade.toggle(userId, AlarmType.from(type));
+        return getUserNotiSatus(userId);
+    }
+
     @Transactional
     public NoticeDetailRes getNotificationDetail(final long userId, final long noticeId) {
         NoticeDelivery delivery = noticeDeliveryFacade
@@ -87,6 +103,16 @@ public class UserService {
     public void markNoticeRead(final long userId, final long noticeId){
         feedAlarmFacade.markAlarmAsRead(userId, noticeId);
         return;
+    }
+
+    public List<NoticeListItemRes> getNoticeAlarms(long userId) {
+        return noticeDeliveryFacade.findLatestByUserId(userId)
+                .stream().map(NoticeListItemRes::from).toList();
+    }
+
+    public List<FeedAlarmItemRes> getFeedAlarms(long userId) {
+        return feedAlarmFacade.findLatestByUserId(userId)
+                .stream().map(FeedAlarmItemRes::from).toList();
     }
 
 }
