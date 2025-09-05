@@ -75,4 +75,10 @@ public class User extends BaseTimeEntity {
     public void revertDeleteUser() {
         this.isDeleted = false;
     }
+
+    public static User ref(Long id) {
+        User u = new User();
+        u.id = id;
+        return u;
+    }
 }
