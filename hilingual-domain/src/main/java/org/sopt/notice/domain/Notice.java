@@ -31,9 +31,19 @@ public class Notice extends BaseTimeEntity {
     private String title;
 
     @Column(name = COLUMN_IS_ACTIVE, nullable = false)
-    private Boolean isActive;
+    private Boolean isActive; // 공지 내릴 때 사용
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = COLUMN_NOTICE_DETAIL_ID, nullable = false)
     private NoticeDetail noticeDetail;
+
+    public static Notice create(Category category, String title, String content) {
+        return new Notice(
+                null,
+                category,
+                title,
+                true,
+                NoticeDetail.create(content)
+        );
+    }
 }

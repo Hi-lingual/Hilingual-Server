@@ -20,4 +20,8 @@ public class NoticeDetail {
 
     @Column(name = NoticeDetailTableConstants.COLUMN_CONTENT, nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    public static NoticeDetail create(String content) {
+        return new NoticeDetail(null, content);
+    }
 }
