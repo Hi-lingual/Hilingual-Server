@@ -14,6 +14,9 @@ public interface VocaRepository extends JpaRepository<Voca, Long> {
     // 존재 여부 (user.id + recommendId)
     boolean existsByUserIdAndRecommendId(Long userId, Long recommendId);
 
+    // 유저별 voca 저장 갯수
+    long countByUserId(Long userId);
+
     // 북마크 해제
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""

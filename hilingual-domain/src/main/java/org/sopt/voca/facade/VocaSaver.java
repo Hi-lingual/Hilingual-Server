@@ -5,6 +5,8 @@ import org.sopt.recommend.domain.Recommend;
 import org.sopt.user.domain.User;
 import org.sopt.voca.domain.Voca;
 import org.sopt.voca.domain.VocaTableConstants;
+import org.sopt.voca.exception.VocaCoreErrorCode;
+import org.sopt.voca.exception.VocaLimitExceededException;
 import org.sopt.voca.repository.VocaRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
@@ -18,9 +20,19 @@ public class VocaSaver {
 
     private final VocaRepository vocaRepository;
 
+    private static final int MAX_VOCA_PER_USER = 1000;
+
     @Transactional
     public void saveIfNotExists(final User user, final Recommend recommend) {
-        if (vocaRepository.existsByUserIdAndRecommendId(user.getId(), recommend.getId())) return;
+        final Long userId = user.getId();
+        final Long recommendId = recommend.getId();
+
+        if (vocaRepository.existsByUserIdAndRecommendId(userId, recommendId)) return;
+
+        long current = vocaRepository.countByUserId(userId);
+        if (current >= MAX_VOCA_PER_USER) {
+            throw new VocaLimitExceededException(VocaCoreErrorCode.VOCA_LIMIT_EXCEEDED);
+        }
 
         final boolean mine = recommend.getDiary().getUser().getId().equals(user.getId());
         final String writtenFrom = mine
