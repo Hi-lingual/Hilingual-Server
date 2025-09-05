@@ -2,12 +2,15 @@ package org.sopt.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.controller.admin.exception.AdminApiErrorCode;
 import org.sopt.exception.base.HilingualBaseException;
 import org.sopt.dto.BaseResponseDto;
 import org.sopt.exception.code.ErrorCode;
 import org.sopt.exception.code.GlobalErrorCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -113,6 +116,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(GlobalErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
                 .body(BaseResponseDto.fail(GlobalErrorCode.INTERNAL_SERVER_ERROR));
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleAuthorizationDenied(AuthorizationDeniedException e) {
+        log.warn("[AuthorizationDeniedException] {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(BaseResponseDto.fail(AdminApiErrorCode.FORBIDDEN_ADMIN));
     }
 
 }
