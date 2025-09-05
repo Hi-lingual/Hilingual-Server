@@ -46,4 +46,7 @@ public interface NoticeDeliveryRepository extends JpaRepository<NoticeDelivery, 
           and r.rn > :limit
         """, nativeQuery = true)
     void deleteAllUsersBeyondLimit(@Param("limit") int limit);
+
+    // 전체 공지 재발송 여부 체크용
+    boolean existsByNoticeId(Long noticeId);
 }

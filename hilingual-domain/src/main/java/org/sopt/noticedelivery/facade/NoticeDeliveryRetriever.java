@@ -2,7 +2,7 @@ package org.sopt.noticedelivery.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.noticedelivery.domain.NoticeDelivery;
-import org.sopt.noticedelivery.exception.NoticeDeliveryErrorCode;
+import org.sopt.noticedelivery.exception.NoticeDeliveryCoreErrorCode;
 import org.sopt.noticedelivery.exception.NoticeDeliveryNoFoundException;
 import org.sopt.noticedelivery.repository.NoticeDeliveryRepository;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ public class NoticeDeliveryRetriever {
 
     public NoticeDelivery findByUserIdAndNoticeIdWithDetail(final long userId, final long noticeId){
         return noticeDeliveryRepository.findByUserIdAndNoticeIdWithDetail(userId, noticeId)
-                .orElseThrow(() -> new NoticeDeliveryNoFoundException(NoticeDeliveryErrorCode.NOTICE_DELIVERY_NOT_FOUND));
+                .orElseThrow(() -> new NoticeDeliveryNoFoundException(NoticeDeliveryCoreErrorCode.NOTICE_DELIVERY_NOT_FOUND));
     }
 
     @Transactional(readOnly = true)

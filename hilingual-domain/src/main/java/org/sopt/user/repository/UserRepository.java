@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -19,4 +20,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByIdWithLock(@Param("id") Long userId);
 
     boolean existsByProviderId(String providerId);
+
+    // 탈퇴/삭제된 계정 제외 전체 유저 id
+    @Query("select u.id from User u where u.isDeleted = false")
+    List<Long> findAllActiveUserIds();
 }
