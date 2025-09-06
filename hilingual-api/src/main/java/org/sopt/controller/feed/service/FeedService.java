@@ -211,7 +211,7 @@ public class FeedService {
                     );
 
                     LocalDateTime sharedTime = projection.getSharedDate();
-                    long minutesDiff = Duration.between(sharedTime, now).toMinutes();
+                    long minutesDiff = (sharedTime != null) ? Duration.between(sharedTime, now).toMinutes() : 0L;
 
                     RecommendFeedListRes.RecommendFeedDiary diary = new RecommendFeedListRes.RecommendFeedDiary(
                             projection.getDiaryId(),
@@ -259,7 +259,7 @@ public class FeedService {
                     );
 
                     LocalDateTime sharedTime = projection.getSharedDate();
-                    long minutesDiff = Duration.between(sharedTime, now).toMinutes();
+                    long minutesDiff = (sharedTime != null) ? Duration.between(sharedTime, now).toMinutes() : 0L;
 
                     FollowFeedListRes.FollowFeedDiary diary = new FollowFeedListRes.FollowFeedDiary(
                             projection.getDiaryId(),
