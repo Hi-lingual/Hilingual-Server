@@ -7,10 +7,10 @@ public record UserProfileSummaryRes(
         String profileImg,
         String nickname
 ){
-    public static UserProfileSummaryRes from(UserProfile profile) {
+    public static UserProfileSummaryRes from(UserProfile profile, String profileImg) {
         return new UserProfileSummaryRes(
                 profile.getUser().getId(),
-                profile.getProfileImg(),
+                (profileImg != null) ? profileImg : " ",
                 profile.getNickname()
         );
     }
