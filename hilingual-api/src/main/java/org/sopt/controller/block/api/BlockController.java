@@ -2,6 +2,7 @@ package org.sopt.controller.block.api;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.sopt.controller.block.dto.BlockedListRes;
 import org.sopt.controller.userprofile.dto.UserProfileSummaryRes;
 import org.sopt.controller.block.service.BlockService;
 import org.sopt.jwt.annotation.UserId;
@@ -34,7 +35,7 @@ public class BlockController {
     }
 
     @GetMapping("/mypage/blocks")
-    public ResponseEntity<List<UserProfileSummaryRes>> getBlockedUserList(
+    public ResponseEntity<BlockedListRes> getBlockedUserList(
             @UserId Long userId
     ){
         return ResponseEntity.ok(blockService.getBlockedUserList(userId));
