@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
 import org.sopt.alarmpreference.type.AlarmType;
+import org.sopt.aws.s3.service.S3Service;
 import org.sopt.block.facade.BlockFacade;
 
 import org.sopt.controller.follow.dto.NewFollowInfoRes;
@@ -43,6 +44,7 @@ public class FollowService {
     private final UserProfileFacade userProfileFacade;
     private final FeedAlarmFacade feedAlarmFacade;
     private final AlarmPreferenceFacade alarmPreferenceFacade;
+    private final S3Service s3Service;
 
     @Transactional
     public void follow(Long userId, Long targetUserId) {
@@ -103,7 +105,10 @@ public class FollowService {
         // 팔로워 프로필 정보 Map으로 변환
         final Map<Long, UserProfileSummaryRes> profilesMap = userProfileFacade.getProfilesByUserIds(followerIds)
                 .stream()
-                .map(UserProfileSummaryRes::from)
+                .map(profile -> {
+                    String profileImg = s3Service.toPublicUrl(profile.getProfileImg());
+                    return UserProfileSummaryRes.from(profile, profileImg);
+                })
                 .collect(Collectors.toMap(UserProfileSummaryRes::userId, Function.identity()));
 
         return FollowerListRes.of(followers, profilesMap);
@@ -121,7 +126,10 @@ public class FollowService {
 
         Map<Long, UserProfileSummaryRes> profilesMap = userProfileFacade.getProfilesByUserIds(followeeIds)
                 .stream()
-                .map(UserProfileSummaryRes::from)
+                .map(profile -> {
+                    String profileImg = s3Service.toPublicUrl(profile.getProfileImg());
+                    return UserProfileSummaryRes.from(profile, profileImg);
+                })
                 .collect(Collectors.toMap(UserProfileSummaryRes::userId, Function.identity()));
 
         return FollowingListRes.of(followings, profilesMap);

@@ -76,12 +76,14 @@ public class UserProfileService {
 
         // fileKey 바인딩
         UserProfile userProfile = UserProfile.create(user, userProfileReq.nickname(), profileImageFileKey);
-        AlarmPreference alarmPreference = AlarmPreference.create(user, AlarmType.MARKETING, userProfileReq.adAlarmAgree());
+        AlarmPreference alarmPreferenceMarketing = AlarmPreference.create(user, AlarmType.MARKETING, userProfileReq.adAlarmAgree());
+        AlarmPreference alarmPreferenceFeed = AlarmPreference.create(user, AlarmType.FEED, true);
         // User의 가입 상태 변경
         user.updateRegisterStatus(RegisterStatus.PROFILE_COMPLETED);
 
         // 문제 없는 경우 전부 저장
-        alarmPreferenceFacade.save(alarmPreference);
+        alarmPreferenceFacade.save(alarmPreferenceMarketing);
+        alarmPreferenceFacade.save(alarmPreferenceFeed);
         userProfileFacade.save(userProfile);
         userFacade.save(user);
     }

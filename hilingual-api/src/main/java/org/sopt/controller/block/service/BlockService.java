@@ -1,8 +1,9 @@
 package org.sopt.controller.block.service;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.sopt.aws.s3.service.S3Service;
 import org.sopt.block.facade.BlockFacade;
+import org.sopt.controller.block.dto.BlockedListRes;
 import org.sopt.controller.userprofile.dto.UserProfileSummaryRes;
 import org.sopt.controller.block.exception.BlockApiErrorCode;
 import org.sopt.controller.block.exception.CannotSelfBlockException;
@@ -16,7 +17,6 @@ import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -32,7 +32,7 @@ public class BlockService {
     private final BlockFacade blockFacade;
     private final UserProfileFacade userProfileFacade;
     private final FollowFacade followFacade;
-    private final EntityManager entityManager;
+    private final S3Service s3Service;
 
     @Transactional
     public Void blockUser(final Long blockerId, final Long blockedId) {
@@ -94,7 +94,7 @@ public class BlockService {
         return null;
     }
 
-    public List<UserProfileSummaryRes> getBlockedUserList(final Long userId) {
+    public BlockedListRes getBlockedUserList(final Long userId) {
         // 유저 존재 여부 확인(없을 시 UserRetriever에서 not found 예외 처리)
         userFacade.getUserById(userId);
 
@@ -114,10 +114,14 @@ public class BlockService {
                 .sorted(Comparator.comparingInt(profile -> orderMap.getOrDefault(profile.getUser().getId(), Integer.MAX_VALUE)))
                 .toList();
 
-        // 정렬된 프로필 리스트를 응답 객체로 변환
-        return sortedProfiles.stream()
-                .map(UserProfileSummaryRes::from)
+        final List<UserProfileSummaryRes> blockedList = sortedProfiles.stream()
+                .map(profile -> {
+                    String profileImg = s3Service.toPublicUrl(profile.getProfileImg());
+                    return UserProfileSummaryRes.from(profile, profileImg);
+                })
                 .toList();
 
+        // 정렬된 프로필 리스트를 응답 객체로 변환
+        return new BlockedListRes(blockedList);
     }
 }

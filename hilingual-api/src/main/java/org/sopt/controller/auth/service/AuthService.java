@@ -43,10 +43,6 @@ public class AuthService {
 
     private final TokenService tokenService;
     private final UserFacade userFacade;
-    private final AppleKeyService appleKeyService;
-    private final TaskScheduler taskScheduler;
-    private final RedisTemplate<String, String> redisTemplate;
-
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
