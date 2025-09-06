@@ -26,6 +26,9 @@ public class UserProfileController {
         return userProfileService.getNicknameAvailable(nickname);
     }
 
+    /*
+     * 회원가입(프로필 등록)
+     */
     @PostMapping("/profile")
     public ResponseEntity<?> saveUserProfile(
             @UserId Long userId,
