@@ -7,6 +7,7 @@ import org.sopt.controller.recommend.exception.RecommendForbiddenException;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.recommend.domain.Recommend;
+import org.sopt.recommend.dto.RecommendWithBookmarkDto;
 import org.sopt.recommend.facade.RecommendFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
@@ -17,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,14 +40,16 @@ public class RecommendService {
     public RecommendListRes getRecommendList(final long userId, final long diaryId){
         diaryFacade.validateReadable(userId, diaryId);
 
-        List<RecommendListRes.PhraseDto> phrases = recommendFacade.findByDiaryId(diaryId).stream()
+        List<RecommendWithBookmarkDto> rows = recommendFacade.findWithBookmarkFlag(userId, diaryId);
+
+        List<RecommendListRes.PhraseDto> phrases = rows.stream()
                 .map(r -> new RecommendListRes.PhraseDto(
                         r.getId(),
                         parsePhraseType(r.getPhraseType()),
                         r.getPhrase(),
                         r.getExplanation(),
                         r.getReason(),
-                        r.getIsBookmarked()
+                        Boolean.TRUE.equals(r.getIsBookmarked())
                 ))
                 .toList();
         return new RecommendListRes(phrases);
