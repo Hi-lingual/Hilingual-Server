@@ -2,6 +2,7 @@ package org.sopt.recommend.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.recommend.domain.Recommend;
+import org.sopt.recommend.dto.RecommendWithBookmarkDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -25,8 +26,8 @@ public class RecommendFacade {
         return recommendRetriever.findById(phraseId);
     }
 
-    public Recommend findByUserIdAndPhraseId(final Long userId, final Long phraseId) {
-        return recommendRetriever.findByUserIdAndPhraseId(userId, phraseId);
+    public List<RecommendWithBookmarkDto> findWithBookmarkFlag(final long userId, final long diaryId) {
+        return recommendRetriever.findWithBookmarkFlag(userId, diaryId);
     }
 
 }
