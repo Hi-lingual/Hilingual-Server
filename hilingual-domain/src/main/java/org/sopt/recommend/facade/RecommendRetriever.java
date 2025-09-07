@@ -2,11 +2,10 @@ package org.sopt.recommend.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.recommend.domain.Recommend;
+import org.sopt.recommend.dto.RecommendWithBookmarkDto;
 import org.sopt.recommend.exception.RecommendCoreErrorCode;
 import org.sopt.recommend.exception.RecommendNotFoundException;
 import org.sopt.recommend.repository.RecommendRepository;
-import org.sopt.voca.exception.VocaCoreErrorCode;
-import org.sopt.voca.exception.VocaNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,9 +25,8 @@ public class RecommendRetriever {
                 .orElseThrow(()-> new RecommendNotFoundException(RecommendCoreErrorCode.RECOMMEND_NOT_FOUND));
     }
 
-    public Recommend findByUserIdAndPhraseId(final Long userId, final Long phraseId) {
-        return recommendRepository.findPhraseByIdAndUserId(phraseId, userId)
-                .orElseThrow(() -> new VocaNotFoundException(VocaCoreErrorCode.VOCA_NOT_FOUND));
+    public List<RecommendWithBookmarkDto> findWithBookmarkFlag(final long userId, final long diaryId) {
+        return recommendRepository.findWithBookmarkFlag(userId, diaryId);
     }
 
 }
