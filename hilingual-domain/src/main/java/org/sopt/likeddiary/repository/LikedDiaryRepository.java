@@ -2,6 +2,7 @@ package org.sopt.likeddiary.repository;
 
 import org.sopt.likeddiary.domain.LikedDiary;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -38,5 +39,11 @@ public interface LikedDiaryRepository extends JpaRepository<LikedDiary, Long> {
 
     // 해제
     void deleteByUserIdAndDiaryId(Long userId, Long diaryId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            delete from LikedDiary ld where ld.diary.id = :diaryId
+            """)
+    void deleteByDiaryId(@Param("diaryId") Long diaryId);
 
 }
