@@ -16,6 +16,7 @@ import org.sopt.diaryfeedback.domain.DiaryFeedback;
 import org.sopt.controller.diaryfeedback.service.DiaryFeedbackService;
 import org.sopt.diaryfeedback.diff.service.DiaryDiffService;
 import org.sopt.diaryfeedback.diff.prompt.DiaryFeedbackPrompt;
+import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.openai.OpenAIService;
 import org.sopt.openai.dto.res.GptFeedbackResponse;
 import org.sopt.recommend.domain.Recommend;
@@ -37,6 +38,7 @@ public class DiaryService {
 
     private final UserFacade userFacade;
     private final DiaryFacade diaryFacade;
+    private final LikedDiaryFacade likedDiaryFacade;
     private final OpenAIService openAiService;
     private final DiaryFeedbackService diaryFeedbackService;
     private final RecommendService recommendService;
@@ -149,6 +151,8 @@ public class DiaryService {
     public void unpublishDiary(final Long userId, final Long diaryId) {
         diaryFacade.validateDiaryOwnership(userId, diaryId);
         diaryFacade.unpublish(userId, diaryId);
+
+        likedDiaryFacade.unlikeAllOfDiary(diaryId);
 
     }
 }

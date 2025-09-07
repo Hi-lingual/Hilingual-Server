@@ -41,4 +41,9 @@ public class LikedDiaryFacade {
         likedDiaryRemover.deleteByUserIdAndDiaryId(userId, diaryId);
     }
 
+    @Transactional
+    public void unlikeAllOfDiary(Long diaryId) {
+        likedDiaryRemover.deleteByDiaryId(diaryId);
+    }
+
 }

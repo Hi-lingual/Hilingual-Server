@@ -11,8 +11,13 @@ public class LikedDiaryRemover {
     private final LikedDiaryRepository likedDiaryRepository;
 
     @Transactional
-    public void deleteByUserIdAndDiaryId(Long userId, Long diaryId) {
+    public void deleteByUserIdAndDiaryId(final long userId, final long diaryId) {
         likedDiaryRepository.deleteByUserIdAndDiaryId(userId, diaryId);
+    }
+
+    @Transactional
+    public void deleteByDiaryId(final long diaryId){
+        likedDiaryRepository.deleteByDiaryId(diaryId);
     }
 
 }
