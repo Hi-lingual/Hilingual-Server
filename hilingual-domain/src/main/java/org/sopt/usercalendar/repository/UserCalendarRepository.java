@@ -2,7 +2,9 @@ package org.sopt.usercalendar.repository;
 
 import org.sopt.user.domain.User;
 import org.sopt.usercalendar.domain.UserCalendar;
+import org.sopt.usercalendar.domain.WriteStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
@@ -32,4 +34,15 @@ public interface UserCalendarRepository extends JpaRepository<UserCalendar, Long
             @Param("year")   int  year,
             @Param("month")  int  month
     );
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        update UserCalendar uc
+           set uc.status = :status
+         where uc.user.id = :userId
+           and uc.date = :date
+    """)
+    int updateStatusByUserAndDate(@Param("userId") Long userId,
+                                  @Param("date") LocalDate date,
+                                  @Param("status") WriteStatus status);
 }
