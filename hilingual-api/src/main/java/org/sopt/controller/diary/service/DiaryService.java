@@ -22,6 +22,7 @@ import org.sopt.openai.dto.res.GptFeedbackResponse;
 import org.sopt.recommend.domain.Recommend;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
+import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +44,7 @@ public class DiaryService {
     private final DiaryFeedbackService diaryFeedbackService;
     private final RecommendService recommendService;
     private final DiaryDiffService diaryDiffService;
+    private final UserCalendarFacade userCalendarFacade;
 
     private final S3Service s3Service;
 
@@ -139,6 +141,7 @@ public class DiaryService {
         }
 
         diaryFacade.deleteDiary(userId, diaryId);
+        userCalendarFacade.markDeleted(userId, diary.getWrittenDate());
     }
 
     @Transactional
