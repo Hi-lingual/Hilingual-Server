@@ -93,14 +93,15 @@ public class AuthService {
         tokenService.leave(accessToken);
 
         // User 정보 Hard Delete
-        userFacade.deleteUserById(userId); // user, userProfile, noticeDelivery 삭제
         userCalendarFacade.deleteAllByUserId(userId); // userCalendar 정보 삭제
-        diaryFacade.deleteAllByUserId(userId); // Diary, Recommend, DiaryFeedback 삭제
         likedDiaryFacade.deleteAllByUserId(userId); // LikedDiary 삭제
+        diaryFacade.deleteAllByUserId(userId); // Diary, Recommend, DiaryFeedback 삭제
         feedAlarmFacade.deleteAllByUserId(userId); // FeedAlarm 삭제
         blockFacade.deleteAllByUserId(userId); // Block 삭제
         followFacade.deleteAllByUserId(userId); // Follow 삭제
         alarmPreferenceFacade.deleteAllByUserId(userId); // AlarmPreference 삭제
+
+        userFacade.deleteUserById(userId); // user, userProfile, noticeDelivery 삭제
 
         return null;
     }
