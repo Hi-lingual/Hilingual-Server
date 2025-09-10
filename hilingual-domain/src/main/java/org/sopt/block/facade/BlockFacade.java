@@ -20,6 +20,7 @@ public class BlockFacade {
 
     private final BlockRetriever blockRetriever;
     private final BlockSaver blockSaver;
+    private final BlockRemover blockRemover;
 
     @Transactional
     public void block(User blocker, User blocked) {
@@ -59,4 +60,7 @@ public class BlockFacade {
     @Transactional(readOnly = true)
     public boolean existsByBlockerIdAndBlockedId(Long blockerId, Long blockedId) { return blockRetriever.existsByBlockerIdAndBlockedId(blockerId, blockedId); }
 
+    public void deleteAllByUserId(final long userId) {
+        blockRemover.deleteAllByUserId(userId);
+    }
 }

@@ -107,6 +107,20 @@ public class UserProfileService {
 
 
     public Void changeUserProfileImg(Long userId, UserProfileImgReq userProfileImgReq) {
+        // 이미지를 보내지 않는 경우 S3에서 이미지 삭제 및 DB에 null 저장
+        if (userProfileImgReq.image() == null) {
+            // 기존 프로필 이미지 키 조회
+            String previousFileKey = userProfileFacade.getProfileByUserId(userId).getProfileImg();
+
+            // 업로드 성공 시 기존 프로필 이미지 S3에서 삭제
+            if(previousFileKey != null && !previousFileKey.isBlank()) {
+                s3Service.deleteObject(previousFileKey);
+                userProfileFacade.updateProfileImgByUserId(userId, null, LocalDateTime.now());
+            }
+            return null;
+        }
+
+        // 변경하는 이미지가 있는 경우
         if(userProfileImgReq.image().purpose() != Purpose.PROFILE_UPDATE) {
             throw new UserProfileImagePurposeMismatchException(UserProfileApiErrorCode.IMAGE_PURPOSE_INVALID);
         }
@@ -124,5 +138,4 @@ public class UserProfileService {
 
         return null;
     }
-
 }

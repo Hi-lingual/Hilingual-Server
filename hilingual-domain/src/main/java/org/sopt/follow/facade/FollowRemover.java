@@ -20,4 +20,8 @@ public class FollowRemover {
     public int deleteFollowRelations(final long userId, final long targetUserId) {
         return followRepository.deleteFollowRelations(userId, targetUserId);
     }
+
+    public void deleteAllByUserId(final long userId) {
+        followRepository.deleteAllByFollowerIdOrFolloweeId(userId, userId);
+    }
 }

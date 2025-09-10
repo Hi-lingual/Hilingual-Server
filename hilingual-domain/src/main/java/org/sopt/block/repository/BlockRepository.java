@@ -52,4 +52,6 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 
     // 내가 차단한 상대인지 확인
     boolean existsByBlockerIdAndBlockedId(Long blockerId, Long blockedId);
+
+    void deleteAllByBlockerIdOrBlockedId(Long blockerId, Long blockedId);
 }

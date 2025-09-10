@@ -16,6 +16,7 @@ public class FeedAlarmFacade {
 
     private final FeedAlarmRetriever feedAlarmRetriever;
     private final FeedAlarmSaver feedAlarmSaver;
+    private final FeedAlarmRemover feedAlarmRemover;
 
     public void markAlarmAsRead(Long userId, Long alarmId) {
         feedAlarmRetriever.markAlarmAsRead(userId, alarmId);
@@ -77,6 +78,10 @@ public class FeedAlarmFacade {
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
             // 동시성 환경에서 중복 insert 시 무시
         }
+    }
+
+    public void deleteAllByUserId(final long userId) {
+        feedAlarmRemover.deleteAllByUserId(userId);
     }
 
 }

@@ -52,8 +52,10 @@ public interface FeedAlarmRepository extends JpaRepository<FeedAlarm, Long> {
             @Param("userId") Long userId,
             @Param("actorId") Long actorId,
             @Param("type") FeedAlarmType type,
-            @Param("targetId") Long targetId,  
+            @Param("targetId") Long targetId,
             @Param("threshold") LocalDateTime threshold
     );
+
+    void deleteAllByUserId(Long userId);
 
 }

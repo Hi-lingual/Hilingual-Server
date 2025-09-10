@@ -76,6 +76,10 @@ public class DiaryFacade {
         diaryRemover.deleteDiary(userId, diaryId);
     }
 
+    public void deleteAllByUserId(final long userId) {
+        diaryRemover.deleteAllByUserId(userId);
+    }
+
     /*
      * Updater
      */

@@ -26,4 +26,8 @@ public class DiaryRemover {
         diaryRepository.delete(diary);
     }
 
+    public void deleteAllByUserId(final Long userId) {
+        diaryRepository.deleteAllByUserId(userId);
+    }
+
 }
