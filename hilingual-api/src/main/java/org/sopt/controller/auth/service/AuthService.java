@@ -8,6 +8,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
+import org.sopt.alarmpreference.facade.AlarmPreferenceRemover;
 import org.sopt.block.facade.BlockFacade;
 import org.sopt.controller.auth.util.AppleKeyService;
 import org.sopt.controller.auth.util.ApplePublicKeyList;
@@ -56,9 +58,9 @@ public class AuthService {
     private final FeedAlarmFacade feedAlarmFacade;
     private final BlockFacade blockFacade;
     private final FollowFacade followFacade;
+    private final AlarmPreferenceFacade alarmPreferenceFacade;
 
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
-    private final FeedAlarmRemover feedAlarmRemover;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
@@ -96,7 +98,7 @@ public class AuthService {
         feedAlarmFacade.deleteAllByUserId(userId); // FeedAlarm 삭제
         blockFacade.deleteAllByUserId(userId); // Block 삭제
         followFacade.deleteAllByUserId(userId); // Follow 삭제
-
+        alarmPreferenceFacade.deleteAllByUserId(userId); // AlarmPreference 삭제
 
         return null;
     }

@@ -15,6 +15,7 @@ public class AlarmPreferenceFacade {
     private final AlarmPreferenceRetriever alarmPreferenceRetriever;
     private final AlarmPreferenceUpdater alarmPreferenceUpdater;
     private final AlarmPreferenceSaver alarmPreferenceSaver;
+    private final AlarmPreferenceRemover alarmPreferenceRemover;
 
     public Map<AlarmType, Boolean> getAlarmStatusMap(final long userId) {
         return alarmPreferenceRetriever.getAlarmStatusMap(userId);
@@ -34,5 +35,9 @@ public class AlarmPreferenceFacade {
     @Transactional(readOnly = true)
     public boolean isEnabled(final long userId, final AlarmType type) {
         return alarmPreferenceRetriever.isEnabled(userId, type);
+    }
+
+    public void deleteAllByUserId(final long userId) {
+        alarmPreferenceRemover.deleteAllByUserId(userId);
     }
 }
