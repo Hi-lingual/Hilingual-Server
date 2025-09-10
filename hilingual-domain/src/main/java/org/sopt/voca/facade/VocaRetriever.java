@@ -7,6 +7,7 @@ import org.sopt.voca.repository.VocaRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -32,5 +33,9 @@ public class VocaRetriever {
 
     public boolean existsByUserIdAndRecommendId(final Long userId, final Long recommendId) {
         return vocaRepository.existsByUserIdAndRecommendId(userId, recommendId);
+    }
+
+    public Optional<Voca> findOptionalByUserIdAndRecommendId(final Long userId, final Long recommendId) {
+        return vocaRepository.findByUserIdAndRecommendId(userId, recommendId);
     }
 }
