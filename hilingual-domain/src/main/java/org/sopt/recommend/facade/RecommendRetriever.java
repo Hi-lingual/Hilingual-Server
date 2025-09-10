@@ -16,10 +16,6 @@ public class RecommendRetriever {
 
     private final RecommendRepository recommendRepository;
 
-    public List<Recommend> findByDiaryId(final long diaryId){
-        return recommendRepository.findByDiaryId(diaryId);
-    }
-
     public Recommend findById(final long phraseId){
         return recommendRepository.findById(phraseId)
                 .orElseThrow(()-> new RecommendNotFoundException(RecommendCoreErrorCode.RECOMMEND_NOT_FOUND));
@@ -27,6 +23,12 @@ public class RecommendRetriever {
 
     public List<RecommendWithBookmarkDto> findWithBookmarkFlag(final long userId, final long diaryId) {
         return recommendRepository.findWithBookmarkFlag(userId, diaryId);
+    }
+
+    public Recommend findByIdWithDiary(final long phraseId) {
+        return recommendRepository.findByIdWithDiary(phraseId)
+                .orElseThrow(() ->
+                        new RecommendNotFoundException(RecommendCoreErrorCode.RECOMMEND_NOT_FOUND));
     }
 
 }

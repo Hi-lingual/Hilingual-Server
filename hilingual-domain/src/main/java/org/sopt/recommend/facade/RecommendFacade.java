@@ -18,16 +18,16 @@ public class RecommendFacade {
         recommendSaver.save(recommend);
     }
 
-    public List<Recommend> findByDiaryId(final long diaryId) {
-        return recommendRetriever.findByDiaryId(diaryId);
-    }
-
     public Recommend findById(final long phraseId) {
         return recommendRetriever.findById(phraseId);
     }
 
     public List<RecommendWithBookmarkDto> findWithBookmarkFlag(final long userId, final long diaryId) {
         return recommendRetriever.findWithBookmarkFlag(userId, diaryId);
+    }
+
+    public Recommend findByIdWithDiary(final long phraseId) {
+        return recommendRetriever.findByIdWithDiary(phraseId);
     }
 
 }

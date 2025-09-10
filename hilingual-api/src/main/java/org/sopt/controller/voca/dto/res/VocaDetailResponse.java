@@ -1,6 +1,6 @@
 package org.sopt.controller.voca.dto.res;
 
-import org.sopt.voca.domain.Voca;
+import org.sopt.recommend.domain.Recommend;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,14 +12,15 @@ public record VocaDetailResponse(
         String writtenFrom,
         Boolean isBookmarked
 ) {
-    public static VocaDetailResponse from(final Voca v) {
+
+    public static VocaDetailResponse of(Recommend r, boolean isBookmarked) {
         return new VocaDetailResponse(
-                v.getRecommendId(),
-                v.getPhrase(),
-                parsePhraseTypes(v.getPhraseType()),
-                v.getExplanation(),
-                v.getWrittenFrom(),
-                true
+                r.getId(),
+                r.getPhrase(),
+                parsePhraseTypes(r.getPhraseType()),
+                r.getExplanation(),
+                r.getReason(),
+                isBookmarked
         );
     }
 
