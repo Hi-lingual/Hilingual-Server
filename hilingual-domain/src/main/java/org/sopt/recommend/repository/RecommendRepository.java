@@ -7,10 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RecommendRepository extends JpaRepository<Recommend, Long> {
-
-    List<Recommend> findByDiaryId(Long diaryId);
 
     @Query("""
     select new org.sopt.recommend.dto.RecommendWithBookmarkDto(
@@ -29,4 +28,11 @@ public interface RecommendRepository extends JpaRepository<Recommend, Long> {
             @Param("userId") Long userId,
             @Param("diaryId") Long diaryId
     );
+
+    @Query("""
+        select r from Recommend r
+        join fetch r.diary d
+        where r.id = :id
+    """)
+    Optional<Recommend> findByIdWithDiary(@Param("id") Long id);
 }

@@ -2,6 +2,8 @@ package org.sopt.controller.voca.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.voca.dto.res.VocaDetailResponse;
+import org.sopt.recommend.domain.Recommend;
+import org.sopt.recommend.facade.RecommendRetriever;
 import org.sopt.voca.dto.VocaListRes;
 import org.sopt.controller.voca.dto.res.VocaSearchListResponse;
 import org.sopt.recommend.facade.RecommendFacade;
@@ -20,6 +22,7 @@ public class VocaService {
     private final VocaRetriever vocaRetriever;
     private final RecommendFacade recommendFacade;
     private final VocaFacade vocaFacade;
+    private final RecommendRetriever recommendRetriever;
 
 
     // 단어장 목록 조회
@@ -35,8 +38,9 @@ public class VocaService {
 
     // 특정 단어 세부 조회
     public VocaDetailResponse getVocaDetails(final Long userId, final Long phraseId) {
-        final Voca voca = vocaFacade.findDetailByUserIdAndPhraseId(userId, phraseId);
-        return VocaDetailResponse.from(voca);
+        final Recommend recommend = recommendFacade.findByIdWithDiary(phraseId);
+        final boolean isBookmarked = vocaFacade.existsByUserIdAndRecommendId(userId, phraseId);
+        return VocaDetailResponse.of(recommend, isBookmarked);
     }
 
 }
