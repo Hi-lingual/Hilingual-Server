@@ -12,25 +12,19 @@ public record VocaDetailResponse(
         String writtenFrom,
         Boolean isBookmarked
 ) {
-
-    public static VocaDetailResponse of(Recommend r, boolean isBookmarked) {
+    public static VocaDetailResponse of(Recommend r, String writtenFrom, boolean isBookmarked) {
         return new VocaDetailResponse(
                 r.getId(),
                 r.getPhrase(),
                 parsePhraseTypes(r.getPhraseType()),
                 r.getExplanation(),
-                r.getReason(),
+                writtenFrom,
                 isBookmarked
         );
     }
 
-    private static List<String> parsePhraseTypes(String phraseTypeRaw) {
-        if (phraseTypeRaw == null || phraseTypeRaw.isBlank()) {
-            return List.of();
-        }
-        return Arrays.stream(phraseTypeRaw.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toList();
+    private static List<String> parsePhraseTypes(String raw) {
+        if (raw == null || raw.isBlank()) return List.of();
+        return Arrays.stream(raw.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();
     }
 }

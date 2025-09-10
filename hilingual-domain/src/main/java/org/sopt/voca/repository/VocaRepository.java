@@ -53,11 +53,5 @@ public interface VocaRepository extends JpaRepository<Voca, Long> {
     List<Voca> findAllByUserIdAndPhraseStartsWith(@Param("userId") Long userId,
                                                   @Param("keyword") String keyword);
 
-    // Voca 상세
-    @Query("""
-        SELECT v FROM Voca v
-        WHERE v.user.id = :userId AND v.recommendId = :phraseId
-    """)
-    Optional<Voca> findDetailByUserIdAndPhraseId(@Param("userId") Long userId,
-                                                 @Param("phraseId") Long phraseId);
+    Optional<Voca> findByUserIdAndRecommendId(Long userId, Long recommendId);
 }
