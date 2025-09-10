@@ -8,6 +8,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.block.facade.BlockFacade;
 import org.sopt.controller.auth.util.AppleKeyService;
 import org.sopt.controller.auth.util.ApplePublicKeyList;
 import org.sopt.controller.auth.dto.SocialLoginReq;
@@ -52,6 +53,7 @@ public class AuthService {
     private final DiaryFacade diaryFacade;
     private final LikedDiaryFacade likedDiaryFacade;
     private final FeedAlarmFacade feedAlarmFacade;
+    private final BlockFacade blockFacade;
 
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
     private final FeedAlarmRemover feedAlarmRemover;
@@ -90,7 +92,7 @@ public class AuthService {
         diaryFacade.deleteAllByUserId(userId); // Diary, Recommend, DiaryFeedback 삭제
         likedDiaryFacade.deleteAllByUserId(userId); // LikedDiary 삭제
         feedAlarmFacade.deleteAllByUserId(userId); // FeedAlarm 삭제
-
+        blockFacade.deleteAllByUserId(userId); // Block 삭제
 
         return null;
     }
