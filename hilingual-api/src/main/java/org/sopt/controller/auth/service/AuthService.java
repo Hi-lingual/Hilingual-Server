@@ -16,6 +16,7 @@ import org.sopt.controller.auth.exception.*;
 import org.sopt.controller.auth.util.GoogleOAuth2UserInfo;
 import org.sopt.controller.auth.util.MyKeyLocator;
 import org.sopt.controller.token.TokenService;
+import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
 import org.sopt.exception.code.GlobalErrorCode;
@@ -45,6 +46,7 @@ public class AuthService {
     private final TokenService tokenService;
     private final UserFacade userFacade;
     private final UserCalendarFacade userCalendarFacade;
+    private final DiaryFacade diaryFacade;
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -78,6 +80,8 @@ public class AuthService {
         // User 정보 Hard Delete
         userFacade.deleteUserById(userId); // user, userProfile, noticeDelivery 삭제
         userCalendarFacade.deleteAllByUserId(userId); // userCalendar 정보 삭제
+        diaryFacade.deleteAllByUserId(userId); // Diary, Recommend, DiaryFeedback 삭제
+
 
         return null;
     }
