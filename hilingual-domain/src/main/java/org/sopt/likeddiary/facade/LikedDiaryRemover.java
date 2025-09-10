@@ -20,4 +20,7 @@ public class LikedDiaryRemover {
         likedDiaryRepository.deleteByDiaryId(diaryId);
     }
 
+    public void deleteAllByUserId(final long userId) {
+        likedDiaryRepository.deleteAllByUserId(userId);
+    }
 }

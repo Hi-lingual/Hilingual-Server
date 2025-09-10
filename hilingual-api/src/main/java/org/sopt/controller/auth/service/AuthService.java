@@ -22,6 +22,7 @@ import org.sopt.exception.UnAuthorizedException;
 import org.sopt.exception.code.GlobalErrorCode;
 import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
+import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
@@ -47,6 +48,7 @@ public class AuthService {
     private final UserFacade userFacade;
     private final UserCalendarFacade userCalendarFacade;
     private final DiaryFacade diaryFacade;
+    private final LikedDiaryFacade likedDiaryFacade;
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -81,7 +83,7 @@ public class AuthService {
         userFacade.deleteUserById(userId); // user, userProfile, noticeDelivery 삭제
         userCalendarFacade.deleteAllByUserId(userId); // userCalendar 정보 삭제
         diaryFacade.deleteAllByUserId(userId); // Diary, Recommend, DiaryFeedback 삭제
-
+        likedDiaryFacade.deleteAllByUserId(userId); // LikedDiary 삭제
 
         return null;
     }
