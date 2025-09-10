@@ -66,7 +66,7 @@ public class FeedService {
         UserProfile userProfile = userProfileFacade.getProfileByUserId(targetUserId);
 
         if (isMine) {
-            return FeedProfileRes.from(userProfile, true, null, null, null);
+            return FeedProfileRes.from(userProfile, true, null, null, null, s3Service.bindProfileImage(userId, userProfile.getProfileImg()));
         }
 
         // 내 프로필이 아닌 경우
@@ -81,7 +81,8 @@ public class FeedService {
                 false,
                 followRelation.getIsFollowing(),
                 followRelation.getIsFollowed(),
-                isBlocked
+                isBlocked,
+                s3Service.bindProfileImage(userId, userProfile.getProfileImg())
         );
     }
 

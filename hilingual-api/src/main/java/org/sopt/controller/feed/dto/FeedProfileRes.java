@@ -18,11 +18,12 @@ public record FeedProfileRes (
             Boolean isMine,
             Boolean isFollowing,
             Boolean isFollowed,
-            Boolean isBlocked
+            Boolean isBlocked,
+            String profileImg
     ) {
         return new FeedProfileRes(
                 isMine,
-                profile.getProfileImg(),
+                (profileImg != null) ? profileImg : " ",
                 profile.getNickname(),
                 profile.getFollowerCount(),
                 profile.getFollowingCount(),
