@@ -38,4 +38,6 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
            WHERE d.id = :diaryId AND d.isPublic = TRUE
            """)
     Optional<Diary> findDiaryWithDetailsById(@Param("diaryId") Long diaryId);
+
+    void deleteAllByUserId(Long userId);
 }

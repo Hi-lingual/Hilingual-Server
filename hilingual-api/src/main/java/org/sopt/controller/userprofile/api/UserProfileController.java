@@ -41,7 +41,7 @@ public class UserProfileController {
     @PatchMapping("/mypage/profileImg")
     public ResponseEntity<Void> changeUserProfileImg(
             @UserId Long userId,
-            @RequestBody @NotNull UserProfileImgReq userProfileImgReq
+            @RequestBody UserProfileImgReq userProfileImgReq
     ) {
         return ResponseEntity.ok(userProfileService.changeUserProfileImg(userId, userProfileImgReq));
     }

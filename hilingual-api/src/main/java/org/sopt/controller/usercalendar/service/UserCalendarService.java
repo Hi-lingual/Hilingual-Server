@@ -40,11 +40,11 @@ public class UserCalendarService {
         }
     }
 
-    public UserCalendarTopicRes getTopicByDate(final LocalDate date) {
+    public UserCalendarTopicRes getTopicByDate(final long userId, final LocalDate date) {
         if (date.isAfter(LocalDate.now())) {
             throw new FutureDateNotAllowedException(UserCalendarApiErrorCode.FUTURE_DATE_NOT_ALLOWED);
         }
-        return topicFacade.findTopicByDate(date);
+        return topicFacade.findTopicByDate(userId, date);
     }
 
     public UserCalendarMonthlyRes getWrittenDatesOfMonth(final Long userId, final int year, final int month) {

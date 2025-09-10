@@ -8,6 +8,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
+import org.sopt.alarmpreference.facade.AlarmPreferenceRemover;
+import org.sopt.block.facade.BlockFacade;
 import org.sopt.controller.auth.util.AppleKeyService;
 import org.sopt.controller.auth.util.ApplePublicKeyList;
 import org.sopt.controller.auth.dto.SocialLoginReq;
@@ -16,19 +19,26 @@ import org.sopt.controller.auth.exception.*;
 import org.sopt.controller.auth.util.GoogleOAuth2UserInfo;
 import org.sopt.controller.auth.util.MyKeyLocator;
 import org.sopt.controller.token.TokenService;
+import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
 import org.sopt.exception.code.GlobalErrorCode;
+import org.sopt.feedalarm.facade.FeedAlarmFacade;
+import org.sopt.feedalarm.facade.FeedAlarmRemover;
+import org.sopt.follow.facade.FollowFacade;
 import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
+import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
+import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -43,6 +53,14 @@ public class AuthService {
 
     private final TokenService tokenService;
     private final UserFacade userFacade;
+    private final UserCalendarFacade userCalendarFacade;
+    private final DiaryFacade diaryFacade;
+    private final LikedDiaryFacade likedDiaryFacade;
+    private final FeedAlarmFacade feedAlarmFacade;
+    private final BlockFacade blockFacade;
+    private final FollowFacade followFacade;
+    private final AlarmPreferenceFacade alarmPreferenceFacade;
+
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -69,37 +87,22 @@ public class AuthService {
         return null;
     }
 
+    @Transactional
     public Void leave(Long userId, String accessToken) {
         // 토큰 삭제 및 무효화
         tokenService.leave(accessToken);
 
-        // User 정보 Soft Delete
-        User user = userFacade.getUserById(userId);
-
-        // User Provider Id 변경
-        String newProviderId = generateUniqueProviderId();
-        user.setProviderId(newProviderId);
-        user.setIsDeleted(true);
-        user.setDeletedAt(LocalDateTime.now());
-        userFacade.save(user);
+        // User 정보 Hard Delete
+        userFacade.deleteUserById(userId); // user, userProfile, noticeDelivery 삭제
+        userCalendarFacade.deleteAllByUserId(userId); // userCalendar 정보 삭제
+        diaryFacade.deleteAllByUserId(userId); // Diary, Recommend, DiaryFeedback 삭제
+        likedDiaryFacade.deleteAllByUserId(userId); // LikedDiary 삭제
+        feedAlarmFacade.deleteAllByUserId(userId); // FeedAlarm 삭제
+        blockFacade.deleteAllByUserId(userId); // Block 삭제
+        followFacade.deleteAllByUserId(userId); // Follow 삭제
+        alarmPreferenceFacade.deleteAllByUserId(userId); // AlarmPreference 삭제
 
         return null;
-    }
-
-    private String generateUniqueProviderId() {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        SecureRandom random = new SecureRandom();
-        String generatedId;
-
-        do {
-            StringBuilder sb = new StringBuilder(50);
-            for (int i = 0; i < 50; i++) {
-                sb.append(characters.charAt(random.nextInt(characters.length())));
-            }
-            generatedId = sb.toString();
-        } while (userFacade.existsByProviderId(generatedId)); // DB에 이미 존재하는지 확인
-
-        return generatedId;
     }
 
     private SocialLoginRes googleLogin(String providerToken, SocialLoginReq req) {

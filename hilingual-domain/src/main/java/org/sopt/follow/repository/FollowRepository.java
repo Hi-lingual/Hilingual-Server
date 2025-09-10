@@ -81,4 +81,5 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
             @Param("targetUserId") Long targetUserId
     );
 
+    void deleteAllByFollowerIdOrFolloweeId(Long followerId, Long followeeId);
 }

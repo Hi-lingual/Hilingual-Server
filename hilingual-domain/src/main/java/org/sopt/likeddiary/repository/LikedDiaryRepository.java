@@ -46,4 +46,6 @@ public interface LikedDiaryRepository extends JpaRepository<LikedDiary, Long> {
             """)
     void deleteByDiaryId(@Param("diaryId") Long diaryId);
 
+    void deleteAllByUserId(Long userId);
+
 }

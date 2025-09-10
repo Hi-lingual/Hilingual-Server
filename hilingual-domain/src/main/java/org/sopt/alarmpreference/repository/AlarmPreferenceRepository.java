@@ -26,4 +26,6 @@ public interface AlarmPreferenceRepository extends JpaRepository<AlarmPreference
            """)
     List<Long> findEnabledUserIdsByType(AlarmType alarmType);
 
+    void deleteAllByUserId(Long userId);
+
 }

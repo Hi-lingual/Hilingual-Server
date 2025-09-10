@@ -2,22 +2,32 @@ package org.sopt.topic.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.topic.domian.Topic;
+import org.sopt.usercalendar.domain.UserCalendar;
+import org.sopt.usercalendar.domain.WriteStatus;
 import org.sopt.usercalendar.exception.UserCalendarCoreErrorCode;
 import org.sopt.usercalendar.exception.UserCalendarTopicNotFoundException;
 import org.sopt.usercalendar.dto.UserCalendarTopicRes;
+import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class TopicFacade {
 
     private final TopicRetriever topicRetriever;
+    private final UserCalendarFacade userCalendarFacade;
 
-    public UserCalendarTopicRes findTopicByDate(LocalDate date) {
+    public UserCalendarTopicRes findTopicByDate(Long userId, LocalDate date) {
+        Optional<UserCalendar> userCalendar = userCalendarFacade.findByUserIdAndDate(userId, date);
+        if (userCalendar.isPresent() && userCalendar.get().getStatus() == WriteStatus.DELETED) {
+            return UserCalendarTopicRes.of(" ", " ", -1);
+        }
+
         final Topic topic = topicRetriever.findByDate(date)
                 .orElseThrow(() -> new UserCalendarTopicNotFoundException(UserCalendarCoreErrorCode.TOPIC_NOT_FOUND));
 

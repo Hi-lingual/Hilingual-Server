@@ -39,4 +39,8 @@ public class UserCalendarRetriever {
                 .orElseThrow(() -> new UserCalendarDiaryNotFoundException(UserCalendarCoreErrorCode.DIARY_NOT_FOUND));
     }
 
+    public Optional<UserCalendar> findByUserIdAndDate(final long userId, final LocalDate date) {
+        return userCalendarRepository.findByUserIdAndDate(userId, date);
+    }
+
 }

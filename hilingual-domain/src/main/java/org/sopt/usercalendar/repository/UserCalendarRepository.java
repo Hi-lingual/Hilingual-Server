@@ -45,4 +45,8 @@ public interface UserCalendarRepository extends JpaRepository<UserCalendar, Long
     int updateStatusByUserAndDate(@Param("userId") Long userId,
                                   @Param("date") LocalDate date,
                                   @Param("status") WriteStatus status);
+
+    void deleteAllByUserId(Long userId);
+
+    Optional<UserCalendar> findByUserIdAndDate(Long userId, LocalDate date);
 }
