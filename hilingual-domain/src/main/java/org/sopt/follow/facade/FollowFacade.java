@@ -87,4 +87,8 @@ public class FollowFacade {
     public boolean haveFollowing(Long followerId) {
         return followRetriever.existsByFollowerId(followerId);
     }
+
+    public void deleteAllByUserId(Long userId) {
+        followRemover.deleteAllByUserId(userId);
+    }
 }

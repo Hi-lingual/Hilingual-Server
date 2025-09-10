@@ -23,6 +23,7 @@ import org.sopt.exception.UnAuthorizedException;
 import org.sopt.exception.code.GlobalErrorCode;
 import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.feedalarm.facade.FeedAlarmRemover;
+import org.sopt.follow.facade.FollowFacade;
 import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.likeddiary.facade.LikedDiaryFacade;
@@ -54,6 +55,7 @@ public class AuthService {
     private final LikedDiaryFacade likedDiaryFacade;
     private final FeedAlarmFacade feedAlarmFacade;
     private final BlockFacade blockFacade;
+    private final FollowFacade followFacade;
 
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
     private final FeedAlarmRemover feedAlarmRemover;
@@ -93,6 +95,8 @@ public class AuthService {
         likedDiaryFacade.deleteAllByUserId(userId); // LikedDiary 삭제
         feedAlarmFacade.deleteAllByUserId(userId); // FeedAlarm 삭제
         blockFacade.deleteAllByUserId(userId); // Block 삭제
+        followFacade.deleteAllByUserId(userId); // Follow 삭제
+
 
         return null;
     }
