@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -47,6 +48,10 @@ public class UserCalendarFacade {
 
     public void deleteAllByUserId(final Long userId) {
         userCalendarRemover.deleteAllByUserId(userId);
+    }
+
+    public Optional<UserCalendar> findByUserIdAndDate(final long userId, final LocalDate date) {
+        return userCalendarRetriever.findByUserIdAndDate(userId, date);
     }
 
 }

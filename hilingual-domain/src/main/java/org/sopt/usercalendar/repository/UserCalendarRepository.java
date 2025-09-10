@@ -47,4 +47,6 @@ public interface UserCalendarRepository extends JpaRepository<UserCalendar, Long
                                   @Param("status") WriteStatus status);
 
     void deleteAllByUserId(Long userId);
+
+    Optional<UserCalendar> findByUserIdAndDate(Long userId, LocalDate date);
 }

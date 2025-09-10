@@ -39,7 +39,10 @@ public class UserCalendarController {
     }
 
     @GetMapping("/{date}/topic")
-    public ResponseEntity<UserCalendarTopicRes> getTopicByDate(@PathVariable final String date) {
+    public ResponseEntity<UserCalendarTopicRes> getTopicByDate(
+            @UserId Long userId,
+            @PathVariable final String date
+    ) {
         final LocalDate parsedDate;
 
         try {
@@ -48,7 +51,7 @@ public class UserCalendarController {
             throw new UserCalendarInvalidDateFormatException(UserCalendarApiErrorCode.INVALID_DATE_FORMAT);
         }
 
-        return ResponseEntity.ok(userCalendarService.getTopicByDate(parsedDate));
+        return ResponseEntity.ok(userCalendarService.getTopicByDate(userId, parsedDate));
     }
 
     @GetMapping("/month")
