@@ -24,6 +24,7 @@ import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
+import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -43,6 +44,7 @@ public class AuthService {
 
     private final TokenService tokenService;
     private final UserFacade userFacade;
+    private final UserCalendarFacade userCalendarFacade;
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -73,33 +75,11 @@ public class AuthService {
         // 토큰 삭제 및 무효화
         tokenService.leave(accessToken);
 
-        // User 정보 Soft Delete
-        User user = userFacade.getUserById(userId);
-
-        // User Provider Id 변경
-        String newProviderId = generateUniqueProviderId();
-        user.setProviderId(newProviderId);
-        user.setIsDeleted(true);
-        user.setDeletedAt(LocalDateTime.now());
-        userFacade.save(user);
+        // User 정보 Hard Delete
+        userFacade.deleteUserById(userId); // user, userProfile, noticeDelivery 삭제
+        userCalendarFacade.deleteAllByUserId(userId); // userCalendar 정보 삭제
 
         return null;
-    }
-
-    private String generateUniqueProviderId() {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        SecureRandom random = new SecureRandom();
-        String generatedId;
-
-        do {
-            StringBuilder sb = new StringBuilder(50);
-            for (int i = 0; i < 50; i++) {
-                sb.append(characters.charAt(random.nextInt(characters.length())));
-            }
-            generatedId = sb.toString();
-        } while (userFacade.existsByProviderId(generatedId)); // DB에 이미 존재하는지 확인
-
-        return generatedId;
     }
 
     private SocialLoginRes googleLogin(String providerToken, SocialLoginReq req) {

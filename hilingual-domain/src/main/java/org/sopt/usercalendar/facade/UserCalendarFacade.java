@@ -17,6 +17,7 @@ public class UserCalendarFacade {
     private final UserCalendarRetriever userCalendarRetriever;
     private final UserCalendarSaver userCalendarSaver;
     private final UserCalendarUpdater userCalendarUpdater;
+    private final UserCalendarRemover userCalendarRemover;
 
     @Transactional
     public void markWrittenDate(User user, LocalDate writtenDate) {
@@ -42,6 +43,10 @@ public class UserCalendarFacade {
     @Transactional
     public void markDeleted(final Long userId, final LocalDate date) {
         userCalendarUpdater.markDeleted(userId, date);
+    }
+
+    public void deleteAllByUserId(final Long userId) {
+        userCalendarRemover.deleteAllByUserId(userId);
     }
 
 }
