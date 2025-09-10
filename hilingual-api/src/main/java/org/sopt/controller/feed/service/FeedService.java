@@ -59,14 +59,18 @@ public class FeedService {
         // 존재하는 유저인지 확인
         userFacade.getUserById(userId);
 
-        // isMine 검사
-        boolean isMine = userId.equals(targetUserId);
-
-        // 유저 프로필 조회
         UserProfile userProfile = userProfileFacade.getProfileByUserId(targetUserId);
 
+        boolean isMine = userId.equals(targetUserId);
         if (isMine) {
-            return FeedProfileRes.from(userProfile, true, null, null, null, s3Service.bindProfileImage(userId, userProfile.getProfileImg()));
+            return FeedProfileRes.from(
+                    userProfile,
+                    true,
+                    null,
+                    null,
+                    null,
+                    bindProfileImageIfPresent(userId, userProfile.getProfileImg())
+            );
         }
 
         // 내 프로필이 아닌 경우
@@ -82,8 +86,16 @@ public class FeedService {
                 followRelation.getIsFollowing(),
                 followRelation.getIsFollowed(),
                 isBlocked,
-                s3Service.bindProfileImage(userId, userProfile.getProfileImg())
+                bindProfileImageIfPresent(userId, userProfile.getProfileImg())
         );
+    }
+
+    private String bindProfileImageIfPresent(Long viewerUserId, String raw) {
+        // DB 기본 이미지 = " " → 그대로 반환
+        if (" ".equals(raw)) {
+            return " ";
+        }
+        return s3Service.bindProfileImage(viewerUserId, raw);
     }
 
     public SharedDiaryListRes getSharedDiaries(Long targetUserId) {
