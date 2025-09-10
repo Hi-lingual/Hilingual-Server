@@ -7,11 +7,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.common.config.BaseTimeEntity;
 import org.sopt.diaryfeedback.domain.DiaryFeedback;
+import org.sopt.likeddiary.domain.LikedDiary;
 import org.sopt.recommend.domain.Recommend;
 import org.sopt.user.domain.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.sopt.diary.domain.DiaryTableConstants.*;
@@ -59,6 +61,9 @@ public class Diary extends BaseTimeEntity {
     @OneToMany(mappedBy = "diary", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Recommend> recommends;
 
+    @OneToMany(mappedBy = "diary", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<LikedDiary> likes = new ArrayList<>();
+
     public void publish() {
         this.isPublic = true;
         this.sharedTime = LocalDateTime.now();
@@ -84,6 +89,7 @@ public class Diary extends BaseTimeEntity {
                 0,             // isLiked
                 null,
                 user,
+                null,
                 null,
                 null
         );
