@@ -69,7 +69,7 @@ public class FeedService {
                     null,
                     null,
                     null,
-                    bindProfileImageIfPresent(userId, userProfile.getProfileImg())
+                    bindProfileImageByOwner(targetUserId, userProfile.getProfileImg())
             );
         }
 
@@ -86,16 +86,15 @@ public class FeedService {
                 followRelation.getIsFollowing(),
                 followRelation.getIsFollowed(),
                 isBlocked,
-                bindProfileImageIfPresent(userId, userProfile.getProfileImg())
+                bindProfileImageByOwner(targetUserId, userProfile.getProfileImg())
         );
     }
 
-    private String bindProfileImageIfPresent(Long viewerUserId, String raw) {
-        // DB 기본 이미지 = " " → 그대로 반환
-        if (" ".equals(raw)) {
-            return " ";
-        }
-        return s3Service.bindProfileImage(viewerUserId, raw);
+    private String bindProfileImageByOwner(Long ownerUserId, String raw) {
+
+        if (" ".equals(raw)) return " ";
+        if (raw.startsWith("https://")) return raw;
+        return s3Service.bindProfileImage(ownerUserId, raw);
     }
 
     public SharedDiaryListRes getSharedDiaries(Long targetUserId) {
