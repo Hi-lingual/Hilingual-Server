@@ -91,10 +91,9 @@ public class FeedService {
     }
 
     private String bindProfileImageByOwner(Long ownerUserId, String raw) {
-
         if (" ".equals(raw)) return " ";
         if (raw.startsWith("https://")) return raw;
-        return s3Service.bindProfileImage(ownerUserId, raw);
+        return s3Service.toPublicUrl(raw);
     }
 
     public SharedDiaryListRes getSharedDiaries(Long targetUserId) {
