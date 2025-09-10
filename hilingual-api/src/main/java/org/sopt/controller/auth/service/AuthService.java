@@ -20,6 +20,8 @@ import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
 import org.sopt.exception.code.GlobalErrorCode;
+import org.sopt.feedalarm.facade.FeedAlarmFacade;
+import org.sopt.feedalarm.facade.FeedAlarmRemover;
 import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.likeddiary.facade.LikedDiaryFacade;
@@ -49,7 +51,10 @@ public class AuthService {
     private final UserCalendarFacade userCalendarFacade;
     private final DiaryFacade diaryFacade;
     private final LikedDiaryFacade likedDiaryFacade;
+    private final FeedAlarmFacade feedAlarmFacade;
+
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
+    private final FeedAlarmRemover feedAlarmRemover;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
@@ -84,6 +89,8 @@ public class AuthService {
         userCalendarFacade.deleteAllByUserId(userId); // userCalendar 정보 삭제
         diaryFacade.deleteAllByUserId(userId); // Diary, Recommend, DiaryFeedback 삭제
         likedDiaryFacade.deleteAllByUserId(userId); // LikedDiary 삭제
+        feedAlarmFacade.deleteAllByUserId(userId); // FeedAlarm 삭제
+
 
         return null;
     }
