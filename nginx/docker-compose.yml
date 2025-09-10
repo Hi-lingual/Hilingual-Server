@@ -4,7 +4,7 @@ services:
     container_name: hilingual-nginx
     ports: ["80:80","443:443"]
     volumes:
-      # 템플릿만 컨테이너에 제공(읽기전용 권장)
+      # 템플릿만 컨테이너에 제공
       - /home/ubuntu/nginx/nginx.template.conf:/etc/nginx/conf.d/default.conf:ro
       - /home/ubuntu/nginx/includes:/etc/nginx/includes:rw
       - /home/ubuntu/nginx/certbot/www:/var/www/certbot:ro
