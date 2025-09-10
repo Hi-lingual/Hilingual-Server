@@ -38,6 +38,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -86,6 +87,7 @@ public class AuthService {
         return null;
     }
 
+    @Transactional
     public Void leave(Long userId, String accessToken) {
         // 토큰 삭제 및 무효화
         tokenService.leave(accessToken);
