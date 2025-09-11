@@ -84,4 +84,8 @@ public class UserProfileFacade {
         return userProfileUpdater.decrementFollowerCountByUserId(userId, updatedAt);
     }
 
+    public void decrementTotalDiariesAndRecalculateStreak(final long userId, final LocalDate deletedDate) {
+        userProfileUpdater.decrementTotalDiariesAndRecalculateStreak(userId, deletedDate);
+    }
+
 }

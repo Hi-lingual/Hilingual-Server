@@ -16,7 +16,9 @@ public interface UserCalendarRepository extends JpaRepository<UserCalendar, Long
     /**
      * TODO : 추후 위에 두 User로 탐색하는 메서드 없애고, 아래 ID로 조회하는 메서드 사용하는 걸로 리팩하기!
      */
+    @Query("SELECT CASE WHEN EXISTS (SELECT 1 FROM UserCalendar uc WHERE uc.user = :user AND uc.date = :date AND uc.status != 'DELETED') THEN true ELSE false END")
     boolean existsByUserAndDate(User user, LocalDate date);
+
     Optional<UserCalendar> findByUserAndDate(User user, LocalDate date);
 
 //    boolean existsByUserIdAndDate(Long userId, LocalDate date);
