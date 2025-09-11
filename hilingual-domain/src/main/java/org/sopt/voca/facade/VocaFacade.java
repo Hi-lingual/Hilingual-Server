@@ -11,6 +11,7 @@ import java.util.Optional;
 public class VocaFacade {
 
     private final VocaRetriever vocaRetriever;
+    private final VocaRemover vocaRemover;
 
     public boolean existsByUserIdAndRecommendId(final Long userId, final Long recommendId) {
         return vocaRetriever.existsByUserIdAndRecommendId(userId, recommendId);
@@ -18,6 +19,10 @@ public class VocaFacade {
 
     public Optional<Voca> findOptionalByUserIdAndRecommendId(final Long userId, final Long recommendId) {
         return vocaRetriever.findOptionalByUserIdAndRecommendId(userId, recommendId);
+    }
+
+    public void deleteAllByUserId(final long userId) {
+        vocaRemover.deleteAllByUserId(userId);
     }
 
 }

@@ -33,6 +33,7 @@ import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
+import org.sopt.voca.facade.VocaFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -60,6 +61,7 @@ public class AuthService {
     private final BlockFacade blockFacade;
     private final FollowFacade followFacade;
     private final AlarmPreferenceFacade alarmPreferenceFacade;
+    private final VocaFacade vocaFacade;
 
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
 
@@ -95,6 +97,7 @@ public class AuthService {
         // User 정보 Hard Delete
         userCalendarFacade.deleteAllByUserId(userId); // userCalendar 정보 삭제
         likedDiaryFacade.deleteAllByUserId(userId); // LikedDiary 삭제
+        vocaFacade.deleteAllByUserId(userId); // Voca 삭제
         diaryFacade.deleteAllByUserId(userId); // Diary, Recommend, DiaryFeedback 삭제
         feedAlarmFacade.deleteAllByUserId(userId); // FeedAlarm 삭제
         blockFacade.deleteAllByUserId(userId); // Block 삭제

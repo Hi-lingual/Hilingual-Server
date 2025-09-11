@@ -15,4 +15,8 @@ public class VocaRemover {
     public void delete(final long userId, final long recommendId) {
         vocaRepository.deleteByUserIdAndRecommendId(userId, recommendId);
     }
+
+    public void deleteAllByUserId(final long userId) {
+        vocaRepository.deleteAllByUserId(userId);
+    }
 }

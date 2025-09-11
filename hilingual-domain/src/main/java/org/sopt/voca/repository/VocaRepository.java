@@ -54,4 +54,6 @@ public interface VocaRepository extends JpaRepository<Voca, Long> {
                                                   @Param("keyword") String keyword);
 
     Optional<Voca> findByUserIdAndRecommendId(Long userId, Long recommendId);
+
+    void deleteAllByUserId(Long userId);
 }
