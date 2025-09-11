@@ -23,6 +23,7 @@ import org.sopt.recommend.domain.Recommend;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
+import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,7 @@ public class DiaryService {
     private final RecommendService recommendService;
     private final DiaryDiffService diaryDiffService;
     private final UserCalendarFacade userCalendarFacade;
+    private final UserProfileFacade userProfileFacade;
 
     private final S3Service s3Service;
 
@@ -142,6 +144,7 @@ public class DiaryService {
 
         diaryFacade.deleteDiary(userId, diaryId);
         userCalendarFacade.markDeleted(userId, diary.getWrittenDate());
+        userProfileFacade.decrementTotalDiariesAndRecalculateStreak(userId, diary.getWrittenDate());
     }
 
     @Transactional
