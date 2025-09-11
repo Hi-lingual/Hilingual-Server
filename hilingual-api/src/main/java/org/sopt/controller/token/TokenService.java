@@ -19,13 +19,10 @@ import org.sopt.jwt.core.TokenId;
 import org.sopt.jwt.support.AuthConstants;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +32,6 @@ public class TokenService {
     private final TokenRepository tokenRepository;
     private final TokenHasher tokenHasher;
     private final UserFacade userFacade;
-    private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
     public ReissueTokensRes reissue(String refreshToken) {
