@@ -128,13 +128,7 @@ public class TokenService {
 
     @Transactional
     public void logout(final String accessToken) {
-        Claims claims = jwtTokenProvider.parseAndVerify(accessToken);
-
-        // AccessToken이 맞는지 검증
-        final String type = claims.get(JwtClaimsKeys.TYPE, String.class);
-        if (!JwtClaimsKeys.ACCESS.equals(type)) {
-            throw new InvalidTokenException(AuthErrorCode.TYPE_ERROR_JWT_TOKEN);
-        }
+        Claims claims = getClaimsFromAccessToken(accessToken);
 
         // Claim 에서 정보 추출
         Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
@@ -143,79 +137,27 @@ public class TokenService {
         // Redis 에서 기존 토큰 삭제
         String tokenId = new TokenId(userId, sessionId).toString();
         tokenRepository.deleteById(tokenId);
-
-        // 현재 Access Token을 Redis 블랙리스트에 추가
-        long expirationTime = claims.getExpiration().getTime();
-        long now = System.currentTimeMillis();
-        long remainingExpirationSeconds = (expirationTime - now) / 1000;
-
-        if (remainingExpirationSeconds > 0) {
-            redisTemplate.opsForValue().set(
-                    "blacklist:" + accessToken,
-                    "logged_out",
-                    remainingExpirationSeconds,
-                    TimeUnit.SECONDS
-            );
-        }
     }
 
     @Transactional
     public void leave(final String accessToken) {
-        Claims claims = jwtTokenProvider.parseAndVerify(accessToken);
-
-        // AccessToken이 맞는지 검증
-        final String type = claims.get(JwtClaimsKeys.TYPE, String.class);
-        if (!JwtClaimsKeys.ACCESS.equals(type)) {
-            throw new InvalidTokenException(AuthErrorCode.TYPE_ERROR_JWT_TOKEN);
-        }
+        Claims claims = getClaimsFromAccessToken(accessToken);
 
         // Claim 에서 정보 추출
         Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
 
-        // Unlink에 사용할 모든 RefreshToken 조회 및 임시저장
-        List<Token> userTokens = tokenRepository.findByUserId(userId);
-        /*if (!userTokens.isEmpty()) {
-            // TODO 수정
-            Token firstToken = userTokens.getFirst();
-            String refreshTokenHash = firstToken.getRefreshTokenHash();
-
-            redisTemplate.opsForValue().set(
-                    "unlink_token:" + userId,
-                    refreshTokenHash, // 토큰 해시값을 저장
-                    31,
-                    TimeUnit.DAYS
-            );
-
-            redisTemplate.opsForValue().set(
-                    "unlink_provider:" + userId,
-                    firstToken.getAuthProvider().name(),
-                    31,
-                    TimeUnit.DAYS
-            );
-        }*/
-
         // 기존의 모든 RefreshToken을 Redis에서 삭제
         tokenRepository.deleteByUserId(userId);
-
-        // 현재 Access Token을 Redis 블랙리스트에 추가
-        long expirationTime = claims.getExpiration().getTime();
-        long now = System.currentTimeMillis();
-        long remainingExpirationSeconds = (expirationTime - now) / 1000;
-
-        if (remainingExpirationSeconds > 0) {
-            redisTemplate.opsForValue().set(
-                    "blacklist:" + accessToken,
-                    "logged_out",
-                    remainingExpirationSeconds,
-                    TimeUnit.SECONDS
-            );
-        }
     }
 
-    @Transactional
-    public String extractRefreshToken(final String accessToken){
-        // RefreshToken 추출
+    private Claims getClaimsFromAccessToken(final String accessToken) {
         Claims claims = jwtTokenProvider.parseAndVerify(accessToken);
-        return claims.get(JwtClaimsKeys.REFRESH, String.class);
+        final String type = claims.get(JwtClaimsKeys.TYPE, String.class);
+
+        if (!JwtClaimsKeys.ACCESS.equals(type)) {
+            throw new InvalidTokenException(AuthErrorCode.TYPE_ERROR_JWT_TOKEN);
+        }
+        return claims;
     }
+
 }
