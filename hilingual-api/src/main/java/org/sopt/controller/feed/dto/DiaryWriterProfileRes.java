@@ -48,8 +48,8 @@ public record DiaryWriterProfileRes(
     ){
         static FeedDiary of(final Diary diary, final boolean isLikedByUser) {
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime createdAt = diary.getCreatedAt();
-            long minutesDiff = Duration.between(createdAt, now).toMinutes();
+            LocalDateTime sharedAt = diary.getSharedTime();
+            long minutesDiff = Duration.between(sharedAt, now).toMinutes();
 
             return new FeedDiary(
                     (minutesDiff < ONE_MINUTE) ? LESS_THAN_MINUTE : minutesDiff,
