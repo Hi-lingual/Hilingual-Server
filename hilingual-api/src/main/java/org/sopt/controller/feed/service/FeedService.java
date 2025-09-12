@@ -69,7 +69,7 @@ public class FeedService {
                     null,
                     null,
                     null,
-                    bindProfileImageByOwner(targetUserId, userProfile.getProfileImg())
+                    s3Service.toPublicUrl(userProfile.getProfileImg())
             );
         }
 
@@ -86,14 +86,8 @@ public class FeedService {
                 followRelation.getIsFollowing(),
                 followRelation.getIsFollowed(),
                 isBlocked,
-                bindProfileImageByOwner(targetUserId, userProfile.getProfileImg())
+                s3Service.toPublicUrl(userProfile.getProfileImg())
         );
-    }
-
-    private String bindProfileImageByOwner(Long ownerUserId, String raw) {
-        if (" ".equals(raw)) return " ";
-        if (raw.startsWith("https://")) return raw;
-        return s3Service.toPublicUrl(raw);
     }
 
     public SharedDiaryListRes getSharedDiaries(Long targetUserId) {

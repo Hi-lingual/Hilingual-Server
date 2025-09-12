@@ -34,7 +34,7 @@ public record DiaryWriterProfileRes(
         static Profile of(final UserProfile userProfile, final String profileImgUrl) {
             return new Profile(
                     userProfile.getUser().getId(),
-                    (userProfile.getProfileImg() != null) ? profileImgUrl : " ",
+                    (profileImgUrl != null) ? profileImgUrl : " ",
                     userProfile.getNickname(),
                     userProfile.getStreak()
             );
