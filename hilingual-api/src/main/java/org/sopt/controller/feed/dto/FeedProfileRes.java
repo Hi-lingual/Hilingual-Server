@@ -23,7 +23,7 @@ public record FeedProfileRes (
     ) {
         return new FeedProfileRes(
                 isMine,
-                profileImg,
+                (profileImg != null) ? profileImg : " ",
                 profile.getNickname(),
                 profile.getFollowerCount(),
                 profile.getFollowingCount(),
