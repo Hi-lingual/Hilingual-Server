@@ -31,7 +31,7 @@ public record FollowerListRes(
             return new FollowerRes(
                     profile.userId(),
                     profile.nickname(),
-                    profile.profileImg(),
+                    (profile.profileImg() != null) ? profile.profileImg() : " ",
                     isFollowing,
                     true
             );
