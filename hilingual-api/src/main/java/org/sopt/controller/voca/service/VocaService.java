@@ -3,7 +3,6 @@ package org.sopt.controller.voca.service;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.voca.dto.res.VocaDetailResponse;
 import org.sopt.recommend.domain.Recommend;
-import org.sopt.recommend.facade.RecommendRetriever;
 import org.sopt.voca.dto.VocaListRes;
 import org.sopt.controller.voca.dto.res.VocaSearchListResponse;
 import org.sopt.recommend.facade.RecommendFacade;
@@ -23,7 +22,6 @@ public class VocaService {
     private final RecommendFacade recommendFacade;
     private final VocaFacade vocaFacade;
 
-
     // 단어장 목록 조회
     public VocaListRes getVocaList(final Long userId, final int sort) {
         return vocaRetriever.findGroupedVoca(userId, sort);
@@ -36,15 +34,14 @@ public class VocaService {
     }
 
     // 특정 단어 세부 조회
-    public VocaDetailResponse getVocaDetails(final Long userId, final Long phraseId) {
-        final Recommend recommend = recommendFacade.findByIdWithDiary(phraseId);
-
-        // 1) 북마크 여부
-        final boolean isBookmarked = vocaFacade.existsByUserIdAndRecommendId(userId, phraseId);
-
-        // 2) writtenFrom 생성
-        final String writtenFrom = buildWrittenFrom(userId, recommend, isBookmarked);
-        return VocaDetailResponse.of(recommend, writtenFrom, isBookmarked);
+    public VocaDetailResponse getVocaDetails(Long userId, Long recommendId) {
+        return vocaFacade.findOptionalByUserIdAndRecommendId(userId, recommendId)
+                .map(v -> VocaDetailResponse.ofSnapshot(v, true))
+                .orElseGet(() -> {
+                    Recommend recommend = recommendFacade.findByIdWithDiary(recommendId);
+                    String writtenFrom = buildWrittenFrom(userId, recommend, false);
+                    return VocaDetailResponse.of(recommend, writtenFrom, false);
+                });
     }
 
     private String buildWrittenFrom(Long userId, Recommend rec, boolean isBookmarked) {
