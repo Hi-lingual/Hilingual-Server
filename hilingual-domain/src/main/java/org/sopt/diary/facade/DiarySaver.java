@@ -6,7 +6,6 @@ import org.sopt.diary.repository.DiaryRepository;
 import org.sopt.user.domain.User;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.sopt.userprofile.facade.UserProfileFacade;
-import org.sopt.userprofile.facade.UserProfileUpdater;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,8 +33,7 @@ public class DiarySaver {
         );
 
         userCalendarFacade.markWrittenDate(user, writtenDate);
-        userProfileFacade.incrementTotalDiaries(user.getId());
-        userProfileFacade.updateStreakOnWrite(user.getId(), writtenDate);
+        userProfileFacade.incrementTotalDiariesAndRecalculateStreak(user.getId());
 
         return saved;
     }

@@ -6,6 +6,7 @@ import org.sopt.diary.exception.DiaryCoreErrorCode;
 import org.sopt.diary.exception.DiaryForbiddenException;
 import org.sopt.diary.exception.DiaryNotFoundException;
 import org.sopt.diary.repository.DiaryRepository;
+import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DiaryRemover {
 
     private final DiaryRepository diaryRepository;
+    private final UserProfileFacade userProfileFacade;
 
     @Transactional
     public void deleteDiary(final Long userId, final Long diaryId) {
@@ -24,6 +26,7 @@ public class DiaryRemover {
             throw new DiaryForbiddenException(DiaryCoreErrorCode.DIARY_FORBIDDEN);
         }
         diaryRepository.delete(diary);
+        userProfileFacade.decrementTotalDiariesAndRecalculateStreak(userId);
     }
 
     public void deleteAllByUserId(final Long userId) {
