@@ -24,128 +24,51 @@ public class UserProfileUpdater {
     private final UserProfileRetriever userProfileRetriever;
 
     /**
-     * 일기 작성 시 totalDiaries 증가
+     * 일기 작성 시 totalDiaries 증가 및 streak 재계산
      */
     @Transactional
-    public void incrementTotalDiaries(Long userId) {
+    public void incrementTotalDiariesAndRecalculateStreak(Long userId) {
         UserProfile profile = userProfileRetriever.findByUserId(userId);
         profile.updateTotalDiaries(profile.getTotalDiaries() + 1);
-        userProfileRepository.save(profile);
+        recalculateStreak(profile);
     }
 
     /**
-     * 일기 삭제 시
-     * - totalDiaries 감소
-     * - streak 업데이트
+     * 일기 삭제 시 totalDiaries 감소 및 streak 재계산
      */
     @Transactional
-    public void decrementTotalDiariesAndRecalculateStreak(Long userId, LocalDate deletedDate) {
+    public void decrementTotalDiariesAndRecalculateStreak(Long userId) {
         UserProfile profile = userProfileRetriever.findByUserId(userId);
         profile.updateTotalDiaries(profile.getTotalDiaries() - 1);
-
-        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
-        LocalDate yesterday = today.minusDays(1);
-
-        int newStreak = profile.getStreak();
-
-        // 일기 삭제 시 streak 재계산
-        if (deletedDate.equals(today)) {
-            // 오늘 일기를 삭제한 경우: 어제까지의 streak 계산
-            boolean hasYesterday = userCalendarFacade.existsByUserAndDate(profile.getUser(), yesterday);
-            if (hasYesterday) {
-                // 어제까지의 연속 작성 일수를 다시 계산
-                newStreak = calculateStreakFromDate(profile.getUser(), yesterday);
-            } else {
-                // 어제도 일기가 없다면 streak 0으로 리셋
-                newStreak = 0;
-            }
-        } else if (deletedDate.equals(yesterday)) {
-            // 어제 일기를 삭제한 경우: 오늘부터 연속 작성 일수를 다시 계산
-            boolean hasToday = userCalendarFacade.existsByUserAndDate(profile.getUser(), today);
-            if (hasToday) {
-                // 오늘부터 연속 작성 일수를 다시 계산
-                newStreak = calculateStreakFromDate(profile.getUser(), today);
-            } else {
-                // 오늘도 일기가 없다면 streak 0으로 리셋
-                newStreak = 0;
-            }
-        }
-
-        profile.updateStreak(newStreak);
-        userProfileRepository.save(profile);
-    }
-
-    // 연속 작성 일수를 계산하는 헬퍼 메서드
-    private int calculateStreakFromDate(User user, LocalDate startDate) {
-        int streak = 0;
-        LocalDate currentDate = startDate;
-
-        while (userCalendarFacade.existsByUserAndDate(user, currentDate)) {
-            streak++;
-            currentDate = currentDate.minusDays(1);
-        }
-        return streak;
+        recalculateStreak(profile);
     }
 
     /**
-     * 일기를 쓴 순간에 호출 (streak 업데이트)
-     */
-    @Transactional
-    public void updateStreakOnWrite(Long userId, LocalDate writtenDate) {
-        UserProfile profile = userProfileRetriever.findByUserId(userId);
-
-        LocalDate today     = LocalDate.now(ZoneId.of("Asia/Seoul"));
-        LocalDate yesterday = today.minusDays(1);
-
-        int newStreak = profile.getStreak();
-
-        boolean hasYesterday = userCalendarFacade.existsByUserAndDate(profile.getUser(), yesterday);
-        boolean hasToday = userCalendarFacade.existsByUserAndDate(profile.getUser(), today);
-
-        if (writtenDate.equals(today)) {
-            // 오늘 쓰는 순간 → 어제 썼다면 +1, 아니면 새로 시작
-            if (hasYesterday) {
-                newStreak++;
-            } else if (profile.getStreak() == 0) {
-                newStreak = 1; // 최초 작성이거나 작성 재개
-            }
-        } else if (writtenDate.equals(yesterday)) {
-            // 어제 보충 작성 → 무조건 +1
-            newStreak++;
-            // 오늘도 이미 쓰여 있으면 추가 +1
-            if (hasToday) {
-                newStreak++;
-            }
-            if (profile.getStreak() == 0) {
-                newStreak = 1; // 최초 작성이거나 작성 재개
-            }
-        }
-
-        profile.updateStreak(newStreak);
-        userProfileRepository.save(profile);
-    }
-
-    /**
-     * 매일 자정 → 최근 2일 작성 여부 검사 후 streak 리셋 or 유지
+     * 매일 자정, 모든 사용자의 streak 보정 및 업데이트
      */
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     @Transactional
-    public void resetStreakIfBroken() {
-        LocalDate today     = LocalDate.now(ZoneId.of("Asia/Seoul"));
-        LocalDate dayBefore = today.minusDays(2);
-
-        List<UserProfile> all = userProfileRepository.findAll();
-
-        for (UserProfile profile : all) {
-            // 그제 작성 여부 확인
-            boolean hasDayBefore = userCalendarFacade
-                    .existsByUserAndDate(profile.getUser(), dayBefore);
-            if (!hasDayBefore) {
-                // 그제 안 썼으면 streak 리셋
-                profile.updateStreak(0);
-            }
+    public void validateAndRecalculateAllStreaks() {
+        List<UserProfile> allProfiles = userProfileRepository.findAll();
+        for (UserProfile profile : allProfiles) {
+            recalculateStreak(profile);
         }
-        userProfileRepository.saveAll(all);
+    }
+
+    /**
+     * 오늘부터 과거로 올라가며 streak을 정확히 계산하는 헬퍼 메소드
+     */
+    private void recalculateStreak(UserProfile profile) {
+        int streak = 0;
+        LocalDate currentDate = LocalDate.now(ZoneId.of("Asia/Seoul"));
+
+        while(userCalendarFacade.existsByUserAndDate(profile.getUser(), currentDate)) {
+            streak ++;
+            currentDate = currentDate.minusDays(1);
+        }
+
+        profile.updateStreak(streak);
+        userProfileRepository.save(profile);
     }
 
     @Transactional

@@ -90,7 +90,7 @@ public class FeedService {
         );
     }
 
-    public SharedDiaryListRes getSharedDiaries(Long targetUserId) {
+    public SharedDiaryListRes getSharedDiaries(Long userId, Long targetUserId) {
         // 유저 프로필 조회
         UserProfile userProfile = userFacade.getUserById(targetUserId).getUserProfile();
 
@@ -101,7 +101,7 @@ public class FeedService {
         }
 
         // 다이어리 목록 조회
-        List<Map<String, Object>> diaryData = getPublicDiariesWithIsLiked(targetUserId);
+        List<Map<String, Object>> diaryData = getPublicDiariesWithIsLiked(userId, targetUserId);
 
         List<Diary> diaries = diaryData.stream()
                 .map(data -> (Diary) data.get("diary"))
@@ -282,9 +282,9 @@ public class FeedService {
         return new FollowFeedListRes(followFeeds, true);
     }
 
-    private List<Map<String, Object>> getPublicDiariesWithIsLiked(Long userId) {
+    private List<Map<String, Object>> getPublicDiariesWithIsLiked(Long userId, Long targetUserId) {
         // 해당 userId에 대해 공개된 다이어리 목록 조회
-        List<Diary> diaries = diaryFacade.getPublicDiaries(userId);
+        List<Diary> diaries = diaryFacade.getPublicDiaries(targetUserId);
 
         // 다이어리 ID 목록 추출
         List<Long> diaryIds = diaries.stream().map(Diary::getId).toList();
