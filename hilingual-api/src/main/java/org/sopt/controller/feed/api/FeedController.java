@@ -42,7 +42,7 @@ public class FeedController {
             targetUserId = userId;
         }
 
-        return ResponseEntity.ok(feedService.getSharedDiaries(targetUserId));
+        return ResponseEntity.ok(feedService.getSharedDiaries(userId, targetUserId));
     }
 
     @GetMapping("/profiles/{targetUserId}/diaries/liked")
