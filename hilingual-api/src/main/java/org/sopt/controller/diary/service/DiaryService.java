@@ -144,7 +144,7 @@ public class DiaryService {
 
         diaryFacade.deleteDiary(userId, diaryId);
         userCalendarFacade.markDeleted(userId, diary.getWrittenDate());
-        userProfileFacade.decrementTotalDiariesAndRecalculateStreak(userId);
+        userProfileFacade.decrementTotalDiariesAndRecalculateStreak(userId, diary.getWrittenDate());
     }
 
     @Transactional
