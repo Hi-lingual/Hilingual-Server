@@ -64,12 +64,12 @@ public class UserProfileFacade {
     /**
     updater
      */
-    public void incrementTotalDiariesAndRecalculateStreak(final long userId) {
-        userProfileUpdater.incrementTotalDiariesAndRecalculateStreak(userId);
+    public void incrementTotalDiariesAndRecalculateStreak(final long userId, final LocalDate writtenDate) {
+        userProfileUpdater.incrementTotalDiariesAndRecalculateStreak(userId, writtenDate);
     }
 
-    public void decrementTotalDiariesAndRecalculateStreak(final long userId) {
-        userProfileUpdater.decrementTotalDiariesAndRecalculateStreak(userId);
+    public void decrementTotalDiariesAndRecalculateStreak(final long userId, final LocalDate writtenDate) {
+        userProfileUpdater.decrementTotalDiariesAndRecalculateStreak(userId, writtenDate);
     }
 
     public int updateProfileImgByUserId(final long userId, final String newImgUrl, final LocalDateTime updatedAt) {

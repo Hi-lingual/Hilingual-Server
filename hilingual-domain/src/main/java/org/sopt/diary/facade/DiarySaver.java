@@ -33,7 +33,7 @@ public class DiarySaver {
         );
 
         userCalendarFacade.markWrittenDate(user, writtenDate);
-        userProfileFacade.incrementTotalDiariesAndRecalculateStreak(user.getId());
+        userProfileFacade.incrementTotalDiariesAndRecalculateStreak(user.getId(), writtenDate);
 
         return saved;
     }

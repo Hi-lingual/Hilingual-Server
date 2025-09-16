@@ -26,7 +26,7 @@ public class DiaryRemover {
             throw new DiaryForbiddenException(DiaryCoreErrorCode.DIARY_FORBIDDEN);
         }
         diaryRepository.delete(diary);
-        userProfileFacade.decrementTotalDiariesAndRecalculateStreak(userId);
+        userProfileFacade.decrementTotalDiariesAndRecalculateStreak(userId, diary.getWrittenDate());
     }
 
     public void deleteAllByUserId(final Long userId) {
