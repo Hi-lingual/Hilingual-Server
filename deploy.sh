@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e  # 명령 실패 시 즉시 종료
 
-# ──[환경 고정: 개발]────────────────────────────────────────────
+
 UPSTREAM_ENV="${UPSTREAM_ENV:-dev}"
 NGINX_HOST=10.0.1.18                          # nginx EC2 프라이빗 IP (필요시 수정)
 APP_HOST="${APP_HOST:-$(hostname -I | awk '{print $1}')}"  # 현재 서버 IP 기본값
