@@ -11,7 +11,10 @@ import org.sopt.voca.facade.VocaFacade;
 import org.sopt.voca.facade.VocaRetriever;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,6 +33,10 @@ public class VocaService {
     // 단어장 검색
     public VocaSearchListResponse searchVocaList(final Long userId, final String keyword) {
         final List<Voca> vocas = vocaRetriever.findStartsWithVoca(userId, keyword);
+
+        // ✅ 검색 시 무조건 A–Z
+        vocas.sort(Comparator.comparing(v -> v.getPhrase().toLowerCase(Locale.ROOT)));
+
         return VocaSearchListResponse.from(vocas);
     }
 

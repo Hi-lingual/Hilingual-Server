@@ -48,7 +48,7 @@ public interface VocaRepository extends JpaRepository<Voca, Long> {
         SELECT v FROM Voca v
         WHERE v.user.id = :userId
           AND LOWER(v.phrase) LIKE LOWER(CONCAT(:keyword, '%'))
-        ORDER BY LOWER(SUBSTRING(v.phrase, LENGTH(:keyword) + 1))
+        ORDER BY LOWER(v.phrase) ASC
     """)
     List<Voca> findAllByUserIdAndPhraseStartsWith(@Param("userId") Long userId,
                                                   @Param("keyword") String keyword);
