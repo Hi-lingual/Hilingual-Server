@@ -83,4 +83,12 @@ public class UserProfileFacade {
     public int decrementFollowerCountByUserId(final long userId, final LocalDateTime updatedAt) {
         return userProfileUpdater.decrementFollowerCountByUserId(userId, updatedAt);
     }
+
+    public void decreaseFollowerCountOfFollowees(final long userId) {
+        userProfileUpdater.decreaseFollowerCountOfFollowees(userId);
+    }
+
+    public void decreaseFollowingCountOfFollowers(final long userId) {
+        userProfileUpdater.decreaseFollowingCountOfFollowers(userId);
+    }
 }

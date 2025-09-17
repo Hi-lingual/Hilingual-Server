@@ -89,4 +89,12 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
             @Param("userId") Long userId,
             @Param("updatedAt") LocalDateTime updatedAt
     );
+
+    @Modifying
+    @Query("UPDATE UserProfile up SET up.followerCount = up.followerCount - 1 WHERE up.user.id IN (SELECT f.followee.id FROM Follow f WHERE f.follower.id = :userId)")
+    void decreaseFollowerCountOfFollowees(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("UPDATE UserProfile up SET up.followingCount = up.followingCount - 1 WHERE up.user.id IN (SELECT f.follower.id FROM Follow f WHERE f.followee.id = :userId)")
+    void decreaseFollowingCountOfFollowers(@Param("userId") Long userId);
 }

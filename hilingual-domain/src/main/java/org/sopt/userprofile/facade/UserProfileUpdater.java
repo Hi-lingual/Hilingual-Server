@@ -163,4 +163,12 @@ public class UserProfileUpdater {
     public int decrementFollowerCountByUserId(final long userId, final LocalDateTime updatedAt) {
         return userProfileRepository.decrementFollowerCountByUserId(userId, updatedAt);
     }
+
+    public void decreaseFollowerCountOfFollowees(final long userId) {
+        userProfileRepository.decreaseFollowerCountOfFollowees(userId);
+    }
+
+    public void decreaseFollowingCountOfFollowers(final long userId) {
+        userProfileRepository.decreaseFollowingCountOfFollowers(userId);
+    }
 }
