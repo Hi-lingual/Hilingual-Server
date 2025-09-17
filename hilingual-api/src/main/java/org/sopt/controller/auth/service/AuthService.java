@@ -33,6 +33,7 @@ import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
+import org.sopt.userprofile.facade.UserProfileFacade;
 import org.sopt.voca.facade.VocaFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -62,6 +63,7 @@ public class AuthService {
     private final FollowFacade followFacade;
     private final AlarmPreferenceFacade alarmPreferenceFacade;
     private final VocaFacade vocaFacade;
+    private final UserProfileFacade userProfileFacade;
 
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
 
@@ -93,6 +95,10 @@ public class AuthService {
     public Void leave(Long userId, String accessToken) {
         // 토큰 삭제 및 무효화
         tokenService.leave(accessToken);
+
+        // 해당 유저와 관계가 있던 모든 유저의 follower count, following count 변경
+        userProfileFacade.decreaseFollowerCountOfFollowees(userId);
+        userProfileFacade.decreaseFollowingCountOfFollowers(userId);
 
         // User 정보 Hard Delete
         userCalendarFacade.deleteAllByUserId(userId); // userCalendar 정보 삭제
