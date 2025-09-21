@@ -72,4 +72,8 @@ public class UserCalendarFacade {
         return getStatus(user, date) == WriteStatus.WRITTEN;
     }
 
+    public long countWritten(final Long userId) {
+        return userCalendarRetriever.countWrittenByUserId(userId);
+    }
+
 }
