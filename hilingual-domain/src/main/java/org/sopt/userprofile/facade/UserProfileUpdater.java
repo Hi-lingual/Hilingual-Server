@@ -30,8 +30,8 @@ public class UserProfileUpdater {
     @Transactional
     public void incrementTotalDiariesAndRecalculateStreak(Long userId, LocalDate writtenDate) {
         UserProfile profile = userProfileRetriever.findByUserId(userId);
-        profile.updateTotalDiaries(profile.getTotalDiaries() + 1);
-        updateStreakOnWrite(userId, writtenDate);
+        updateStreakOnWrite(userId, writtenDate); // 캘린더 상태 기준으로 streak 반영
+        resyncTotal(profile);                     // WRITTEN 개수로 동기화
         userProfileRepository.save(profile);
     }
 
@@ -41,8 +41,8 @@ public class UserProfileUpdater {
     @Transactional
     public void decrementTotalDiariesAndRecalculateStreak(Long userId, LocalDate writtenDate) {
         UserProfile profile = userProfileRetriever.findByUserId(userId);
-        profile.updateTotalDiaries(profile.getTotalDiaries() - 1);
-        updateStreakOnDelete(userId, writtenDate);
+        updateStreakOnDelete(userId, writtenDate); // 삭제 규칙대로 streak 반영
+        resyncTotal(profile);                      // WRITTEN 개수로 동기화
         userProfileRepository.save(profile);
     }
 
@@ -200,6 +200,11 @@ public class UserProfileUpdater {
             // (15 O, 16 X) 또는 (15 O, 16 O) → 유지
         }
         userProfileRepository.saveAll(all);
+    }
+
+    private void resyncTotal(UserProfile profile) {
+        long cnt = userCalendarFacade.countWritten(profile.getUser().getId());
+        profile.updateTotalDiaries((int) cnt);
     }
 
 
