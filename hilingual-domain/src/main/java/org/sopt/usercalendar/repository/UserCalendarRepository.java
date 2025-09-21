@@ -51,4 +51,12 @@ public interface UserCalendarRepository extends JpaRepository<UserCalendar, Long
     void deleteAllByUserId(Long userId);
 
     Optional<UserCalendar> findByUserIdAndDate(Long userId, LocalDate date);
+
+
+    @Query("""
+    SELECT COUNT(uc) FROM UserCalendar uc
+    WHERE uc.user.id = :userId
+      AND uc.status  = org.sopt.usercalendar.domain.WriteStatus.WRITTEN
+""")
+    long countWrittenByUserId(@Param("userId") Long userId);
 }

@@ -43,4 +43,8 @@ public class UserCalendarRetriever {
         return userCalendarRepository.findByUserIdAndDate(userId, date);
     }
 
+    public long countWrittenByUserId(Long userId) {
+        return userCalendarRepository.countWrittenByUserId(userId);
+    }
+
 }
