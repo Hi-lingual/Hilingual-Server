@@ -57,25 +57,27 @@ public class UserProfileUpdater {
         LocalDate today     = LocalDate.now(KST);   // D
         LocalDate yesterday = today.minusDays(1);   // Y
 
-        int newStreak = profile.getStreak();
-
+        // 캘린더 사실값 조회
         WriteStatus yStatus = userCalendarFacade.getStatus(profile.getUser(), yesterday);
         WriteStatus dStatus = userCalendarFacade.getStatus(profile.getUser(), today);
 
+        int newStreak = profile.getStreak();
+
         if (writtenDate.equals(today)) {
-            // 오늘 작성
             if (yStatus == WriteStatus.WRITTEN) {
-                newStreak += 1;                 // 정상 연결
-            } else if (yStatus == WriteStatus.DELETED) {
-                newStreak = 1;   // 하드 미싱 → 오늘 단독 확정 1
-            } // NONE이면 보충 가능 → 변화 없음
-        } else if (writtenDate.equals(yesterday)) {
-            // 어제 보충: +1, 오늘도 WRITTEN이면 +1 추가
-            newStreak += 1;
-            if (dStatus == WriteStatus.WRITTEN) {
-                newStreak += 1;
+                // 어제부터의 연속을 사실값으로 재계산 후 +오늘
+                int base = calculateStreakFromDate(profile.getUser(), yesterday);
+                newStreak = base + 1;
+            } else {
+                // (NONE 또는 DELETED) → 오늘 단독은 즉시 1
+                newStreak = 1;
             }
+        } else if (writtenDate.equals(yesterday)) {
+            // 어제 보충 시: 어제부터의 연속을 사실값으로 재계산
+            int base = calculateStreakFromDate(profile.getUser(), yesterday); // ≥1
+            newStreak = base + (dStatus == WriteStatus.WRITTEN ? 1 : 0);
         }
+        // 그 외 날짜는 변화 없음
 
         profile.updateStreak(newStreak);
         userProfileRepository.save(profile);
