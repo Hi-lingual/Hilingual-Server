@@ -95,9 +95,11 @@ public class AdminNoticeService {
             try {
                 noticeDeliveryRepository.saveAll(rows);
             } catch (DataIntegrityViolationException e) {
-                if (isUniqueViolation(e, NoticeDeliveryTableConstants.UK_NOTICE_DELIVERY_NOTICE_USER)) continue;
-                throw e;
+                if (!isUniqueViolation(e, NoticeDeliveryTableConstants.UK_NOTICE_DELIVERY_NOTICE_USER)) {
+                    throw e;
+                }
             }
+            userRepository.turnOnNotifyByIds(batch);
         }
     }
 
