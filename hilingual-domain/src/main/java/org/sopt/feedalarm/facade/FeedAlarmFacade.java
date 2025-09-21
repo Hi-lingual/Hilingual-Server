@@ -41,13 +41,16 @@ public class FeedAlarmFacade {
 
         try {
             feedAlarmSaver.save(alarm);
+            targetUser.turnOnNotify();
         } catch (org.springframework.dao.DataIntegrityViolationException ignore) {
             // 동시성 환경에서 중복 insert 시 무시
+            targetUser.turnOnNotify();
         }
     }
 
     @Transactional
     public void createLikeDiaryAlarm(Diary targetDiary, User actor) {
+        final User targetUser = targetDiary.getUser();
         final Long targetUserId = targetDiary.getUser().getId();
         final Long actorId = actor.getId();
 
@@ -75,8 +78,11 @@ public class FeedAlarmFacade {
 
         try {
             feedAlarmSaver.save(alarm);
+            targetUser.turnOnNotify();
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
             // 동시성 환경에서 중복 insert 시 무시
+            targetUser.turnOnNotify();
+
         }
     }
 

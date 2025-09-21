@@ -81,4 +81,12 @@ public class User extends BaseTimeEntity {
         u.id = id;
         return u;
     }
+
+    public void turnOnNotify() {
+        this.notifyStatus = true;
+    }
+
+    public void turnOffNotify() {
+        this.notifyStatus = false;
+    }
 }

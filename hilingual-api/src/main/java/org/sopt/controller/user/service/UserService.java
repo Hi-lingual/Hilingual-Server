@@ -8,6 +8,7 @@ import org.sopt.controller.token.TokenService;
 import org.sopt.controller.user.dto.*;
 import org.sopt.controller.user.exception.CannotLoadProviderException;
 import org.sopt.controller.user.exception.UserApiErrorCode;
+import org.sopt.feedalarm.domain.FeedAlarm;
 import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.user.domain.User;
@@ -117,9 +118,16 @@ public class UserService {
                 .stream().map(NoticeListItemRes::from).toList();
     }
 
+    @Transactional
     public List<FeedAlarmItemRes> getFeedAlarms(long userId) {
-        return feedAlarmFacade.findLatestByUserId(userId)
-                .stream().map(FeedAlarmItemRes::from).toList();
+        List<FeedAlarm> alarms = feedAlarmFacade.findLatestByUserId(userId);
+
+        User user = userFacade.getUserById(userId);
+        user.turnOffNotify();
+
+        return alarms.stream()
+                .map(FeedAlarmItemRes::from)
+                .toList();
     }
 
 }
