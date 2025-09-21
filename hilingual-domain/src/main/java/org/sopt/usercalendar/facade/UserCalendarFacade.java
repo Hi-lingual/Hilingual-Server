@@ -6,6 +6,8 @@ import org.sopt.user.domain.User;
 import org.sopt.usercalendar.domain.UserCalendar;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.sopt.usercalendar.domain.WriteStatus;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -52,6 +54,22 @@ public class UserCalendarFacade {
 
     public Optional<UserCalendar> findByUserIdAndDate(final long userId, final LocalDate date) {
         return userCalendarRetriever.findByUserIdAndDate(userId, date);
+    }
+
+    public WriteStatus getStatus(User user, LocalDate date) {
+        return userCalendarRetriever.findByUserAndDate(user, date)
+                .map(UserCalendar::getStatus)
+                .orElse(WriteStatus.NONE);
+    }
+
+    public WriteStatus getStatusByUserIdAndDate(long userId, LocalDate date) {
+        return userCalendarRetriever.findByUserIdAndDate(userId, date)
+                .map(UserCalendar::getStatus)
+                .orElse(WriteStatus.NONE);
+    }
+
+    public boolean isWritten(User user, LocalDate date) {
+        return getStatus(user, date) == WriteStatus.WRITTEN;
     }
 
 }
