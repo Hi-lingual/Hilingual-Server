@@ -6,6 +6,7 @@ import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
 import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.aws.s3.dto.Purpose;
 import org.sopt.aws.s3.service.S3Service;
+import org.sopt.controller.discord.service.WebhookService;
 import org.sopt.controller.userprofile.dto.UserProfileImgReq;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
@@ -35,6 +36,7 @@ public class UserProfileService {
     private final ForbiddenWordFacade forbiddenWordFacade;
     private final AlarmPreferenceFacade alarmPreferenceFacade;
     private final S3Service s3Service;
+    private final WebhookService webhookService;
 
     // TODO : 닉네임 중복 체크 아예 Custom Validator 로 빼자
 
@@ -86,6 +88,8 @@ public class UserProfileService {
         alarmPreferenceFacade.save(alarmPreferenceFeed);
         userProfileFacade.save(userProfile);
         userFacade.save(user);
+
+        webhookService.sendCompleteUserNotification(userProfile);
     }
 
     private boolean isValidFormat(String nickname) {

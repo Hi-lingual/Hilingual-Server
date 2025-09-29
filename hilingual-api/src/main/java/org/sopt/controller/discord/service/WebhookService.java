@@ -3,6 +3,7 @@ package org.sopt.controller.discord.service;
 import lombok.RequiredArgsConstructor;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
+import org.sopt.userprofile.domain.UserProfile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,9 +26,6 @@ public class WebhookService {
     private final UserFacade userFacade;
 
     public void sendNewUserNotification() {
-
-        RestTemplate restTemplate = new RestTemplate();
-
         // 회원 수 조회
         final long totalMembers = userFacade.count();
 
@@ -36,10 +34,8 @@ public class WebhookService {
         sendDiscordWebhook(message);
     }
 
-    public void sendCompleteUserNotification(final long userId) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        String message = userFacade.getUserById(userId).getUserProfile().getNickname() + "회원님이 회원가입을 완료했습니다!\n";
+    public void sendCompleteUserNotification(UserProfile userProfile) {
+        String message = userProfile.getNickname() + "회원님이 회원가입을 완료했습니다!\n";
         sendDiscordWebhook(message);
     }
 
