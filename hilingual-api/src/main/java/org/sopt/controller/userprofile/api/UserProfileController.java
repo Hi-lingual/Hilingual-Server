@@ -2,6 +2,7 @@ package org.sopt.controller.userprofile.api;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.sopt.controller.discord.service.WebhookService;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
 import org.sopt.controller.userprofile.dto.UserProfileImgReq;
 import org.sopt.controller.userprofile.dto.UserProfileReq;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserProfileController {
 
     private final UserProfileService userProfileService;
+    private final WebhookService webhookService;
 
     @GetMapping("/profile/check")
     public BaseResponseDto<NicknameAvailableRes> getUserProfile(
@@ -35,6 +37,7 @@ public class UserProfileController {
             @RequestBody @NotNull UserProfileReq userProfileReq
     ) {
         userProfileService.save(userId, userProfileReq);
+        webhookService.sendCompleteUserNotification(userId);
         return ResponseEntity.ok(GlobalSuccessCode.OK);
     }
 
