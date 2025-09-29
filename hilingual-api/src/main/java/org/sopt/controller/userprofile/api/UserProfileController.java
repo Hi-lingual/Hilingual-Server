@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserProfileController {
 
     private final UserProfileService userProfileService;
-    private final WebhookService webhookService;
 
     @GetMapping("/profile/check")
     public BaseResponseDto<NicknameAvailableRes> getUserProfile(
@@ -37,7 +36,6 @@ public class UserProfileController {
             @RequestBody @NotNull UserProfileReq userProfileReq
     ) {
         userProfileService.save(userId, userProfileReq);
-        webhookService.sendCompleteUserNotification(userId);
         return ResponseEntity.ok(GlobalSuccessCode.OK);
     }
 
