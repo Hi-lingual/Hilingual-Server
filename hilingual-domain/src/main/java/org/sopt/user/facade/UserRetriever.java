@@ -33,5 +33,8 @@ public class UserRetriever {
     public boolean existsByProviderId(String providerId) {
         return userRepository.existsByProviderId(providerId);
     }
-  
+
+    public long count() {
+        return userRepository.count();
+    }
 }
