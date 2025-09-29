@@ -127,3 +127,9 @@ spring:
   config:
     activate:
       on-profile: green
+
+---
+
+discord:
+  webhook:
+    url: ${NEW_USER_WEBHOOK}
