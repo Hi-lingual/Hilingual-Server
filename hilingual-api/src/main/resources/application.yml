@@ -12,20 +12,17 @@ spring:
     password: ${DB_PW}
     driver-class-name: org.postgresql.Driver
 
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
-
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${DDL_OPTION}
     properties:
       hibernate:
-        show_sql: true
-        format_sql: true
+        show_sql: ${SHOW_SQL}
+        format_sql: ${FORMAT_SQL}
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: never
 
   security:
     oauth2:
