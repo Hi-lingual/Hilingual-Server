@@ -14,11 +14,11 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: ${DDL_OPTION}
     properties:
       hibernate:
-        show_sql: false
-        format_sql: false
+        show_sql: ${SHOW_SQL}
+        format_sql: ${FORMAT_SQL}
         dialect: org.hibernate.dialect.PostgreSQLDialect
   sql:
     init:
