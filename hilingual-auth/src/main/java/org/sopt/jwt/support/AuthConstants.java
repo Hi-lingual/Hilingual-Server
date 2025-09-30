@@ -17,7 +17,9 @@ public class AuthConstants {
             "/api/v1/auth/login",
             "/api/v1/users/reissue",
             "/api/v1/auth/verify",
-            "/api/v1/users/profile/check"
+            "/api/v1/users/profile/check",
+            "/api/v1/admin/notices",
+            "/api/v1/admin/notices/{noticeId}/delivery"
     };
 
     private AuthConstants() {
