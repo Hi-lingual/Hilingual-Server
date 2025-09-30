@@ -120,7 +120,7 @@ public class TokenService {
                 .build();
         tokenRepository.save(token);
 
-        return SocialLoginRes.of(accessToken, refreshToken, registerStatus);
+        return SocialLoginRes.of(accessToken, refreshToken, registerStatus, userId);
     }
 
     @Transactional
