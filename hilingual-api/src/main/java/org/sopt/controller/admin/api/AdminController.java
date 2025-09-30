@@ -16,7 +16,6 @@ public class AdminController {
 
     private final AdminNoticeService adminNoticeService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/notices")
     public ResponseEntity<NoticeCreateRes> create(
             @Valid @RequestBody NoticeCreateReq req
@@ -24,7 +23,6 @@ public class AdminController {
         return ResponseEntity.ok(adminNoticeService.create(req));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/notices/{noticeId}/delivery")
     public ResponseEntity<Void> deliver(
             @PathVariable Long noticeId
@@ -32,5 +30,6 @@ public class AdminController {
         adminNoticeService.deliver(noticeId);
         return ResponseEntity.ok().build();
     }
+
 }
 

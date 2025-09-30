@@ -41,7 +41,6 @@ public class AdminNoticeService {
     private static final int BATCH_SIZE = 500;
 
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
     public NoticeCreateRes create(NoticeCreateReq req) {
         Category category;
         try {
@@ -56,7 +55,6 @@ public class AdminNoticeService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
     public void deliver(Long noticeId) {
         // 공지 확인
         Notice notice = noticeRepository.findById(noticeId)
