@@ -30,7 +30,6 @@ public class AuthController {
             @Valid @RequestBody SocialLoginReq req
     ) {
         SocialLoginRes res = authService.socialLogin(providerToken, req);
-        webhookService.sendNewUserNotification();
         return ResponseEntity.ok(res);
     }
 

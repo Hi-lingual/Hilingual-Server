@@ -37,8 +37,4 @@ public class UserFacade {
     public boolean existsByProviderId(final String providerId) {
         return userRetriever.existsByProviderId(providerId);
     }
-
-    public long count() {
-        return userRetriever.count();
-    }
 }
