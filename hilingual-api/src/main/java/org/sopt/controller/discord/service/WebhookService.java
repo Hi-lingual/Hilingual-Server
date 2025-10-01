@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
+import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,19 +24,12 @@ public class WebhookService {
     @Value("${discord.webhook.url}")
     private String discordWebhookUrl;
 
-    private final UserFacade userFacade;
-
-    public void sendNewUserNotification() {
-        // 회원 수 조회
-        final long totalMembers = userFacade.count();
-
-        // 알림 메시지
-        String message = totalMembers + "번째 유저가 로그인했습니다!\n";
-        sendDiscordWebhook(message);
-    }
+    private final UserProfileFacade userProfileFacade;
 
     public void sendCompleteUserNotification(UserProfile userProfile) {
-        String message = userProfile.getNickname() + "회원님이 회원가입을 완료했습니다!\n";
+        final long totalMembers = userProfileFacade.count();
+
+        String message = "✏️하이링구얼 신규 회원✏️\n🔸닉네임 : " + userProfile.getNickname() + "\n🔸현재 가입 유저 수 : " + totalMembers + "명\n🔸플랫폼 : " + userProfile.getUser().getProvider();
         sendDiscordWebhook(message);
     }
 
