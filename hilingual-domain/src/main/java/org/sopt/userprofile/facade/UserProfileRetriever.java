@@ -41,4 +41,8 @@ public class UserProfileRetriever {
     public List<UserSearchProjection> findUsersByNickname(Long userId, String keyword, String startKeyword) {
         return userProfileRepository.searchUserListByKeyword(userId, keyword, startKeyword);
     }
+
+    public long count() {
+        return userProfileRepository.count();
+    }
 }
