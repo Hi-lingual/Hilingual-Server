@@ -1,0 +1,136 @@
+spring:
+  web:
+    resources:
+      add-mappings: true
+
+  application:
+    name: hilingual
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_ID}
+    password: ${DB_PW}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: false
+
+  sql:
+    init:
+      mode: never
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+          apple:
+            client-id: ${APPLE_CLIENT_ID}
+            client-secret: ${APPLE_PRIVATE_KEY}
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+              - name
+              - email
+            client-name: Apple
+            redirect-uri: ${APPLE_REDIRECT_URL}
+
+        provider:
+          apple:
+            authorization-uri: https://appleid.apple.com/auth/authorize
+            token-uri: https://appleid.apple.com/auth/token
+            jwk-set-uri: https://appleid.apple.com/auth/keys
+            user-name-attribute: sub
+  jackson:
+    time-zone: Asia/Seoul
+    deserialization:
+      fail-on-unknown-properties: true
+
+apple:
+  oauth:
+    key-id: ${APPLE_KEY_ID}
+    team-id: ${APPLE_TEAM_ID}
+    private-key-value: ${APPLE_PRIVATE_KEY}
+
+logging:
+  file:
+    name: /home/ubuntu/logs/app.log
+
+jwt:
+  secret-key: ${SECRET_KEY}
+  access-token-expire-time: ${ACCESS_EXPIRATION}
+  refresh-token-expire-time: ${REFRESH_EXPIRATION}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name:hilingual}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.9, 0.95, 0.99
+
+
+
+
+aws-property:
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
+  aws-region: ${AWS_REGION}
+  bucket-name: ${AWS_BUCKET_NAME}
+  cdn-domain: ${AWS_CDN_DOMAIN}
+  prefix: ${AWS_S3_FILE_KEY}
+
+openai:
+  api-key: ${OPENAI_API_KEY}
+
+---
+
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+  config:
+    activate:
+      on-profile: blue
+server:
+  port: 8080
+
+---
+
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+  config:
+    activate:
+      on-profile: green
+
+---
+
+discord:
+  webhook:
+    url: ${NEW_USER_WEBHOOK}
