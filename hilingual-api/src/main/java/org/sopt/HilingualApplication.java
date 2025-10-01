@@ -20,6 +20,11 @@ public class HilingualApplication {
                 .ignoreIfMissing()
                 .load();
 
+        String active = dotenv.get("SPRING_PROFILES_ACTIVE");
+        if (active != null && !active.isBlank()) {
+            System.setProperty("spring.profiles.active", active);
+        }
+
         dotenv.entries().forEach(entry -> {
             System.setProperty(entry.getKey(), entry.getValue());
         });
