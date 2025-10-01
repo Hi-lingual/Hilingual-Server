@@ -14,12 +14,22 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: ${DDL_OPTION}
+      ddl-auto: validate
     properties:
       hibernate:
         show_sql: ${SHOW_SQL}
         format_sql: ${FORMAT_SQL}
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    baseline-version: 1
+    out-of-order: false
+    clean-disabled: true
+    validate-on-migrate: true
+    default-schema: public
+
   sql:
     init:
       mode: never
