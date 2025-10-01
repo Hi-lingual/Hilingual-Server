@@ -50,6 +50,10 @@ public class UserProfileFacade {
         return userProfileRetriever.findUsersByNickname(userId, keyword, startKeyword);
     }
 
+    public long count() {
+        return userProfileRetriever.count();
+    }
+
     /**
     saver
      */

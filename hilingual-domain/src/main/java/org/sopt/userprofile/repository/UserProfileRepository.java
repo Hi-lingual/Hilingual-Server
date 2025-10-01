@@ -97,4 +97,6 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     @Modifying
     @Query("UPDATE UserProfile up SET up.followingCount = up.followingCount - 1 WHERE up.user.id IN (SELECT f.follower.id FROM Follow f WHERE f.followee.id = :userId)")
     void decreaseFollowingCountOfFollowers(@Param("userId") Long userId);
+
+    long count();
 }
