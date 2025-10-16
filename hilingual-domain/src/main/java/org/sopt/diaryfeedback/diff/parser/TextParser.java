@@ -3,6 +3,7 @@ package org.sopt.diaryfeedback.diff.parser;
 import org.sopt.diaryfeedback.diff.data.WordInfo;
 import org.springframework.stereotype.Component;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -11,42 +12,26 @@ import java.util.regex.Pattern;
 @Component
 public class TextParser {
     private static final Pattern WORD_PATTERN = Pattern.compile("\\S+");
+    private static final Pattern LEADING_PUNCT = Pattern.compile("^[\\p{Punct}]+");
+    private static final Pattern TRAILING_PUNCT = Pattern.compile("[\\p{Punct}]+$");
 
-    public List<WordInfo> extractWordsWithPosition(String text) {
+    public List<WordInfo> extractWordsWithPosition(String raw) {
+        String text = Normalizer.normalize(raw, Normalizer.Form.NFC);
+
         List<WordInfo> words = new ArrayList<>();
         Matcher matcher = WORD_PATTERN.matcher(text);
 
         while (matcher.find()) {
-            String word = matcher.group();
+            String original = matcher.group();
             int start = matcher.start();
             int end = matcher.end();
-            String cleanWord = word.replaceAll("[.,!?;:]", "");
-            boolean hasPunctuation = !word.equals(cleanWord);
-            words.add(new WordInfo(cleanWord, word, start, end, hasPunctuation));
-        }
 
+            String clean = LEADING_PUNCT.matcher(original).replaceAll("");
+            clean = TRAILING_PUNCT.matcher(clean).replaceAll("");
+
+            boolean hasPunctuation = !original.equals(clean);
+            words.add(new WordInfo(clean, original, start, end, hasPunctuation));
+        }
         return words;
-    }
-
-    public int findWordPosition(String text, String word, int startFrom) {
-        // startFrom 위치부터 단어를 찾기
-        int pos = startFrom;
-
-        // 공백 건너뛰기
-        while (pos < text.length() && Character.isWhitespace(text.charAt(pos))) {
-            pos++;
-        }
-
-        // 단어 매칭 확인
-        if (pos + word.length() <= text.length()) {
-            String foundWord = text.substring(pos, pos + word.length());
-            if (foundWord.equals(word)) {
-                return pos;
-            }
-        }
-
-        // 정확한 매칭이 안되면 indexOf 사용 (fallback)
-        int foundPos = text.indexOf(word, pos);
-        return foundPos != -1 ? foundPos : pos;
     }
 }
