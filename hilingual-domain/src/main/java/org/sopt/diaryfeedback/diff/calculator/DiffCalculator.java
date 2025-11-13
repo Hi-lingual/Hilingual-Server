@@ -1,5 +1,6 @@
 package org.sopt.diaryfeedback.diff.calculator;
 
+import lombok.RequiredArgsConstructor;
 import org.sopt.diaryfeedback.diff.comparator.WordComparator;
 import org.sopt.diaryfeedback.diff.data.DiffOperation;
 import org.sopt.diaryfeedback.diff.data.DiffType;
@@ -10,13 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class DiffCalculator {
 
     private final WordComparator wordComparator;
-
-    public DiffCalculator(WordComparator wordComparator) {
-        this.wordComparator = wordComparator;
-    }
 
     public List<DiffOperation> computeDiff(List<WordInfo> original, List<WordInfo> rewrite) {
         int m = original.size();
