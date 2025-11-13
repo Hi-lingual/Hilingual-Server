@@ -20,13 +20,13 @@ public class DiffRangeBuilder {
         DiaryDetailsRes.DiffRange cur = null;
 
         for (DiffOperation op : operations) {
-            if (op.getType() == DiffType.INSERT) {
-                WordInfo w = op.getRewriteWord();
+            if (op.type() == DiffType.INSERT) {
+                WordInfo w = op.rewriteWord();
                 if (w == null) continue;
 
-                int s = w.getStart();
-                int e = w.getEnd();
-                String t = w.getOriginalWord();
+                int s = w.start();
+                int e = w.end();
+                String t = w.originalWord();
 
                 if (cur == null) {
                     cur = new DiaryDetailsRes.DiffRange(s, e, t);
