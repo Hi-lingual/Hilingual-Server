@@ -1,5 +1,6 @@
 package org.sopt.diaryfeedback.diff.calculator;
 
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.sopt.diaryfeedback.diff.comparator.WordComparator;
 import org.sopt.diaryfeedback.diff.data.DiffOperation;
@@ -17,14 +18,22 @@ public class DiffCalculator {
     private final WordComparator wordComparator;
 
     public List<DiffOperation> computeDiff(List<WordInfo> original, List<WordInfo> rewrite) {
-        int m = original.size();
-        int n = rewrite.size();
+        int originalSize = original.size();
+        int rewriteSize = rewrite.size();
 
-        int[][] dp = new int[m + 1][n + 1];
+        int[][] dp = buildLcsTable(original, rewrite, originalSize, rewriteSize);
+        return backtrackOperations(original, rewrite, dp, originalSize, rewriteSize);
+    }
 
-        // LCS 계산
-        for (int i = 1; i <= m; i++) {
-            for (int j = 1; j <= n; j++) {
+    private int[][] buildLcsTable(List<WordInfo> original,
+                                  List<WordInfo> rewrite,
+                                  int originalSize,
+                                  int rewriteSize) {
+
+        int[][] dp = new int[originalSize + 1][rewriteSize + 1];
+
+        for (int i = 1; i <= originalSize; i++) {
+            for (int j = 1; j <= rewriteSize; j++) {
                 if (wordComparator.isSameWord(original.get(i - 1), rewrite.get(j - 1))) {
                     dp[i][j] = dp[i - 1][j - 1] + 1;
                 } else {
@@ -32,25 +41,53 @@ public class DiffCalculator {
                 }
             }
         }
+        return dp;
+    }
 
-        // 역추적하여 diff 연산 생성
+    private List<DiffOperation> backtrackOperations(List<WordInfo> original,
+                                                    List<WordInfo> rewrite,
+                                                    int[][] dp,
+                                                    int originalSize,
+                                                    int rewriteSize) {
+
         List<DiffOperation> operations = new ArrayList<>();
-        int i = m, j = n;
+        int i = originalSize;
+        int j = rewriteSize;
 
         while (i > 0 || j > 0) {
-            if (i > 0 && j > 0 && wordComparator.isSameWord(original.get(i - 1), rewrite.get(j - 1))) {
-                operations.add(0, new DiffOperation(DiffType.EQUAL, original.get(i - 1), rewrite.get(j - 1)));
+            if (i > 0 && j > 0
+                    && wordComparator.isSameWord(original.get(i - 1), rewrite.get(j - 1))) {
+
+                operations.add(new DiffOperation(
+                        DiffType.EQUAL,
+                        original.get(i - 1),
+                        rewrite.get(j - 1))
+                );
                 i--;
                 j--;
+
             } else if (i > 0 && (j == 0 || dp[i - 1][j] >= dp[i][j - 1])) {
-                operations.add(0, new DiffOperation(DiffType.DELETE, original.get(i - 1), null));
+
+                operations.add(new DiffOperation(
+                        DiffType.DELETE,
+                        original.get(i - 1),
+                        null)
+                );
                 i--;
+
             } else {
-                operations.add(0, new DiffOperation(DiffType.INSERT, null, rewrite.get(j - 1)));
+
+                operations.add(new DiffOperation(
+                        DiffType.INSERT,
+                        null,
+                        rewrite.get(j - 1))
+                );
                 j--;
             }
         }
 
+        // 역순으로 쌓았으므로 한 번 뒤집어서 반환
+        Collections.reverse(operations);
         return operations;
     }
 }
