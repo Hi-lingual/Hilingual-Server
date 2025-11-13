@@ -12,8 +12,8 @@ import java.util.regex.Pattern;
 @Component
 public class TextParser {
     private static final Pattern WORD_PATTERN = Pattern.compile("\\S+");
-    private static final Pattern LEADING_PUNCT = Pattern.compile("^[\\p{Punct}]+");
-    private static final Pattern TRAILING_PUNCT = Pattern.compile("[\\p{Punct}]+$");
+    private static final Pattern PREFIX_PUNCT_PATTERN = Pattern.compile("^[\\p{Punct}]+");
+    private static final Pattern SUFFIX_PUNCT_PATTERN = Pattern.compile("[\\p{Punct}]+$");
 
     public List<WordInfo> extractWordsWithPosition(String raw) {
         String text = Normalizer.normalize(raw, Normalizer.Form.NFC);
@@ -26,8 +26,8 @@ public class TextParser {
             int start = matcher.start();
             int end = matcher.end();
 
-            String clean = LEADING_PUNCT.matcher(original).replaceAll("");
-            clean = TRAILING_PUNCT.matcher(clean).replaceAll("");
+            String clean = PREFIX_PUNCT_PATTERN.matcher(original).replaceAll("");
+            clean = SUFFIX_PUNCT_PATTERN.matcher(clean).replaceAll("");
 
             boolean hasPunctuation = !original.equals(clean);
             words.add(new WordInfo(clean, original, start, end, hasPunctuation));
