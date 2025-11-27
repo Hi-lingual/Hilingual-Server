@@ -18,7 +18,7 @@ public interface FeedRepository extends JpaRepository<Diary, Long> {
      * - 차단한/차단당한 유저는 보이지 않음
      */
     @Query("""
-        SELECT
+        SELECT DISTINCT
             d.id AS diaryId,
             d.sharedTime AS sharedDate,
             d.isLiked AS likeCount,
@@ -54,7 +54,7 @@ public interface FeedRepository extends JpaRepository<Diary, Long> {
      * - 차단한/차단당한 유저는 보이지 않음
      */
     @Query("""
-        SELECT
+        SELECT DISTINCT
             d.id AS diaryId,
             d.sharedTime AS sharedDate,
             d.isLiked AS likeCount,
