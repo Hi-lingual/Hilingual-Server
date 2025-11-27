@@ -1,5 +1,6 @@
 package org.sopt.diaryfeedback.diff.service;
 
+import lombok.RequiredArgsConstructor;
 import org.sopt.diaryfeedback.diff.calculator.DiffCalculator;
 import org.sopt.diaryfeedback.diff.builder.DiffRangeBuilder;
 import org.sopt.diaryfeedback.diff.data.DiffOperation;
@@ -14,19 +15,12 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class DiaryDiffService {
 
     private final TextParser textParser;
     private final DiffCalculator diffCalculator;
     private final DiffRangeBuilder diffRangeBuilder;
-
-    public DiaryDiffService(TextParser textParser,
-                            DiffCalculator diffCalculator,
-                            DiffRangeBuilder diffRangeBuilder) {
-        this.textParser = textParser;
-        this.diffCalculator = diffCalculator;
-        this.diffRangeBuilder = diffRangeBuilder;
-    }
 
     public List<DiaryDetailsRes.DiffRange> extractDiffRanges(String originalText, String rewriteText) {
         if (originalText == null || rewriteText == null) return List.of();

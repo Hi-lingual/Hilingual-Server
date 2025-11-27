@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 public class WordComparator {
 
     public boolean isSameWord(WordInfo w1, WordInfo w2) {
-        if (isKorean(w1.getCleanWord()) != isKorean(w2.getCleanWord())) return false;
-        return w1.getOriginalWord().equals(w2.getOriginalWord());
+        if (isKorean(w1.cleanWord()) != isKorean(w2.cleanWord())) return false;
+        return w1.originalWord().equals(w2.originalWord());
     }
 
     private boolean isKorean(String s) {
