@@ -6,17 +6,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class WordComparator {
 
-    public boolean isSameWord(WordInfo word1, WordInfo word2) {
-        if (isKorean(word1.getCleanWord()) && !isKorean(word2.getCleanWord())) {
-            return false;
-        }
-        if (word1.hasPunctuation() != word2.hasPunctuation()) {
-            return false;
-        }
-        return word1.getCleanWord().equals(word2.getCleanWord());
+    public boolean isSameWord(WordInfo w1, WordInfo w2) {
+        if (isKorean(w1.cleanWord()) != isKorean(w2.cleanWord())) return false;
+        return w1.originalWord().equals(w2.originalWord());
     }
 
-    private boolean isKorean(String text) {
-        return text.chars().anyMatch(ch -> ch >= 0xAC00 && ch <= 0xD7A3);
+    private boolean isKorean(String s) {
+        if (s == null || s.isEmpty()) return false;
+        return s.codePoints().anyMatch(ch -> ch >= 0xAC00 && ch <= 0xD7A3);
     }
 }
