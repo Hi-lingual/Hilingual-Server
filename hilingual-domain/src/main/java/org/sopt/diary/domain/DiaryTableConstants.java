@@ -2,6 +2,8 @@ package org.sopt.diary.domain;
 
 public class DiaryTableConstants {
     public static final String TABLE_DIARY = "diary";
+    public static final String UK_DIARY_USER_WRITTEN_DATE = "uk_diary_user_written_date";
+
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_ORIGINAL_TEXT = "original_text";
     public static final String COLUMN_REWRITE_TEXT = "rewrite_text";

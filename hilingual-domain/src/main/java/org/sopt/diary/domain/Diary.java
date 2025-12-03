@@ -19,7 +19,15 @@ import java.util.List;
 import static org.sopt.diary.domain.DiaryTableConstants.*;
 
 @Entity
-@Table(name = DiaryTableConstants.TABLE_DIARY)
+@Table(
+        name = DiaryTableConstants.TABLE_DIARY,
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = UK_DIARY_USER_WRITTEN_DATE,
+                        columnNames = {COLUMN_USER_ID, COLUMN_WRITTEN_DATE}
+                )
+        }
+)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
