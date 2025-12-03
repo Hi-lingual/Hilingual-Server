@@ -34,15 +34,11 @@ import org.sopt.userprofile.facade.UserProfileFacade;
 import org.sopt.voca.facade.VocaFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j

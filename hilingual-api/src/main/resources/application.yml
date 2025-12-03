@@ -43,17 +43,6 @@ spring:
             client-secret: ${GOOGLE_CLIENT_SECRET}
             scope:
               - email
-          apple:
-            client-id: ${APPLE_CLIENT_ID}
-            client-secret: ${APPLE_PRIVATE_KEY}
-            client-authentication-method: client_secret_post
-            authorization-grant-type: authorization_code
-            scope:
-              - openid
-              - name
-              - email
-            client-name: Apple
-            redirect-uri: ${APPLE_REDIRECT_URL}
 
         provider:
           apple:
@@ -65,12 +54,6 @@ spring:
     time-zone: Asia/Seoul
     deserialization:
       fail-on-unknown-properties: true
-
-apple:
-  oauth:
-    key-id: ${APPLE_KEY_ID}
-    team-id: ${APPLE_TEAM_ID}
-    private-key-value: ${APPLE_PRIVATE_KEY}
 
 logging:
   file:
