@@ -77,7 +77,7 @@ public class FeedController {
     public ResponseEntity<RecommendFeedListRes> getRecommendFeed(
             @UserId Long userId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size
+            @RequestParam(defaultValue = "100") int size
     ) {
         return ResponseEntity.ok(feedService.getRecommendFeeds(userId, page, size));
     }
@@ -86,7 +86,7 @@ public class FeedController {
     public ResponseEntity<FollowFeedListRes> getFollowFeed(
             @UserId Long userId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size
+            @RequestParam(defaultValue = "100") int size
     ) {
         return ResponseEntity.ok(feedService.getFollowFeeds(userId, page, size));
     }
