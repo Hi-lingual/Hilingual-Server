@@ -10,7 +10,6 @@ create table if not exists device
     device_type   varchar(50)
     constraint device_type_check
     check ((device_type)::text = any ((array['PHONE'::varchar, 'TABLET'::varchar, 'DESKTOP'::varchar])::text[])),
-    os_name       varchar(50),
     os_type       varchar(50),
     os_version    varchar(50),
     app_version   varchar(50),

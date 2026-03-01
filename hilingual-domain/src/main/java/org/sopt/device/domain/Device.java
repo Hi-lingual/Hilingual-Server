@@ -51,9 +51,6 @@ public class Device extends BaseTimeEntity {
     @Column(name = COLUMN_DEVICE_TYPE)
     private DeviceType deviceType;
 
-    @Column(name = COLUMN_OS_NAME)
-    private String osName;
-
     @Column(name = COLUMN_OS_TYPE)
     private String osType;
 
@@ -67,14 +64,11 @@ public class Device extends BaseTimeEntity {
     public static Device create(
             User user, String uuid, String timezone,
             String deviceName, DeviceType deviceType,
-            String osName, String osType, String osVersion,
-            String appVersion
+            String osType, String osVersion, String appVersion
     ) {
         return new Device(
                 null, user, uuid, timezone,
-                deviceName, deviceType,
-                osName, osType, osVersion,
-                appVersion
+                deviceName, deviceType,osType, osVersion, appVersion
         );
     }
 
