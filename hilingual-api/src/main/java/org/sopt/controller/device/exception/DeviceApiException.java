@@ -1,7 +1,10 @@
 package org.sopt.controller.device.exception;
 
-public class DeviceApiException extends RuntimeException {
-    public DeviceApiException(String message) {
-        super(message);
+import org.sopt.exception.base.HilingualBaseException;
+import org.sopt.exception.code.ErrorCode;
+
+public abstract class DeviceApiException extends HilingualBaseException {
+    protected DeviceApiException(ErrorCode errorCode) {
+        super(errorCode);
     }
 }
