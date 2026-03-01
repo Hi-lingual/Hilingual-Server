@@ -6,13 +6,10 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 public enum DeviceCoreErrorCode implements ErrorCode {
-    // 404
-    // BLOCKED_NOT_FOUND(HttpStatus.NOT_FOUND, 40407, "차단 관계가 존재하지 않습니다."),
 
-    // 409
-    // UNBLOCKABLE_USER(HttpStatus.CONFLICT, 40902, "차단할 수 없는 사용자입니다."),
-    // ALREADY_BLOCKED_USER(HttpStatus.CONFLICT, 40903, "이미 차단한 사용자입니다."),
-    ;;
+    // 400
+    INVALID_TIMEZONE_FORMAT(HttpStatus.BAD_REQUEST, 40036, "유효하지 않은 타임존입니다.")
+    ;
 
     public final HttpStatus httpStatus;
     private final int code;
