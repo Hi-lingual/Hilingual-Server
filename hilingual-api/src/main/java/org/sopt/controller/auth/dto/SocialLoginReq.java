@@ -8,9 +8,17 @@ import org.sopt.jwt.auth.domain.type.DeviceType;
 public record SocialLoginReq(
         @NotNull AuthProvider provider,
         @NotNull UserRole role,
-        @NotNull String deviceName,
-        @NotNull DeviceType deviceType,
-        @NotNull String osType,
-        @NotNull String osVersion,
-        @NotNull String appVersion
+
+        /* TODO [Soft Migration]
+            uuid @NotNull하게 수정
+         */
+        String uuid,
+
+        // TODO 기존 앱Version 사용 유저 없는 경우 완전 삭제
+        // @Deprecated - Soft Migration
+        String deviceName,
+        DeviceType deviceType,
+        String osType,
+        String osVersion,
+        String appVersion
 ) {}

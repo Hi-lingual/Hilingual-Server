@@ -49,12 +49,14 @@ public class JwtTokenProvider implements InitializingBean {
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /** AccessToken 생성 */
+    /** * AccessToken 생성
+     * @param identifier 구버전 앱은 랜덤 SessionId, 신버전 앱은 DeviceUuid가 들어옴
+     * */
     public String generateAccessToken(
             final long userId,
             final UserRole role,
             final AuthProvider provider,
-            final String sessionId
+            final String identifier
     ) {
         final Instant now = Instant.now();
         return Jwts.builder()
@@ -63,7 +65,7 @@ public class JwtTokenProvider implements InitializingBean {
                 .claim(AuthConstants.USER_ID_CLAIM_NAME, userId)
                 .claim(JwtClaimsKeys.ROLE, role.name())
                 .claim(JwtClaimsKeys.PROVIDER, provider.name())
-                .claim(JwtClaimsKeys.SESSIONID, sessionId)
+                .claim(JwtClaimsKeys.SESSION_ID, identifier)
                 .claim(JwtClaimsKeys.TYPE, JwtClaimsKeys.ACCESS)
                 .issuedAt(Date.from(now))
                 .expiration(new Date(now.toEpochMilli() + ACCESS_TOKEN_EXPIRE_TIME))
@@ -71,11 +73,13 @@ public class JwtTokenProvider implements InitializingBean {
                 .compact();
     }
 
-    /** RefreshToken 생성 */
+    /** * RefreshToken 생성
+     * @param identifier 구버전 앱은 랜덤 SessionId, 신버전 앱은 DeviceUuid가 들어옴
+     * */
     public String generateRefreshToken(
             final long userId,
             final AuthProvider provider,
-            final String sessionId
+            final String identifier
     ) {
         final Instant now = Instant.now();
         return Jwts.builder()
@@ -83,7 +87,7 @@ public class JwtTokenProvider implements InitializingBean {
                 .subject(String.valueOf(userId))
                 .claim(AuthConstants.USER_ID_CLAIM_NAME, userId)
                 .claim(JwtClaimsKeys.PROVIDER, provider.name())
-                .claim(JwtClaimsKeys.SESSIONID, sessionId)
+                .claim(JwtClaimsKeys.SESSION_ID, identifier)
                 .claim(JwtClaimsKeys.TYPE, JwtClaimsKeys.REFRESH)
                 .issuedAt(Date.from(now))
                 .expiration(new Date(now.toEpochMilli() + REFRESH_TOKEN_EXPIRE_TIME))
