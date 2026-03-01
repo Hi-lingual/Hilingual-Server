@@ -92,32 +92,30 @@ public class TokenService {
 
     @Transactional
     public SocialLoginRes issueToken(SocialLoginReq req, final long userId, final RegisterStatus registerStatus) {
-        final String sessionId = jwtTokenProvider.newSessionId();
+        final String deviceUuid = req.uuid();
+
         final String accessToken = jwtTokenProvider.generateAccessToken(
                 userId,
                 req.role(),
                 req.provider(),
-                sessionId
+                deviceUuid
         );
         final String refreshToken = jwtTokenProvider.generateRefreshToken(
                 userId,
                 req.provider(),
-                sessionId
+                deviceUuid
         );
 
         Token token = Token.builder()
-                .id(userId + ":" + sessionId)
+                .id(userId + ":" + deviceUuid)
                 .userId(userId)
                 .authProvider(req.provider())
                 .refreshTokenHash(tokenHasher.hash(refreshToken))
-                .deviceName(req.deviceName())
-                .deviceType(req.deviceType())
-                .osType(req.osType())
-                .osVersion(req.osVersion())
-                .appVersion(req.appVersion())
+                .uuid(deviceUuid)
                 .issuedAt(Instant.now())
                 .lastUsedAt(Instant.now())
                 .build();
+
         tokenRepository.save(token);
 
         return SocialLoginRes.of(accessToken, refreshToken, registerStatus, userId);
