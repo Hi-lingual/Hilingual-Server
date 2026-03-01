@@ -17,6 +17,7 @@ import org.sopt.controller.auth.exception.*;
 import org.sopt.controller.auth.util.GoogleOAuth2UserInfo;
 import org.sopt.controller.auth.util.MyKeyLocator;
 import org.sopt.controller.token.TokenService;
+import org.sopt.device.facade.DeviceFacade;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
@@ -57,6 +58,7 @@ public class AuthService {
     private final AlarmPreferenceFacade alarmPreferenceFacade;
     private final VocaFacade vocaFacade;
     private final UserProfileFacade userProfileFacade;
+    private final DeviceFacade deviceFacade;
 
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
 
@@ -102,6 +104,7 @@ public class AuthService {
         blockFacade.deleteAllByUserId(userId); // Block 삭제
         followFacade.deleteAllByUserId(userId); // Follow 삭제
         alarmPreferenceFacade.deleteAllByUserId(userId); // AlarmPreference 삭제
+        deviceFacade.deleteAllDevices(userId); // DeviceInfo 삭제
 
         userFacade.deleteUserById(userId); // user, userProfile, noticeDelivery 삭제
 
