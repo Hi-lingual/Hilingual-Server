@@ -49,7 +49,7 @@ public class Device extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = COLUMN_DEVICE_TYPE)
-    private String deviceType;
+    private DeviceType deviceType;
 
     @Column(name = COLUMN_OS_NAME)
     private String osName;
@@ -72,7 +72,7 @@ public class Device extends BaseTimeEntity {
     ) {
         return new Device(
                 null, user, uuid, timezone,
-                deviceName, deviceType.name(),
+                deviceName, deviceType,
                 osName, osType, osVersion,
                 appVersion
         );
