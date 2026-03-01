@@ -47,12 +47,12 @@ public class TokenService {
 
         // Claim 에서 정보 추출
         Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
-        String sessionId = claims.get(JwtClaimsKeys.SESSIONID, String.class);
+        String deviceUuid = claims.get(JwtClaimsKeys.DEVICE_UUID, String.class);
         AuthProvider provider = AuthProvider.valueOf(claims.get(JwtClaimsKeys.PROVIDER, String.class));
         UserRole role = userFacade.getUserById(userId).getRole();
 
         // Redis 에서 토큰 정보 조회 & 해시 대조
-        String tokenId = new TokenId(userId, sessionId).toString();
+        String tokenId = new TokenId(userId, deviceUuid).toString();
         Token stored = tokenRepository.findById(tokenId)
                 .orElseThrow(() -> new TokenNotFoundException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND_IN_STORE));
 
@@ -63,22 +63,17 @@ public class TokenService {
         }
 
         // new 세션/토큰 발급
-        String newSessionId = jwtTokenProvider.newSessionId();
-        String newAT = jwtTokenProvider.generateAccessToken(userId, role, provider, newSessionId);
-        String newRT = jwtTokenProvider.generateRefreshToken(userId, provider, newSessionId);
+        String newAT = jwtTokenProvider.generateAccessToken(userId, role, provider, deviceUuid);
+        String newRT = jwtTokenProvider.generateRefreshToken(userId, provider, deviceUuid);
 
         // 기존 Token 삭제 + 새로운 토큰 정보로 Token 생성 및 저장
         tokenRepository.deleteById(tokenId);
         Token newToken = Token.builder()
-                .id(new TokenId(userId, newSessionId).toString())
+                .id(tokenId)
                 .userId(userId)
                 .authProvider(provider)
                 .refreshTokenHash(tokenHasher.hash(newRT))
-                .deviceName(stored.getDeviceName())
-                .deviceType(stored.getDeviceType())
-                .osType(stored.getOsType())
-                .osVersion(stored.getOsVersion())
-                .appVersion(stored.getAppVersion())
+                .deviceUuid(deviceUuid)
                 .issuedAt(Instant.now())
                 .lastUsedAt(Instant.now())
                 .build();
@@ -111,7 +106,7 @@ public class TokenService {
                 .userId(userId)
                 .authProvider(req.provider())
                 .refreshTokenHash(tokenHasher.hash(refreshToken))
-                .uuid(deviceUuid)
+                .deviceUuid(deviceUuid)
                 .issuedAt(Instant.now())
                 .lastUsedAt(Instant.now())
                 .build();
@@ -127,10 +122,10 @@ public class TokenService {
 
         // Claim 에서 정보 추출
         Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
-        String sessionId = claims.get(JwtClaimsKeys.SESSIONID, String.class);
+        String deviceUuid = claims.get(JwtClaimsKeys.DEVICE_UUID, String.class);
 
         // Redis 에서 기존 토큰 삭제
-        String tokenId = new TokenId(userId, sessionId).toString();
+        String tokenId = new TokenId(userId, deviceUuid).toString();
         tokenRepository.deleteById(tokenId);
     }
 
