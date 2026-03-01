@@ -29,6 +29,12 @@ public class Token {
     @Indexed
     private String refreshTokenHash;
 
+    private String deviceUuid;
+
+    /* TODO [Soft Migration]
+        구버전 앱 호환성을 위해 당분간 유지하며, 신버전 앱에서는 null로 들어옴
+        기존 앱 Version 사용 유저가 없는 경우 완전 삭제 요망
+     */
     private String deviceName;
     private DeviceType deviceType;
     private String osType;
@@ -38,7 +44,8 @@ public class Token {
     private Instant issuedAt;
     private Instant lastUsedAt;
 
-    public static Token create(
+    // 구버전
+    public static Token createLegacy(
             Long userId,
             AuthProvider authProvider,
             String refreshTokenHash,
@@ -58,6 +65,24 @@ public class Token {
                 .osType(osType)
                 .osVersion(osVersion)
                 .appVersion(appVersion)
+                .issuedAt(Instant.now())
+                .lastUsedAt(Instant.now())
+                .build();
+    }
+
+    // 신버전
+    public static Token create(
+            Long userId,
+            AuthProvider authProvider,
+            String refreshTokenHash,
+            String deviceUuid
+    ){
+        return Token.builder()
+                .id(userId + ":" + deviceUuid)
+                .userId(userId)
+                .authProvider(authProvider)
+                .refreshTokenHash(refreshTokenHash)
+                .deviceUuid(deviceUuid)
                 .issuedAt(Instant.now())
                 .lastUsedAt(Instant.now())
                 .build();
