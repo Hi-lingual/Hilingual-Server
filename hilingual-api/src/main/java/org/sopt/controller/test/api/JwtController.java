@@ -16,6 +16,7 @@ import org.sopt.user.facade.UserFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -41,35 +42,57 @@ public class JwtController {
         // userId에 해당하는 유저가 실제로 db에 있는지 찾기
         User user = userFacade.getUserById(req.userId());
 
-        final String sessionId = jwtTokenProvider.newSessionId();
-        log.info("발급된 SessionId = {}", sessionId);
+        /* TODO [Soft Migration]
+            구버전 앱 호환성을 위해 당분간 유지하며, 신버전 앱에서는 null로 들어옴
+            기존 앱 Version 사용 유저가 없는 경우 완전 삭제 요망
+        */
+        // 신버전 vs 구버전 분기 처리를 위한 식별자 결정
+        String identifier;
+        boolean isNewVersion = StringUtils.hasText(req.uuid());
+
+        if (isNewVersion) {
+            identifier = req.uuid();
+            log.info("신버전 앱 토큰 발급. DeviceUuid = {}", identifier);
+        } else {
+            identifier = jwtTokenProvider.newSessionId();
+            log.info("구버전 앱 토큰 발급. 발급된 랜덤 SessionId = {}", identifier);
+        }
 
         final String accessToken  = jwtTokenProvider.generateAccessToken(
-                req.userId(), req.role(), req.provider(), sessionId
+                req.userId(), req.role(), req.provider(), identifier
         );
         final String refreshToken = jwtTokenProvider.generateRefreshToken(
-                req.userId(), req.provider(), sessionId
+                req.userId(), req.provider(), identifier
         );
 
-        Token token = Token.builder()
-                .id(req.userId() + ":" + sessionId)
-                .userId(user.getId())
-                .authProvider(req.provider())
-                .refreshTokenHash(tokenHasher.hash(refreshToken))
-                .deviceName(req.deviceName())
-                .deviceType(req.deviceType())
-                .osType(req.osType())
-                .osVersion(req.osVersion())
-                .appVersion(req.appVersion())
-                .issuedAt(Instant.now())
-                .lastUsedAt(Instant.now())
-                .build();
+        Token token;
+        if (isNewVersion) {
+            token = Token.create(
+                    user.getId(),
+                    req.provider(),
+                    tokenHasher.hash(refreshToken),
+                    identifier
+            );
+        } else {
+            token = Token.createLegacy(
+                    user.getId(),
+                    req.provider(),
+                    tokenHasher.hash(refreshToken),
+                    req.deviceName(),
+                    req.deviceType(),
+                    req.osType(),
+                    req.osVersion(),
+                    req.appVersion()
+            );
+        }
+
         tokenRepository.save(token);
 
         JwtTokensDto tokens = JwtTokensDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+
         return ResponseEntity.ok(tokens);
     }
 
