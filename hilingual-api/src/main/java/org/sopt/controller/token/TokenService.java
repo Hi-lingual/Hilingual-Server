@@ -21,6 +21,7 @@ import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -47,12 +48,18 @@ public class TokenService {
 
         // Claim 에서 정보 추출
         Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
-        String deviceUuid = claims.get(JwtClaimsKeys.DEVICE_UUID, String.class);
+
+            /* TODO [Soft Migration]
+                구버전과 신버전 모두 Session id로 하되,
+                구버전은 랜덤ID, 신버전은 DeviceUuid로 들어감.
+             */
+        String identifier = claims.get(JwtClaimsKeys.SESSION_ID, String.class);
+
         AuthProvider provider = AuthProvider.valueOf(claims.get(JwtClaimsKeys.PROVIDER, String.class));
         UserRole role = userFacade.getUserById(userId).getRole();
 
         // Redis 에서 토큰 정보 조회 & 해시 대조
-        String tokenId = new TokenId(userId, deviceUuid).toString();
+        String tokenId = new TokenId(userId, identifier).toString();
         Token stored = tokenRepository.findById(tokenId)
                 .orElseThrow(() -> new TokenNotFoundException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND_IN_STORE));
 
@@ -63,8 +70,8 @@ public class TokenService {
         }
 
         // new 세션/토큰 발급
-        String newAT = jwtTokenProvider.generateAccessToken(userId, role, provider, deviceUuid);
-        String newRT = jwtTokenProvider.generateRefreshToken(userId, provider, deviceUuid);
+        String newAT = jwtTokenProvider.generateAccessToken(userId, role, provider, identifier);
+        String newRT = jwtTokenProvider.generateRefreshToken(userId, provider, identifier);
 
         // 기존 Token 삭제 + 새로운 토큰 정보로 Token 생성 및 저장
         tokenRepository.deleteById(tokenId);
@@ -73,7 +80,12 @@ public class TokenService {
                 .userId(userId)
                 .authProvider(provider)
                 .refreshTokenHash(tokenHasher.hash(newRT))
-                .deviceUuid(deviceUuid)
+                .deviceUuid(stored.getDeviceUuid())   // 신버전용
+                .deviceName(stored.getDeviceName())   // 레거시용 유지
+                .deviceType(stored.getDeviceType())   // 레거시용 유지
+                .osType(stored.getOsType())           // 레거시용 유지
+                .osVersion(stored.getOsVersion())     // 레거시용 유지
+                .appVersion(stored.getAppVersion())   // 레거시용 유지
                 .issuedAt(Instant.now())
                 .lastUsedAt(Instant.now())
                 .build();
@@ -87,30 +99,46 @@ public class TokenService {
 
     @Transactional
     public SocialLoginRes issueToken(SocialLoginReq req, final long userId, final RegisterStatus registerStatus) {
-        final String deviceUuid = req.uuid();
+        boolean isNewApp = StringUtils.hasText(req.uuid());
+        String identifier;
+        Token token;
+
+        if (isNewApp) {
+            identifier = req.uuid();
+            token = Token.create(
+                    userId,
+                    req.provider(),
+                    null, // 임시
+                    identifier
+            );
+        } else {
+            identifier = jwtTokenProvider.newSessionId();
+            token = Token.createLegacy(
+                    userId,
+                    req.provider(),
+                    null, // 임시
+                    req.deviceName(),
+                    req.deviceType(),
+                    req.osType(),
+                    req.osVersion(),
+                    req.appVersion()
+            );
+        }
+
 
         final String accessToken = jwtTokenProvider.generateAccessToken(
                 userId,
                 req.role(),
                 req.provider(),
-                deviceUuid
+                identifier
         );
         final String refreshToken = jwtTokenProvider.generateRefreshToken(
                 userId,
                 req.provider(),
-                deviceUuid
+                identifier
         );
 
-        Token token = Token.builder()
-                .id(userId + ":" + deviceUuid)
-                .userId(userId)
-                .authProvider(req.provider())
-                .refreshTokenHash(tokenHasher.hash(refreshToken))
-                .deviceUuid(deviceUuid)
-                .issuedAt(Instant.now())
-                .lastUsedAt(Instant.now())
-                .build();
-
+        token.updateRefreshTokenHash(tokenHasher.hash(refreshToken));
         tokenRepository.save(token);
 
         return SocialLoginRes.of(accessToken, refreshToken, registerStatus, userId);
@@ -122,10 +150,10 @@ public class TokenService {
 
         // Claim 에서 정보 추출
         Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
-        String deviceUuid = claims.get(JwtClaimsKeys.DEVICE_UUID, String.class);
+        String identifier = claims.get(JwtClaimsKeys.SESSION_ID, String.class);
 
         // Redis 에서 기존 토큰 삭제
-        String tokenId = new TokenId(userId, deviceUuid).toString();
+        String tokenId = new TokenId(userId, identifier).toString();
         tokenRepository.deleteById(tokenId);
     }
 

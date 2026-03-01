@@ -87,4 +87,9 @@ public class Token {
                 .lastUsedAt(Instant.now())
                 .build();
     }
+
+    public void updateRefreshTokenHash(String newRefreshTokenHash) {
+        this.refreshTokenHash = newRefreshTokenHash;
+        this.lastUsedAt = Instant.now();
+    }
 }
