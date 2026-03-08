@@ -48,18 +48,19 @@ public class TokenService {
 
         // Claim 에서 정보 추출
         Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
-
             /* TODO [Soft Migration]
                 구버전과 신버전 모두 Session id로 하되,
                 구버전은 랜덤ID, 신버전은 DeviceUuid로 들어감.
              */
         String identifier = claims.get(JwtClaimsKeys.SESSION_ID, String.class);
+        System.out.println("1. 토큰에서 뽑은 identifier: " + identifier); // Redis의 UUID와 똑같은지 확인
 
         AuthProvider provider = AuthProvider.valueOf(claims.get(JwtClaimsKeys.PROVIDER, String.class));
         UserRole role = userFacade.getUserById(userId).getRole();
 
         // Redis 에서 토큰 정보 조회 & 해시 대조
         String tokenId = new TokenId(userId, identifier).toString();
+        System.out.println("2. DB에서 조회할 tokenId: " + tokenId); // "2:UUID" 형태인지 확인
         Token stored = tokenRepository.findById(tokenId)
                 .orElseThrow(() -> new TokenNotFoundException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND_IN_STORE));
 
@@ -99,12 +100,12 @@ public class TokenService {
 
     @Transactional
     public SocialLoginRes issueToken(SocialLoginReq req, final long userId, final RegisterStatus registerStatus) {
-        boolean isNewApp = StringUtils.hasText(req.uuid());
+        boolean isNewApp = StringUtils.hasText(req.deviceUuid());
         String identifier;
         Token token;
 
         if (isNewApp) {
-            identifier = req.uuid();
+            identifier = req.deviceUuid();
             token = Token.create(
                     userId,
                     req.provider(),
@@ -117,6 +118,7 @@ public class TokenService {
                     userId,
                     req.provider(),
                     null, // 임시
+                    identifier,
                     req.deviceName(),
                     req.deviceType(),
                     req.osType(),

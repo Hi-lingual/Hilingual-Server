@@ -78,6 +78,7 @@ public class JwtController {
                     user.getId(),
                     req.provider(),
                     tokenHasher.hash(refreshToken),
+                    identifier,
                     req.deviceName(),
                     req.deviceType(),
                     req.osType(),

@@ -12,7 +12,7 @@ public record SocialLoginReq(
         /* TODO [Soft Migration]
             uuid @NotNull하게 수정
          */
-        String uuid,
+        String deviceUuid,
 
         // TODO 기존 앱Version 사용 유저 없는 경우 완전 삭제
         // @Deprecated - Soft Migration

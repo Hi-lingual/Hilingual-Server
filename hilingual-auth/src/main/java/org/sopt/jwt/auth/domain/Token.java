@@ -49,6 +49,7 @@ public class Token {
             Long userId,
             AuthProvider authProvider,
             String refreshTokenHash,
+            String sessionId,
             String deviceName,
             DeviceType deviceType,
             String osType,
@@ -56,7 +57,7 @@ public class Token {
             String appVersion
     ){
         return Token.builder()
-                .id(userId + ":" + UUID.randomUUID()) // userId:sessionId
+                .id(userId + ":" + sessionId)
                 .userId(userId)
                 .authProvider(authProvider)
                 .refreshTokenHash(refreshTokenHash)
