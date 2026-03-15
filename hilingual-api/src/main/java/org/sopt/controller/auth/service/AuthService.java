@@ -17,6 +17,8 @@ import org.sopt.controller.auth.exception.*;
 import org.sopt.controller.auth.util.GoogleOAuth2UserInfo;
 import org.sopt.controller.auth.util.MyKeyLocator;
 import org.sopt.controller.token.TokenService;
+import org.sopt.device.dto.DeviceInfo;
+import org.sopt.device.facade.DeviceFacade;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
@@ -36,6 +38,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -57,6 +60,7 @@ public class AuthService {
     private final AlarmPreferenceFacade alarmPreferenceFacade;
     private final VocaFacade vocaFacade;
     private final UserProfileFacade userProfileFacade;
+    private final DeviceFacade deviceFacade;
 
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
 
@@ -66,6 +70,10 @@ public class AuthService {
     public SocialLoginRes socialLogin(String providerToken, SocialLoginReq req) {
         if (providerToken == null || providerToken.length() < PROVIDER_TOKEN_MIN_LENGTH || req.role() != UserRole.USER) {
             throw new UnAuthorizedException(AuthErrorCode.UNAUTHORIZED);
+        }
+
+        if (!req.hasValidDeviceIdentifier()) {
+            throw new InvalidUserInfoException(AuthApiErrorCode.INVALID_USER_INFO);
         }
 
         if (req.provider() == AuthProvider.GOOGLE) {
@@ -102,6 +110,7 @@ public class AuthService {
         blockFacade.deleteAllByUserId(userId); // Block 삭제
         followFacade.deleteAllByUserId(userId); // Follow 삭제
         alarmPreferenceFacade.deleteAllByUserId(userId); // AlarmPreference 삭제
+        deviceFacade.deleteAllDevices(userId); // DeviceInfo 삭제
 
         userFacade.deleteUserById(userId); // user, userProfile, noticeDelivery 삭제
 
@@ -155,10 +164,6 @@ public class AuthService {
                 // 탈퇴한 회원인 경우 다시 회원 자격 복구
                 user.revertDeleteUser();
             }
-
-            // 이미 가입된 유저 토큰 재발급(= 초기 유저와 동일한 로직)
-            return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
-
         } else {
             user = User.builder()
                     .provider(String.valueOf(req.provider()))
@@ -168,9 +173,15 @@ public class AuthService {
                     .role(UserRole.USER)
                     .build();
 
-            User newUser = userFacade.save(user);
-            return tokenService.issueToken(req, newUser.getId(), RegisterStatus.SOCIAL_LOGIN_COMPLETED);
+            user = userFacade.save(user);
         }
+
+        if(StringUtils.hasText(req.deviceUuid())) {
+            DeviceInfo deviceInfo = req.toDeviceInfo();
+            deviceFacade.upsertDevice(user.getId(), deviceInfo);
+        }
+
+        return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
     }
 
     private GoogleIdToken.Payload verifyGoogleIdentityToken(String idTokenValue) {

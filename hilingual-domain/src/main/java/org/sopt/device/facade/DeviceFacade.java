@@ -1,0 +1,90 @@
+package org.sopt.device.facade;
+
+import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.sopt.device.domain.Device;
+import org.sopt.device.dto.DeviceInfo;
+import org.sopt.device.exception.DeviceCoreErrorCode;
+import org.sopt.device.exception.InvalidTimezoneFormatException;
+import org.sopt.user.domain.User;
+import org.sopt.user.facade.UserFacade;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.time.DateTimeException;
+import java.time.ZoneId;
+import java.util.Optional;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class DeviceFacade {
+
+    private final DeviceRetriever deviceRetriever;
+    private final DeviceRemover deviceRemover;
+    private final DeviceSaver deviceSaver;
+    private final UserFacade userFacade;
+    private final LogbackMetrics logbackMetrics;
+
+    @Transactional
+    public void upsertDevice(final long userId, final DeviceInfo deviceInfo) {
+
+        validateTimezone(deviceInfo.timezone());
+
+        Optional<Device> optionalDevice = findExistingDevice(userId, deviceInfo);
+
+        if (optionalDevice.isPresent()) {
+            Device existingDevice = optionalDevice.get();
+            existingDevice.updateDeviceInfo(
+                    deviceInfo.timezone(),
+                    deviceInfo.osVersion(),
+                    deviceInfo.appVersion()
+            );
+        } else {
+            User user = userFacade.getUserById(userId);
+            Device newDevice = Device.create(
+                    user,
+                    deviceInfo.deviceUuid(),
+                    deviceInfo.timezone(),
+                    deviceInfo.deviceName(),
+                    deviceInfo.deviceType(),
+                    deviceInfo.osType(),
+                    deviceInfo.osVersion(),
+                    deviceInfo.appVersion()
+            );
+
+            deviceSaver.save(newDevice);
+        }
+    }
+
+    @Transactional
+    public void deleteAllDevices(final long userId){
+        deviceRemover.deleteAllByUserId(userId);
+    }
+
+    private void validateTimezone(String timezone) {
+        try {
+            if (StringUtils.hasText(timezone)) {
+                ZoneId.of(timezone);
+            }
+        } catch (DateTimeException e) {
+            throw new InvalidTimezoneFormatException(DeviceCoreErrorCode.INVALID_TIMEZONE_FORMAT);
+        }
+    }
+
+    private Optional<Device> findExistingDevice(long userId, DeviceInfo deviceInfo) {
+        // 신버전: UUID 존재하는 경우
+        if (StringUtils.hasText(deviceInfo.deviceUuid())) {
+            return deviceRetriever.findByUserIdAndUuid(userId, deviceInfo.deviceUuid());
+        }
+
+        // 구버전: UUID가 없는 경우
+        else if (StringUtils.hasText(deviceInfo.deviceName())) {
+            return deviceRetriever.findByUserIdAndDeviceName(userId, deviceInfo.deviceName());
+        }
+
+        return Optional.empty();
+    }
+}
