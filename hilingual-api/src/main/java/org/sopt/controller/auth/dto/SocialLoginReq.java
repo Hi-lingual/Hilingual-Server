@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.domain.type.DeviceType;
+import org.springframework.util.StringUtils;
 
 public record SocialLoginReq(
         @NotNull AuthProvider provider,
@@ -21,4 +22,8 @@ public record SocialLoginReq(
         String osType,
         String osVersion,
         String appVersion
-) {}
+) {
+    public boolean hasValidDeviceIdentifier() {
+        return StringUtils.hasText(this.deviceUuid) || StringUtils.hasText(this.deviceName);
+    }
+}

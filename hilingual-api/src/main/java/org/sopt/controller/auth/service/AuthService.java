@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -68,6 +69,10 @@ public class AuthService {
     public SocialLoginRes socialLogin(String providerToken, SocialLoginReq req) {
         if (providerToken == null || providerToken.length() < PROVIDER_TOKEN_MIN_LENGTH || req.role() != UserRole.USER) {
             throw new UnAuthorizedException(AuthErrorCode.UNAUTHORIZED);
+        }
+
+        if (!req.hasValidDeviceIdentifier()) {
+            throw new InvalidUserInfoException(AuthApiErrorCode.INVALID_USER_INFO);
         }
 
         if (req.provider() == AuthProvider.GOOGLE) {
