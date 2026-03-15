@@ -1,6 +1,7 @@
 package org.sopt.controller.auth.dto;
 
 import jakarta.validation.constraints.NotNull;
+import org.sopt.device.dto.DeviceInfo;
 import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.domain.type.DeviceType;
@@ -25,5 +26,22 @@ public record SocialLoginReq(
 ) {
     public boolean hasValidDeviceIdentifier() {
         return StringUtils.hasText(this.deviceUuid) || StringUtils.hasText(this.deviceName);
+    }
+
+    public DeviceInfo toDeviceInfo() {
+        org.sopt.device.domain.type.DeviceType targetDeviceType = null;
+        if (this.deviceType != null) {
+            targetDeviceType = org.sopt.device.domain.type.DeviceType.valueOf(this.deviceType.name());
+        }
+
+        return new DeviceInfo(
+                null,
+                this.deviceUuid,
+                this.deviceName,
+                targetDeviceType,
+                this.osType,
+                this.osVersion,
+                this.appVersion
+        );
     }
 }

@@ -17,6 +17,7 @@ import org.sopt.controller.auth.exception.*;
 import org.sopt.controller.auth.util.GoogleOAuth2UserInfo;
 import org.sopt.controller.auth.util.MyKeyLocator;
 import org.sopt.controller.token.TokenService;
+import org.sopt.device.dto.DeviceInfo;
 import org.sopt.device.facade.DeviceFacade;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.exception.AuthErrorCode;
@@ -176,8 +177,14 @@ public class AuthService {
                     .role(UserRole.USER)
                     .build();
 
-            User newUser = userFacade.save(user);
-            return tokenService.issueToken(req, newUser.getId(), RegisterStatus.SOCIAL_LOGIN_COMPLETED);
+            user = userFacade.save(user);
+
+            if(StringUtils.hasText(req.deviceUuid())) {
+                DeviceInfo deviceInfo = req.toDeviceInfo();
+                deviceFacade.upsertDevice(user.getId(), deviceInfo);
+            }
+
+            return tokenService.issueToken(req, user.getId(), RegisterStatus.SOCIAL_LOGIN_COMPLETED);
         }
     }
 
