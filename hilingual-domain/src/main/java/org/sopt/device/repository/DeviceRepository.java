@@ -12,6 +12,8 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
 
     Optional<Device> findByUser_IdAndUuid(Long userId, String uuid);
 
+    Optional<Device> findByUser_IdAndDeviceName(Long userId, String deviceName);
+
     @Modifying(clearAutomatically = true)
     @Query("delete from Device d where d.user.id = :userId")
     void deleteAllByUser_Id(@Param("userId") Long userId);

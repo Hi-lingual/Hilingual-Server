@@ -24,21 +24,12 @@ public class DeviceFacade {
     private final DeviceSaver deviceSaver;
     private final UserFacade userFacade;
 
-    public Optional<Device> findByUserIdAndUuid(final long userId, final String uuid) {
-        return deviceRetriever.findByUserIdAndUuid(userId, uuid);
-    }
-
     @Transactional
     public void upsertDevice(final long userId, final DeviceInfo deviceInfo) {
-        try {
-            if (StringUtils.hasText(deviceInfo.timezone())) {
-                ZoneId.of(deviceInfo.timezone());
-            }
-        } catch (DateTimeException e) {
-            throw new InvalidTimezoneFormatException(DeviceCoreErrorCode.INVALID_TIMEZONE_FORMAT);
-        }
 
-        Optional<Device> optionalDevice = deviceRetriever.findByUserIdAndUuid(userId, deviceInfo.deviceUuid());
+        validateTimezone(deviceInfo.timezone());
+
+        Optional<Device> optionalDevice = findExistingDevice(userId, deviceInfo);
 
         if (optionalDevice.isPresent()) {
             Device existingDevice = optionalDevice.get();
@@ -68,5 +59,29 @@ public class DeviceFacade {
     @Transactional
     public void deleteAllDevices(final long userId){
         deviceRemover.deleteAllByUserId(userId);
+    }
+
+    private void validateTimezone(String timezone) {
+        try {
+            if (StringUtils.hasText(timezone)) {
+                ZoneId.of(timezone);
+            }
+        } catch (DateTimeException e) {
+            throw new InvalidTimezoneFormatException(DeviceCoreErrorCode.INVALID_TIMEZONE_FORMAT);
+        }
+    }
+
+    private Optional<Device> findExistingDevice(long userId, DeviceInfo deviceInfo) {
+        // 신버전: UUID 존재하는 경우
+        if (StringUtils.hasText(deviceInfo.deviceUuid())) {
+            return deviceRetriever.findByUserIdAndUuid(userId, deviceInfo.deviceUuid());
+        }
+
+        // 구버전: UUID가 없는 경우
+        else if (StringUtils.hasText(deviceInfo.deviceName())) {
+            return deviceRetriever.findByUserIdAndDeviceName(userId, deviceInfo.deviceName());
+        }
+
+        return Optional.empty();
     }
 }
