@@ -1,7 +1,9 @@
 package org.sopt.device.facade;
 
+import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.device.domain.Device;
 import org.sopt.device.dto.DeviceInfo;
 import org.sopt.device.exception.DeviceCoreErrorCode;
@@ -15,6 +17,7 @@ import java.time.DateTimeException;
 import java.time.ZoneId;
 import java.util.Optional;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DeviceFacade {
@@ -23,6 +26,7 @@ public class DeviceFacade {
     private final DeviceRemover deviceRemover;
     private final DeviceSaver deviceSaver;
     private final UserFacade userFacade;
+    private final LogbackMetrics logbackMetrics;
 
     @Transactional
     public void upsertDevice(final long userId, final DeviceInfo deviceInfo) {
@@ -35,7 +39,6 @@ public class DeviceFacade {
             Device existingDevice = optionalDevice.get();
             existingDevice.updateDeviceInfo(
                     deviceInfo.timezone(),
-                    deviceInfo.deviceUuid(),
                     deviceInfo.osVersion(),
                     deviceInfo.appVersion()
             );

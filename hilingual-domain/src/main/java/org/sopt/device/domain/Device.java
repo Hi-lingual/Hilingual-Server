@@ -74,10 +74,9 @@ public class Device extends BaseTimeEntity {
 
     // 기존 기기 정보 갱신
     public void updateDeviceInfo(
-            String timezone, String uuid, String osVersion, String appVersion
+            String timezone, String osVersion, String appVersion
     ) {
         this.timezone = timezone;
-        this.uuid = uuid;
         this.osVersion = osVersion;
         this.appVersion = appVersion;
     }

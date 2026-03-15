@@ -164,10 +164,6 @@ public class AuthService {
                 // 탈퇴한 회원인 경우 다시 회원 자격 복구
                 user.revertDeleteUser();
             }
-
-            // 이미 가입된 유저 토큰 재발급(= 초기 유저와 동일한 로직)
-            return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
-
         } else {
             user = User.builder()
                     .provider(String.valueOf(req.provider()))
@@ -178,14 +174,14 @@ public class AuthService {
                     .build();
 
             user = userFacade.save(user);
-
-            if(StringUtils.hasText(req.deviceUuid())) {
-                DeviceInfo deviceInfo = req.toDeviceInfo();
-                deviceFacade.upsertDevice(user.getId(), deviceInfo);
-            }
-
-            return tokenService.issueToken(req, user.getId(), RegisterStatus.SOCIAL_LOGIN_COMPLETED);
         }
+
+        if(StringUtils.hasText(req.deviceUuid())) {
+            DeviceInfo deviceInfo = req.toDeviceInfo();
+            deviceFacade.upsertDevice(user.getId(), deviceInfo);
+        }
+
+        return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
     }
 
     private GoogleIdToken.Payload verifyGoogleIdentityToken(String idTokenValue) {
