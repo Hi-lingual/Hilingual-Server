@@ -75,7 +75,7 @@ public class DiaryService {
         saveFeedbacks(diary, ai.feedbackList());
         saveRecommends(diary, ai.phraseList());
 
-        return new DiaryRes(diary.getId());
+        return new DiaryRes(diary.getId(), diary.getIsAdWatched());
     }
 
     private String bindDiaryImageIfPresent(Long userId, LocalDate writtenDate, CreateDiaryReq.ImageRef imageRef) {
@@ -129,6 +129,7 @@ public class DiaryService {
                 .diffRanges(diffRanges)
                 .imageUrl(imageUrl)
                 .isPublished(diary.getIsPublic())
+                .isAdWatched(diary.getIsAdWatched())
                 .build();
     }
 
@@ -149,16 +150,19 @@ public class DiaryService {
 
     @Transactional
     public void publishDiary(final Long userId, final Long diaryId) {
-        diaryFacade.validateDiaryOwnership(userId, diaryId);
         diaryFacade.publish(userId, diaryId);
     }
 
     @Transactional
     public void unpublishDiary(final Long userId, final Long diaryId) {
-        diaryFacade.validateDiaryOwnership(userId, diaryId);
         diaryFacade.unpublish(userId, diaryId);
 
         likedDiaryFacade.unlikeAllOfDiary(diaryId);
 
+    }
+
+    @Transactional
+    public void markAdWatched(final Long userId, final Long diaryId) {
+        diaryFacade.markAdWatched(userId, diaryId);
     }
 }

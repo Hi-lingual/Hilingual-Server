@@ -107,4 +107,10 @@ public class DiaryFacade {
         diaryUpdater.decreaseLike(diary);
     }
 
+    @Transactional
+    public void markAdWatched(Long userId, Long diaryId) {
+        Diary diary = diaryRetriever.findOwnedByIdOrThrow(userId, diaryId);
+        diaryUpdater.markAdWatched(diary);
+    }
+
 }

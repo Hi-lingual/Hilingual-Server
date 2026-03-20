@@ -25,4 +25,8 @@ public class DiaryUpdater {
         diary.decreaseLikeCount();
     }
 
+    public void markAdWatched(Diary diary) {
+        diary.markAdWatched();
+    }
+
 }

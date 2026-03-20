@@ -68,4 +68,13 @@ public class DiaryController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/{diaryId}/ad-watch")
+    public ResponseEntity<Void> markAdWatched(
+            @UserId Long userId,
+            @PathVariable("diaryId") @NotNull @Min(1) Long diaryId
+    ){
+        diaryService.markAdWatched(userId, diaryId);
+        return ResponseEntity.ok().build();
+    }
+
 }
