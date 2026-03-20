@@ -10,7 +10,8 @@ public record DiaryDetailsRes(
         String rewriteText,
         List<DiffRange> diffRanges,
         String imageUrl,
-        Boolean isPublished
+        Boolean isPublished,
+        Boolean isAdWatched
 ) {
     public record DiffRange(
             int start,
