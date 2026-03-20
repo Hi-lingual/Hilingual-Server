@@ -6,14 +6,16 @@ public record UserCalendarDiarySummaryRes(
         Long diaryId,
         String imageUrl,
         String originalText,
-        Boolean isPublished
+        Boolean isPublished,
+        Boolean isAdWatched
 ) {
     public static UserCalendarDiarySummaryRes of(Diary diary, String diaryImgUrl) {
         return new UserCalendarDiarySummaryRes(
                 diary.getId(),
                 diaryImgUrl,
                 diary.getOriginalText(),
-                diary.getIsPublic()
+                diary.getIsPublic(),
+                diary.getIsAdWatched()
         );
     }
 }

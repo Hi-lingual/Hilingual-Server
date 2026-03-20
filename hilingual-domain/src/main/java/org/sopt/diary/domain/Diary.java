@@ -53,6 +53,9 @@ public class Diary extends BaseTimeEntity {
     @Column(name = COLUMN_IS_PUBLIC, nullable = false)
     private Boolean isPublic = Boolean.FALSE;
 
+    @Column(name = COLUMN_IS_AD_WATCHED, nullable = false)
+    private Boolean isAdWatched = Boolean.FALSE;
+
     @Column(name = COLUMN_IS_LIKED, nullable = false)
     private Integer isLiked = 0;
 
@@ -94,6 +97,7 @@ public class Diary extends BaseTimeEntity {
                 imageUrl,
                 writtenDate,
                 Boolean.FALSE, // isPublic
+                Boolean.FALSE, // isAdWatched
                 0,             // isLiked
                 null,
                 user,
@@ -109,6 +113,10 @@ public class Diary extends BaseTimeEntity {
     public void decreaseLikeCount() {
         int cur = (this.isLiked == null ? 0 : this.isLiked);
         this.isLiked = Math.max(0, cur - 1);
+    }
+
+    public void markAdWatched() {
+        this.isAdWatched = true;
     }
 
 }
