@@ -36,17 +36,6 @@ public class UserProfileUpdater {
     }
 
     /**
-     * 일기 삭제 시 totalDiaries 감소 및 streak 재계산
-     */
-    @Transactional
-    public void decrementTotalDiariesAndRecalculateStreak(Long userId, LocalDate writtenDate) {
-        UserProfile profile = userProfileRetriever.findByUserId(userId);
-        updateStreakOnDelete(userId, writtenDate); // 삭제 규칙대로 streak 반영
-        resyncTotal(profile);                      // WRITTEN 개수로 동기화
-        userProfileRepository.save(profile);
-    }
-
-    /**
      * 일기를 쓴 순간에 호출 (streak 업데이트)
      */
     @Transactional
@@ -82,85 +71,6 @@ public class UserProfileUpdater {
         profile.updateStreak(newStreak);
         userProfileRepository.save(profile);
     }
-
-
-    /**
-     * 일기를 삭제한 순간에 호출 (streak 업데이트)
-     * 규칙 요약:
-     *  - 어제(Y) 삭제: 오늘(D)이 있으면 즉시 1, 없으면 0
-     *  - 오늘(D) 삭제: 즉시 0 (즉시 단절)
-     *  - 그제(DBY) 삭제: 고정값 매핑
-     *      Y=O,D=O → 2 / Y=O,D=X → 1 / Y=X,D=O → 1 / Y=X,D=X → 0
-     *  - 그 이전(≤DBY-1) 삭제:
-     *      Y=O → calc(Y) + (D ? 1 : 0)
-     *      Y=X & D=O → min(현재 streak, calc(DBY))
-     *      Y=X & D=X → calc(DBY)
-     */
-    @Transactional
-    public void updateStreakOnDelete(Long userId, LocalDate writtenDate) {
-        UserProfile profile = userProfileRetriever.findByUserId(userId);
-
-        final ZoneId KST = ZoneId.of("Asia/Seoul");
-        LocalDate today = LocalDate.now(KST);         // D (예: 17)
-        LocalDate yesterday = today.minusDays(1);     // Y (예: 16)
-        LocalDate dby = today.minusDays(2);           // DBY (예: 15)
-
-        WriteStatus dStatus = userCalendarFacade.getStatus(profile.getUser(), today);
-        WriteStatus yStatus = userCalendarFacade.getStatus(profile.getUser(), yesterday);
-
-        boolean dWritten = (dStatus == WriteStatus.WRITTEN);
-        boolean yWritten = (yStatus == WriteStatus.WRITTEN);
-
-        int newStreak;
-
-        if (writtenDate.equals(today)) {
-            // 오늘 삭제 → 즉시 단절
-            newStreak = 0;
-
-        } else if (writtenDate.equals(yesterday)) {
-            // 어제 삭제 → 오늘 WRITTEN이면 1, 아니면 0
-            newStreak = dWritten ? 1 : 0;
-
-        } else if (writtenDate.equals(dby)) {
-            // 그제(DBY) 삭제: 고정값
-            if (yWritten && dWritten) {
-                newStreak = 2;
-            } else if (yWritten) {
-                newStreak = 1;
-            } else if (dWritten) {
-                newStreak = 1;
-            } else {
-                newStreak = 0;
-            }
-
-        } else if (writtenDate.isBefore(dby)) {
-            // 그 이전(≤DBY-1) 삭제 — 점진 하향, Y의 NONE/DELETED 구분
-            if (yWritten) {
-                int base = calculateStreakFromDate(profile.getUser(), yesterday);
-                newStreak = base + (dWritten ? 1 : 0);
-            } else {
-                if (yStatus == WriteStatus.DELETED) {
-                    // 어제가 하드 미싱이면 오늘 단독만 가능
-                    newStreak = dWritten ? 1 : 0;
-                } else { // yStatus == NONE (소프트 미싱)
-                    int baseFromDBY = calculateStreakFromDate(profile.getUser(), dby);
-                    int current = profile.getStreak();
-                    newStreak = Math.min(current, baseFromDBY);
-                }
-            }
-
-        } else {
-            // 미래 날짜 등 비정상 입력: 보수적 환산
-            int base = calculateStreakFromDate(profile.getUser(), yesterday);
-            newStreak = base + (dWritten ? 1 : 0);
-        }
-
-        profile.updateStreak(newStreak);
-        userProfileRepository.save(profile);
-    }
-
-
-
 
     // 특정 날짜부터 과거로 연속 작성 일수를 계산하는 헬퍼 메서드
     private int calculateStreakFromDate(User user, LocalDate startDate) {
