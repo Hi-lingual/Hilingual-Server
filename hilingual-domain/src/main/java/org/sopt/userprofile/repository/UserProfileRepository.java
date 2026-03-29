@@ -3,7 +3,6 @@ package org.sopt.userprofile.repository;
 import org.sopt.user.domain.User;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.dto.UserSearchProjection;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {
     boolean existsByNickname(String nickname);
@@ -38,6 +38,21 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
             @Param("userId") Long userId,
             @Param("profileImg") String profileImg,
             @Param("updatedAt") LocalDateTime updatedAt
+    );
+
+    /*
+     * 스트릭 스케줄러용 최적화 쿼리
+     * 지정된 타임존 목록에 속해 있으면서, 스트릭이 0보다 큰 유저의 프로필만 User와 함께 페치 조인
+     */
+    @Query("""
+        SELECT up FROM UserProfile up
+        JOIN FETCH up.user u
+        WHERE u.primaryTimezone IN :timezones
+          AND up.streak > :streakThreshold
+    """)
+    List<UserProfile> findTargetsForStreakReset(
+            @Param("timezones") Set<String> timezones,
+            @Param("streakThreshold") int streakThreshold
     );
 
     /*

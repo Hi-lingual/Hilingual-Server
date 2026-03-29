@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
@@ -28,9 +28,9 @@ public class UserProfileUpdater {
      * 일기 작성 시 totalDiaries 증가 및 streak 재계산
      */
     @Transactional
-    public void incrementTotalDiariesAndRecalculateStreak(Long userId, LocalDate writtenDate) {
+    public void incrementTotalDiariesAndRecalculateStreak(Long userId, LocalDate writtenDate, ZoneId userZone) {
         UserProfile profile = userProfileRetriever.findByUserId(userId);
-        updateStreakOnWrite(userId, writtenDate); // 캘린더 상태 기준으로 streak 반영
+        updateStreakOnWrite(profile, writtenDate, userZone); // 캘린더 상태 기준으로 streak 반영
         resyncTotal(profile);                     // WRITTEN 개수로 동기화
         userProfileRepository.save(profile);
     }
@@ -38,13 +38,10 @@ public class UserProfileUpdater {
     /**
      * 일기를 쓴 순간에 호출 (streak 업데이트)
      */
-    @Transactional
-    public void updateStreakOnWrite(Long userId, LocalDate writtenDate) {
-        UserProfile profile = userProfileRetriever.findByUserId(userId);
-
-        final ZoneId KST = ZoneId.of("Asia/Seoul");
-        LocalDate today     = LocalDate.now(KST);   // D
-        LocalDate yesterday = today.minusDays(1);   // Y
+    public void updateStreakOnWrite(UserProfile profile, LocalDate writtenDate, ZoneId userZone) {
+        // 전달받은 유저의 로컬 타임존
+        LocalDate today     = LocalDate.now(userZone); // D
+        LocalDate yesterday = today.minusDays(1); // Y
 
         // 캘린더 사실값 조회
         WriteStatus yStatus = userCalendarFacade.getStatus(profile.getUser(), yesterday);
@@ -68,8 +65,8 @@ public class UserProfileUpdater {
         }
         // 그 외 날짜는 변화 없음
 
+        // 객체 상태만 업데이트 (저장은 호출한 부모 메서드에서 처리)
         profile.updateStreak(newStreak);
-        userProfileRepository.save(profile);
     }
 
     // 특정 날짜부터 과거로 연속 작성 일수를 계산하는 헬퍼 메서드
@@ -84,34 +81,54 @@ public class UserProfileUpdater {
     }
 
     /**
-     * 매일 자정 → 최근 2일 작성 여부 검사 후 streak 리셋 or 유지
+     * [스케줄러]
+     * 매 15분마다 실행, 해당 시간에 자정을 맞이한 타임존 중
+     * 스트릭을 잃을 가능성이 있는(streak > 0) 유저만 검사
      */
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0,15,30,45 * * * *")
     @Transactional
-    public void resetStreakIfBroken() {
-        LocalDate today     = LocalDate.now(ZoneId.of("Asia/Seoul"));
-        LocalDate yesterday = today.minusDays(1);
-        LocalDate dayBeforeYesterday = today.minusDays(2);
+    public void resetStreakIfBrokenGlobal() {
+        Instant now = Instant.now();
 
-        List<UserProfile> all = userProfileRepository.findAll();
+        // 현재 자정을 맞이한 타임존만 추출
+        Set<String> midnightZones = ZoneId.getAvailableZoneIds().stream()
+                .filter(zone -> {
+                    LocalTime localTime = LocalTime.ofInstant(now, ZoneId.of(zone));
+                    return localTime.getHour() == 0 && localTime.getMinute() == 0;
+                })
+                .collect(Collectors.toSet());
 
-        for (UserProfile profile : all) {
+        if (midnightZones.isEmpty()) {
+            return;
+        }
+
+        // 해당 타임존이면서 스트릭이 1 이상인 대상만 조회 (streak 0인 대상은 조회할 필요 X)
+        List<UserProfile> targetProfiles = userProfileRepository.findTargetsForStreakReset(midnightZones, 0);
+
+        if (targetProfiles.isEmpty()) {
+            return;
+        }
+
+        // 대상 유저들의 로컬 날짜 기준으로 스트릭 검사 및 갱신
+        for (UserProfile profile : targetProfiles) {
+            ZoneId userZone = ZoneId.of(profile.getUser().getPrimaryTimezone());
+            LocalDate today = LocalDate.now(userZone);
+            LocalDate yesterday = today.minusDays(1);
+            LocalDate dayBeforeYesterday = today.minusDays(2);
+
             WriteStatus y   = userCalendarFacade.getStatus(profile.getUser(), yesterday);
             WriteStatus dby = userCalendarFacade.getStatus(profile.getUser(), dayBeforeYesterday);
 
-            // (15 X, 16 O) → 1
-            if (dby != WriteStatus.WRITTEN && y == WriteStatus.WRITTEN) {
-                profile.updateStreak(1);
-                continue;
-            }
-            // (15 X, 16 X) → 0
+            // 어제와 그제 모두 작성하지 않은 경우 스트릭 초기화
             if (dby != WriteStatus.WRITTEN && y != WriteStatus.WRITTEN) {
                 profile.updateStreak(0);
-                continue;
             }
-            // (15 O, 16 X) 또는 (15 O, 16 O) → 유지
+            // (15일 X, 16일 O) -> 어제 작성했으므로 스트릭 1 (이 케이스는 updateStreakOnWrite에서 처리되나 안전하게 처리)
+            else if (dby != WriteStatus.WRITTEN) {
+                profile.updateStreak(1);
+            }
+            // 그 외 (연속 작성 중) -> 기존 스트릭 유지
         }
-        userProfileRepository.saveAll(all);
     }
 
     private void resyncTotal(UserProfile profile) {
