@@ -69,13 +69,6 @@ public class DiaryFacade {
         return diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate, userZone);
     }
 
-    /*
-     * Remover
-     */
-    @Transactional
-    public void deleteDiary(final long userId, final long diaryId) {
-        diaryRemover.deleteDiary(userId, diaryId);
-    }
 
     public void deleteAllByUserId(final long userId) {
         diaryRemover.deleteAllByUserId(userId);
