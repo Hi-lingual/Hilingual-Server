@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @Component
@@ -64,8 +65,8 @@ public class DiaryFacade {
      * Saver
      */
     @Transactional
-    public Diary saveDiary(User user, String originalText, String rewriteText, String imageUrl, LocalDate writtenDate) {
-        return diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate);
+    public Diary saveDiary(User user, String originalText, String rewriteText, String imageUrl, LocalDate writtenDate, ZoneId userZone) {
+        return diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate, userZone);
     }
 
     /*

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Component
 @RequiredArgsConstructor
@@ -30,15 +31,16 @@ public class DiarySaver {
             final String originalText,
             final String rewriteText,
             final String imageUrl,
-            final LocalDate writtenDate
-    ) {
+            final LocalDate writtenDate,
+            final ZoneId userZone
+            ) {
         try {
             Diary saved = diaryRepository.save(
                     Diary.create(user, originalText, rewriteText, imageUrl, writtenDate)
             );
 
             userCalendarFacade.markWrittenDate(user, writtenDate);
-            userProfileFacade.incrementTotalDiariesAndRecalculateStreak(user.getId(), writtenDate);
+            userProfileFacade.incrementTotalDiariesAndRecalculateStreak(user.getId(), writtenDate, userZone);
 
             return saved;
         } catch (DataIntegrityViolationException ex) {
