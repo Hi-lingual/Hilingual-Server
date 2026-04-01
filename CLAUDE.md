@@ -2,125 +2,162 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+---
+
 ## Build & Run Commands
 
-```bash
-# Build all modules
-./gradlew build
+- Build all modules: `./gradlew build`
+- Build without tests: `./gradlew build -x test`
+- Run app: `./gradlew :hilingual-api:bootRun`
+- Run all tests: `./gradlew test`
+- Module test:
+  - `./gradlew :hilingual-api:test`
+  - `./gradlew :hilingual-domain:test`
+- Single test:
+  - `./gradlew :hilingual-api:test --tests "org.sopt.controller.diary.DiaryServiceTest"`
+- Clean build: `./gradlew clean build`
+- Dependency health: `./gradlew buildHealth`
 
-# Build without tests
-./gradlew build -x test
-
-# Run the application (hilingual-api module)
-./gradlew :hilingual-api:bootRun
-
-# Run all tests
-./gradlew test
-
-# Run tests for a specific module
-./gradlew :hilingual-api:test
-./gradlew :hilingual-domain:test
-
-# Run a single test class
-./gradlew :hilingual-api:test --tests "org.sopt.controller.diary.DiaryServiceTest"
-
-# Clean build
-./gradlew clean build
-
-# Check for unused dependencies
-./gradlew buildHealth
-```
+---
 
 ## Module Architecture
 
-This is a multi-module Spring Boot 3.4 / Java 17 project with a strict dependency hierarchy:
+hilingual-api → Controllers + Services  
+↓  
+hilingual-domain → Entities, Facade, Repository, QueryDSL  
+hilingual-auth → JWT, Security  
+hilingual-external → S3, OpenAI  
+hilingual-common → DTO, Exception, Response
 
-```
-hilingual-api          ← Entry point: Controllers + Services (application layer)
-  ↓ depends on
-hilingual-domain       ← JPA entities, Facades, Repositories, QueryDSL
-hilingual-auth         ← JWT token handling, Spring Security filters
-hilingual-external     ← AWS S3, OpenAI (Feign client)
-hilingual-common       ← Shared DTOs, exception base classes, response envelope
-```
+- Only `hilingual-api` produces bootJar
 
-Only `hilingual-api` produces a bootJar (`app.jar`). All other modules produce plain JARs.
+---
 
-### Module Responsibilities
+## Module Responsibilities
 
-- **hilingual-api**: HTTP layer only. `controller/<feature>/api/` for controllers, `controller/<feature>/service/` for use-case services that orchestrate domain facades. Each feature has its own `exception/` sub-package with `ApiErrorCode` and `ApiException`.
-- **hilingual-domain**: Domain entities live under `org/sopt/<aggregate>/domain/`. Each aggregate has a `facade/` that groups `Retriever`, `Saver`, `Remover`, `Updater` components. Repositories extend Spring Data JPA; QueryDSL queries go in separate `*QueryRepository` classes. QueryDSL Q-types are generated into `build/generated/querydsl`.
-- **hilingual-auth**: JWT `JwtTokenProvider`, `JwtAuthenticationFilter`, `UserAuthentication`, and Redis-backed `TokenRepository`. The `@UserId` annotation extracts the authenticated user ID in controllers.
-- **hilingual-external**: `S3Service` for pre-signed URL generation and file operations. `OpenAIService` via Feign client for GPT diary feedback.
-- **hilingual-common**: `BaseResponseDto<T>` response envelope (code + data + message). `HilingualBaseException` is the root for all domain exceptions. `ErrorCode` / `SuccessCode` interfaces with `GlobalErrorCode` / `GlobalSuccessCode` implementations.
+- hilingual-api: Controller + Use-case Service
+- hilingual-domain: Entity + Facade + QueryDSL
+- hilingual-auth: JWT 인증
+- hilingual-external: 외부 연동
+- hilingual-common: 공통 DTO/Exception
+
+---
 
 ## Key Patterns
 
-### Response Format
+### Response
 
-All API responses use `BaseResponseDto<T>`:
-```java
-BaseResponseDto.success(GlobalSuccessCode.SUCCESS, data)
-BaseResponseDto.fail(SomeErrorCode.NOT_FOUND)
-```
+- BaseResponseDto 사용
+- success / fail 패턴 유지
 
-### Exception Hierarchy
+### Exception
 
-- Domain exceptions: extend module-level `*CoreException` → `HilingualBaseException`
-- API exceptions: extend module-level `*ApiException` → `HilingualBaseException`
-- Error codes implement `ErrorCode` interface with `getCode()` and `getMessage()`
-- `GlobalExceptionHandler` in `hilingual-api` handles all exceptions centrally
+- CoreException / ApiException 분리
+- ErrorCode 기반
+- GlobalExceptionHandler에서 처리
 
-### Facade Pattern
+### Facade
 
-Facades (`@Component`) in `hilingual-domain` aggregate Retriever/Saver/Remover/Updater components. Services in `hilingual-api` call facades — they do not directly access repositories. Facades own `@Transactional` boundaries for write operations; services that span multiple facades coordinate transactions at the service level.
+- Service → Facade → Repository 구조
+- Service는 Repository 직접 접근 금지
 
 ### Authentication
 
-`@UserId Long userId` parameter injection is available in all controllers via the custom `UserId` resolver. The `SecurityUtils.getCurrentUserId()` utility can also be used within services.
+- Controller: @UserId
+- Service: SecurityUtils.getCurrentUserId()
 
-## Database & Migrations
+---
 
-- PostgreSQL with Flyway migrations in `hilingual-api/src/main/resources/db/migration/`
-- Migration files follow `V{n}__{description}.sql` naming
-- `ddl-auto: validate` in production (non-local profiles) — schema changes require a migration file
-- `ddl-auto: create` in local profile — Flyway is disabled locally
-- Blue/green deployment via Spring profiles (`blue` port 8081, `green` port 8082)
+## Database
 
-## Environment Variables
+- PostgreSQL + Flyway
+- db/migration
+- V{n}__{desc}.sql
+- local: create
+- prod: validate
+- blue/green: 8081 / 8082
 
-All secrets come from a `.env` file (loaded via `dotenv-java`). Required variables:
-`DB_URL`, `DB_ID`, `DB_PW`, `SECRET_KEY`, `ACCESS_EXPIRATION`, `REFRESH_EXPIRATION`, `REDIS_HOST`, `REDIS_PORT`, `AWS_ACCESS_KEY`, `AWS_SECRET_KEY`, `AWS_REGION`, `AWS_BUCKET_NAME`, `AWS_CDN_DOMAIN`, `AWS_S3_FILE_KEY`, `OPENAI_API_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEW_USER_WEBHOOK`
+---
 
-For local development: copy `.env.example` to `.env` and fill in values. Use `application-local.yml` profile.
+## Environment
+
+.env 기반
+
+- DB_URL, DB_ID, DB_PW
+- SECRET_KEY, ACCESS_EXPIRATION
+- REDIS_HOST, REDIS_PORT
+- AWS_*, OPENAI_API_KEY
+
+---
 
 ## Infrastructure
 
-Docker Compose runs blue/green Spring instances + Redis + Promtail (log shipping to Loki/Grafana). Monitoring via Prometheus (`/actuator/prometheus`) and Micrometer with histogram percentiles.
+- Docker Compose
+- Redis
+- Prometheus / Grafana
+- Micrometer
 
-## Claude 응답 규칙
-- 한국어로 설명, 결론 먼저
-- 코드 변경 전 현재 구조 파악 필수
+---
+
+## Claude 작업 규칙
+
+- 한국어로 설명 + 결론 먼저
+- 코드 작성 전 구조 분석 필수
+- 기존 구조/패턴 유지
+- 새 구조 도입 시 이유 설명
+- 여러 파일 수정 시 이유 명시
+- 기존 코드 패턴과 다른 구현을 할 경우 반드시 이유를 설명한다
+- 추측으로 구현하지 말고, 불확실하면 먼저 질문한다
+
+---
 
 ## 아키텍처 원칙
-- Controller → Service → Facade → Repository 엄격히 분리
-- Service는 Facade만 호출 (Repository 직접 접근 금지)
-- 예외는 각 기능별 exception/ 서브패키지에 ApiErrorCode/ApiException으로 정의
-- 모든 예외는 GlobalExceptionHandler에서 중앙 처리
-- 401(인증)/403(권한)/500(서버) 명확히 구분
 
-## 인증
-- 컨트롤러: @UserId Long userId 파라미터 사용
-- 서비스: SecurityUtils.getCurrentUserId() 사용
+- Controller → Service → Facade → Repository
+- Service는 Facade만 호출
+- 예외는 GlobalExceptionHandler
+- 401 / 403 / 500 구분
+
+---
+
+## API 설계 기준
+
+- BaseResponseDto 사용
+- Controller에 로직 금지
+- DTO 분리
+- API 변경 시 클라이언트 영향 설명
+
+---
+
+## 성능 기준
+
+- N+1 체크
+- Fetch 전략 고려
+- QueryDSL → QueryRepository
+- Redis 캐시 invalidation 고려
+
+---
+
+## 인증 규칙
+
+- @UserId 사용
+- Security Filter Chain 고려
+- 인증 실패 → 401
+
+---
 
 ## 변경 전 체크리스트
-- [ ] @Transactional 범위 적절한가?
-- [ ] N+1 쿼리 발생 가능성 있는가?
-- [ ] Redis 캐시 정합성 깨지지 않는가?
-- [ ] 클라이언트 API 스펙 영향 있는가?
+
+- [ ] @Transactional 적절한가?
+- [ ] N+1 문제 없는가?
+- [ ] Redis 정합성 유지되는가?
+- [ ] 클라이언트 영향 있는가?
+
+---
 
 ## 금지사항
+
 - 라이브러리 임의 추가 금지
 - 엔티티 구조 대규모 변경 금지
 - API 스펙 임의 변경 금지
-- .env 직접 수정 금지
+- .env 직접 수정 금지  
