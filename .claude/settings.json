@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew build)",
+      "Bash(./gradlew build -x test)",
+      "Bash(./gradlew test*)",
+      "Bash(./gradlew clean*)",
+      "Bash(./gradlew :hilingual-api:bootRun)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  }
+}
