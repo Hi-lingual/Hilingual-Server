@@ -20,8 +20,5 @@
       "Bash(rm -rf *)",
       "Bash(sudo *)"
     ]
-  },
-  "disabledMcpServers": [
-    "plugin:everything-claude-code:playwright"
-  ]
+  }
 }
