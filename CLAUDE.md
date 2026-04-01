@@ -97,3 +97,30 @@ For local development: copy `.env.example` to `.env` and fill in values. Use `ap
 ## Infrastructure
 
 Docker Compose runs blue/green Spring instances + Redis + Promtail (log shipping to Loki/Grafana). Monitoring via Prometheus (`/actuator/prometheus`) and Micrometer with histogram percentiles.
+
+## Claude 응답 규칙
+- 한국어로 설명, 결론 먼저
+- 코드 변경 전 현재 구조 파악 필수
+
+## 아키텍처 원칙
+- Controller → Service → Facade → Repository 엄격히 분리
+- Service는 Facade만 호출 (Repository 직접 접근 금지)
+- 예외는 각 기능별 exception/ 서브패키지에 ApiErrorCode/ApiException으로 정의
+- 모든 예외는 GlobalExceptionHandler에서 중앙 처리
+- 401(인증)/403(권한)/500(서버) 명확히 구분
+
+## 인증
+- 컨트롤러: @UserId Long userId 파라미터 사용
+- 서비스: SecurityUtils.getCurrentUserId() 사용
+
+## 변경 전 체크리스트
+- [ ] @Transactional 범위 적절한가?
+- [ ] N+1 쿼리 발생 가능성 있는가?
+- [ ] Redis 캐시 정합성 깨지지 않는가?
+- [ ] 클라이언트 API 스펙 영향 있는가?
+
+## 금지사항
+- 라이브러리 임의 추가 금지
+- 엔티티 구조 대규모 변경 금지
+- API 스펙 임의 변경 금지
+- .env 직접 수정 금지
