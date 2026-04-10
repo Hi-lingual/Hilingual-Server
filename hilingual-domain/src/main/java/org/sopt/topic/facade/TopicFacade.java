@@ -10,9 +10,7 @@ import org.sopt.usercalendar.dto.UserCalendarTopicRes;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.Optional;
 
 @Component
@@ -22,7 +20,7 @@ public class TopicFacade {
     private final TopicRetriever topicRetriever;
     private final UserCalendarFacade userCalendarFacade;
 
-    public UserCalendarTopicRes findTopicByDate(Long userId, LocalDate date) {
+    public UserCalendarTopicRes findTopicByDate(Long userId, LocalDate date, ZoneId userZone) {
         Optional<UserCalendar> userCalendar = userCalendarFacade.findByUserIdAndDate(userId, date);
         if (userCalendar.isPresent() && userCalendar.get().getStatus() == WriteStatus.DELETED) {
             return UserCalendarTopicRes.of(" ", " ", -1);
@@ -31,13 +29,13 @@ public class TopicFacade {
         final Topic topic = topicRetriever.findByDate(date)
                 .orElseThrow(() -> new UserCalendarTopicNotFoundException(UserCalendarCoreErrorCode.TOPIC_NOT_FOUND));
 
-        int remainingTime = calculateRemainingMinutesUntilDeadline(date);
+        int remainingTime = calculateRemainingMinutesUntilDeadline(date, userZone);
         return UserCalendarTopicRes.of(topic.getTopicKor(), topic.getTopicEn(), remainingTime);
     }
 
-    private int calculateRemainingMinutesUntilDeadline(LocalDate topicDate) {
-        final LocalDateTime now = LocalDateTime.now();
-        final LocalDateTime deadline = topicDate.plusDays(2).atStartOfDay();
+    private int calculateRemainingMinutesUntilDeadline(LocalDate topicDate, ZoneId userZone) {
+        final ZonedDateTime now = ZonedDateTime.now(userZone);
+        final ZonedDateTime deadline = topicDate.plusDays(2).atStartOfDay(userZone);
         long secondsRemaining = Duration.between(now, deadline).getSeconds();
 
         if (secondsRemaining <= 0) return 0;
