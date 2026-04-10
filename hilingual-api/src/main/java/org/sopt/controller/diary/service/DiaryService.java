@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -57,12 +56,9 @@ public class DiaryService {
             Long userId,
             String originalText,
             LocalDate writtenDate,
-            CreateDiaryReq.ImageRef imageRef,
-            ZoneId userZone
+            CreateDiaryReq.ImageRef imageRef
     ) {
         User user = userFacade.getUserById(userId);
-
-        user.setPrimaryTimezone(userZone.getId());
         diaryFacade.validateNotExists(user, writtenDate);
 
         String fileKey = bindDiaryImageIfPresent(userId, writtenDate, imageRef);
@@ -73,8 +69,7 @@ public class DiaryService {
                 originalText,
                 ai.rewriteText(),
                 fileKey,
-                writtenDate,
-                userZone
+                writtenDate
         );
 
         saveFeedbacks(diary, ai.feedbackList());
@@ -136,6 +131,21 @@ public class DiaryService {
                 .isPublished(diary.getIsPublic())
                 .isAdWatched(diary.getIsAdWatched())
                 .build();
+    }
+
+    @Transactional
+    public void removeDairy(final Long userId, final Long diaryId) {
+        diaryFacade.validateDiaryOwnership(userId, diaryId);
+        Diary diary = diaryFacade.getDiaryById(diaryId);
+
+        String imageKey = diary.getImageUrl();
+        if (imageKey != null && !imageKey.isBlank()) {
+            s3Service.deleteObject(imageKey);
+        }
+
+        diaryFacade.deleteDiary(userId, diaryId);
+        userCalendarFacade.markDeleted(userId, diary.getWrittenDate());
+        userProfileFacade.decrementTotalDiariesAndRecalculateStreak(userId, diary.getWrittenDate());
     }
 
     @Transactional

@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
@@ -28,20 +28,34 @@ public class UserProfileUpdater {
      * 일기 작성 시 totalDiaries 증가 및 streak 재계산
      */
     @Transactional
-    public void incrementTotalDiariesAndRecalculateStreak(Long userId, LocalDate writtenDate, ZoneId userZone) {
+    public void incrementTotalDiariesAndRecalculateStreak(Long userId, LocalDate writtenDate) {
         UserProfile profile = userProfileRetriever.findByUserId(userId);
-        updateStreakOnWrite(profile, writtenDate, userZone); // 캘린더 상태 기준으로 streak 반영
+        updateStreakOnWrite(userId, writtenDate); // 캘린더 상태 기준으로 streak 반영
         resyncTotal(profile);                     // WRITTEN 개수로 동기화
+        userProfileRepository.save(profile);
+    }
+
+    /**
+     * 일기 삭제 시 totalDiaries 감소 및 streak 재계산
+     */
+    @Transactional
+    public void decrementTotalDiariesAndRecalculateStreak(Long userId, LocalDate writtenDate) {
+        UserProfile profile = userProfileRetriever.findByUserId(userId);
+        updateStreakOnDelete(userId, writtenDate); // 삭제 규칙대로 streak 반영
+        resyncTotal(profile);                      // WRITTEN 개수로 동기화
         userProfileRepository.save(profile);
     }
 
     /**
      * 일기를 쓴 순간에 호출 (streak 업데이트)
      */
-    public void updateStreakOnWrite(UserProfile profile, LocalDate writtenDate, ZoneId userZone) {
-        // 전달받은 유저의 로컬 타임존
-        LocalDate today     = LocalDate.now(userZone); // D
-        LocalDate yesterday = today.minusDays(1); // Y
+    @Transactional
+    public void updateStreakOnWrite(Long userId, LocalDate writtenDate) {
+        UserProfile profile = userProfileRetriever.findByUserId(userId);
+
+        final ZoneId KST = ZoneId.of("Asia/Seoul");
+        LocalDate today     = LocalDate.now(KST);   // D
+        LocalDate yesterday = today.minusDays(1);   // Y
 
         // 캘린더 사실값 조회
         WriteStatus yStatus = userCalendarFacade.getStatus(profile.getUser(), yesterday);
@@ -65,9 +79,88 @@ public class UserProfileUpdater {
         }
         // 그 외 날짜는 변화 없음
 
-        // 객체 상태만 업데이트 (저장은 호출한 부모 메서드에서 처리)
         profile.updateStreak(newStreak);
+        userProfileRepository.save(profile);
     }
+
+
+    /**
+     * 일기를 삭제한 순간에 호출 (streak 업데이트)
+     * 규칙 요약:
+     *  - 어제(Y) 삭제: 오늘(D)이 있으면 즉시 1, 없으면 0
+     *  - 오늘(D) 삭제: 즉시 0 (즉시 단절)
+     *  - 그제(DBY) 삭제: 고정값 매핑
+     *      Y=O,D=O → 2 / Y=O,D=X → 1 / Y=X,D=O → 1 / Y=X,D=X → 0
+     *  - 그 이전(≤DBY-1) 삭제:
+     *      Y=O → calc(Y) + (D ? 1 : 0)
+     *      Y=X & D=O → min(현재 streak, calc(DBY))
+     *      Y=X & D=X → calc(DBY)
+     */
+    @Transactional
+    public void updateStreakOnDelete(Long userId, LocalDate writtenDate) {
+        UserProfile profile = userProfileRetriever.findByUserId(userId);
+
+        final ZoneId KST = ZoneId.of("Asia/Seoul");
+        LocalDate today = LocalDate.now(KST);         // D (예: 17)
+        LocalDate yesterday = today.minusDays(1);     // Y (예: 16)
+        LocalDate dby = today.minusDays(2);           // DBY (예: 15)
+
+        WriteStatus dStatus = userCalendarFacade.getStatus(profile.getUser(), today);
+        WriteStatus yStatus = userCalendarFacade.getStatus(profile.getUser(), yesterday);
+
+        boolean dWritten = (dStatus == WriteStatus.WRITTEN);
+        boolean yWritten = (yStatus == WriteStatus.WRITTEN);
+
+        int newStreak;
+
+        if (writtenDate.equals(today)) {
+            // 오늘 삭제 → 즉시 단절
+            newStreak = 0;
+
+        } else if (writtenDate.equals(yesterday)) {
+            // 어제 삭제 → 오늘 WRITTEN이면 1, 아니면 0
+            newStreak = dWritten ? 1 : 0;
+
+        } else if (writtenDate.equals(dby)) {
+            // 그제(DBY) 삭제: 고정값
+            if (yWritten && dWritten) {
+                newStreak = 2;
+            } else if (yWritten) {
+                newStreak = 1;
+            } else if (dWritten) {
+                newStreak = 1;
+            } else {
+                newStreak = 0;
+            }
+
+        } else if (writtenDate.isBefore(dby)) {
+            // 그 이전(≤DBY-1) 삭제 — 점진 하향, Y의 NONE/DELETED 구분
+            if (yWritten) {
+                int base = calculateStreakFromDate(profile.getUser(), yesterday);
+                newStreak = base + (dWritten ? 1 : 0);
+            } else {
+                if (yStatus == WriteStatus.DELETED) {
+                    // 어제가 하드 미싱이면 오늘 단독만 가능
+                    newStreak = dWritten ? 1 : 0;
+                } else { // yStatus == NONE (소프트 미싱)
+                    int baseFromDBY = calculateStreakFromDate(profile.getUser(), dby);
+                    int current = profile.getStreak();
+                    newStreak = Math.min(current, baseFromDBY);
+                }
+            }
+
+        } else {
+            // 미래 날짜 등 비정상 입력: 보수적 환산
+            int base = calculateStreakFromDate(profile.getUser(), yesterday);
+            newStreak = base + (dWritten ? 1 : 0);
+        }
+
+        profile.updateStreak(newStreak);
+        userProfileRepository.save(profile);
+    }
+
+
+
 
     // 특정 날짜부터 과거로 연속 작성 일수를 계산하는 헬퍼 메서드
     private int calculateStreakFromDate(User user, LocalDate startDate) {
@@ -81,54 +174,34 @@ public class UserProfileUpdater {
     }
 
     /**
-     * [스케줄러]
-     * 매 15분마다 실행, 해당 시간에 자정을 맞이한 타임존 중
-     * 스트릭을 잃을 가능성이 있는(streak > 0) 유저만 검사
+     * 매일 자정 → 최근 2일 작성 여부 검사 후 streak 리셋 or 유지
      */
-    @Scheduled(cron = "0 0,15,30,45 * * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     @Transactional
-    public void resetStreakIfBrokenGlobal() {
-        Instant now = Instant.now();
+    public void resetStreakIfBroken() {
+        LocalDate today     = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDate yesterday = today.minusDays(1);
+        LocalDate dayBeforeYesterday = today.minusDays(2);
 
-        // 현재 자정을 맞이한 타임존만 추출
-        Set<String> midnightZones = ZoneId.getAvailableZoneIds().stream()
-                .filter(zone -> {
-                    LocalTime localTime = LocalTime.ofInstant(now, ZoneId.of(zone));
-                    return localTime.getHour() == 0 && localTime.getMinute() == 0;
-                })
-                .collect(Collectors.toSet());
+        List<UserProfile> all = userProfileRepository.findAll();
 
-        if (midnightZones.isEmpty()) {
-            return;
-        }
-
-        // 해당 타임존이면서 스트릭이 1 이상인 대상만 조회 (streak 0인 대상은 조회할 필요 X)
-        List<UserProfile> targetProfiles = userProfileRepository.findTargetsForStreakReset(midnightZones, 0);
-
-        if (targetProfiles.isEmpty()) {
-            return;
-        }
-
-        // 대상 유저들의 로컬 날짜 기준으로 스트릭 검사 및 갱신
-        for (UserProfile profile : targetProfiles) {
-            ZoneId userZone = ZoneId.of(profile.getUser().getPrimaryTimezone());
-            LocalDate today = LocalDate.now(userZone);
-            LocalDate yesterday = today.minusDays(1);
-            LocalDate dayBeforeYesterday = today.minusDays(2);
-
+        for (UserProfile profile : all) {
             WriteStatus y   = userCalendarFacade.getStatus(profile.getUser(), yesterday);
             WriteStatus dby = userCalendarFacade.getStatus(profile.getUser(), dayBeforeYesterday);
 
-            // 어제와 그제 모두 작성하지 않은 경우 스트릭 초기화
+            // (15 X, 16 O) → 1
+            if (dby != WriteStatus.WRITTEN && y == WriteStatus.WRITTEN) {
+                profile.updateStreak(1);
+                continue;
+            }
+            // (15 X, 16 X) → 0
             if (dby != WriteStatus.WRITTEN && y != WriteStatus.WRITTEN) {
                 profile.updateStreak(0);
+                continue;
             }
-            // (15일 X, 16일 O) -> 어제 작성했으므로 스트릭 1 (이 케이스는 updateStreakOnWrite에서 처리되나 안전하게 처리)
-            else if (dby != WriteStatus.WRITTEN) {
-                profile.updateStreak(1);
-            }
-            // 그 외 (연속 작성 중) -> 기존 스트릭 유지
+            // (15 O, 16 X) 또는 (15 O, 16 O) → 유지
         }
+        userProfileRepository.saveAll(all);
     }
 
     private void resyncTotal(UserProfile profile) {

@@ -11,6 +11,5 @@ public class UserTableConstants {
     public static final String COLUMN_DELETED_AT = "deleted_at";
     public static final String COLUMN_NOTIFY_STATUS = "notify_status";
     public static final String COLUMN_REGISTER_STATUS = "register_status";
-    public static final String COLUMN_PRIMARY_TIMEZONE = "primary_timezone";
     public static final String COLUMN_USER = "user";
 }

@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
 import org.sopt.block.facade.BlockFacade;
-import org.sopt.context.TimezoneContextHolder;
 import org.sopt.controller.auth.util.ApplePublicKeyList;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
@@ -68,7 +67,6 @@ public class AuthService {
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
-    @Transactional
     public SocialLoginRes socialLogin(String providerToken, SocialLoginReq req) {
         if (providerToken == null || providerToken.length() < PROVIDER_TOKEN_MIN_LENGTH || req.role() != UserRole.USER) {
             throw new UnAuthorizedException(AuthErrorCode.UNAUTHORIZED);
@@ -158,7 +156,6 @@ public class AuthService {
         User user;
         Optional<User> optionalUser = userFacade.getByProviderAndProviderId(String.valueOf(req.provider()), providerId);
 
-        String currentZoneId = TimezoneContextHolder.getTimezone().getId();
         // 이미 유저가 존재하는 경우
         if(optionalUser.isPresent()) {
             user = optionalUser.get();
@@ -167,9 +164,6 @@ public class AuthService {
                 // 탈퇴한 회원인 경우 다시 회원 자격 복구
                 user.revertDeleteUser();
             }
-
-            user.setPrimaryTimezone(currentZoneId);
-
         } else {
             user = User.builder()
                     .provider(String.valueOf(req.provider()))
@@ -177,7 +171,6 @@ public class AuthService {
                     .notifyStatus(false)
                     .registerStatus(RegisterStatus.SOCIAL_LOGIN_COMPLETED)
                     .role(UserRole.USER)
-                    .primaryTimezone(currentZoneId)
                     .build();
 
             user = userFacade.save(user);

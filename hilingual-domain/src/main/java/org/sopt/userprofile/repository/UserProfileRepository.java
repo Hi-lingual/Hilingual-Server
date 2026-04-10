@@ -2,7 +2,6 @@ package org.sopt.userprofile.repository;
 
 import org.sopt.user.domain.User;
 import org.sopt.userprofile.domain.UserProfile;
-import org.sopt.userprofile.dto.UserSearchProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {
     boolean existsByNickname(String nickname);
@@ -38,57 +36,6 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
             @Param("userId") Long userId,
             @Param("profileImg") String profileImg,
             @Param("updatedAt") LocalDateTime updatedAt
-    );
-
-    /*
-     * 스트릭 스케줄러용 최적화 쿼리
-     * 지정된 타임존 목록에 속해 있으면서, 스트릭이 0보다 큰 유저의 프로필만 User와 함께 페치 조인
-     */
-    @Query("""
-        SELECT up FROM UserProfile up
-        JOIN FETCH up.user u
-        WHERE u.primaryTimezone IN :timezones
-          AND up.streak > :streakThreshold
-    """)
-    List<UserProfile> findTargetsForStreakReset(
-            @Param("timezones") Set<String> timezones,
-            @Param("streakThreshold") int streakThreshold
-    );
-
-    /*
-     * 검색 nickname에 해당하는 유저 리스트 검색
-     * - 차단한 or 차단당한 유저는 검색되지 않음
-     * - 앞단어가 일치하는 순서부터 중간 단어가 일치해도 표시
-     * isFollowing, isFollowed 값을 함께 response로 내려줄 것
-     */
-    @Query("""
-        SELECT
-            up.user.id AS userId,
-            up.profileImg AS profileImg,
-            up.nickname AS nickname,
-            CASE WHEN EXISTS (
-                SELECT 1 FROM Follow f WHERE f.follower.id = :currentUserId AND f.followee.id = up.user.id
-            ) THEN TRUE ELSE FALSE END AS isFollowing,
-            CASE WHEN EXISTS (
-                SELECT 1 FROM Follow f WHERE f.follower.id = up.user.id AND f.followee.id = :currentUserId
-            ) THEN TRUE ELSE FALSE END AS isFollowed
-        FROM UserProfile up
-        WHERE up.user.id != :currentUserId
-          AND up.nickname LIKE :keyword
-          AND up.user.id NOT IN (
-              SELECT b.blocked.id FROM Block b WHERE b.blocker.id = :currentUserId
-          )
-          AND up.user.id NOT IN (
-              SELECT b.blocker.id FROM Block b WHERE b.blocked.id = :currentUserId
-          )
-        ORDER BY
-            CASE WHEN up.nickname LIKE :startWithKeyword THEN 0 ELSE 1 END,
-            up.nickname
-        """)
-    List<UserSearchProjection> searchUserListByKeyword(
-            @Param("currentUserId") Long currentUserId,
-            @Param("keyword") String keyword,
-            @Param("startWithKeyword") String startWithKeyword
     );
 
     @Modifying(clearAutomatically = true)
