@@ -1,6 +1,6 @@
 package org.sopt.jwt.auth.domain;
 
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import lombok.*;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.domain.type.DeviceType;

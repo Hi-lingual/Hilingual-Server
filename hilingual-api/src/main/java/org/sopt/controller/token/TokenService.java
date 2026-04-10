@@ -7,7 +7,7 @@ import org.sopt.controller.auth.dto.SocialLoginRes;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.InvalidTokenException;
 import org.sopt.exception.TokenNotFoundException;
-import org.sopt.jwt.auth.authentication.UserRole;
+import org.sopt.type.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.domain.Token;
 import org.sopt.jwt.auth.domain.TokenRepository;

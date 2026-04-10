@@ -1,7 +1,7 @@
 package org.sopt.controller.test.dto.jwt;
 
 import jakarta.validation.constraints.NotNull;
-import org.sopt.jwt.auth.authentication.UserRole;
+import org.sopt.type.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.domain.type.DeviceType;
 

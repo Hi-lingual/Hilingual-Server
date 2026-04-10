@@ -25,7 +25,7 @@ import org.sopt.exception.UnAuthorizedException;
 import org.sopt.exception.code.GlobalErrorCode;
 import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.follow.facade.FollowFacade;
-import org.sopt.jwt.auth.authentication.UserRole;
+import org.sopt.type.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.user.domain.User;

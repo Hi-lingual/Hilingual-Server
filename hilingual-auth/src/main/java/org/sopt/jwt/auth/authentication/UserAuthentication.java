@@ -1,6 +1,7 @@
 package org.sopt.jwt.auth.authentication;
 
 import lombok.Getter;
+import org.sopt.type.UserRole;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
