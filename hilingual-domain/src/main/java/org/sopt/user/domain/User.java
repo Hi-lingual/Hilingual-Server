@@ -49,9 +49,6 @@ public class User extends BaseTimeEntity {
     @Column(name = COLUMN_REGISTER_STATUS, nullable = false)
     private RegisterStatus registerStatus = RegisterStatus.SOCIAL_LOGIN_COMPLETED;
 
-    @Column(name = COLUMN_PRIMARY_TIMEZONE, nullable = false)
-    private String primaryTimezone = "Asia/Seoul";
-
     @Column(name = COLUMN_IS_DELETED, nullable = false)
     @ColumnDefault("false")
     @Builder.Default
@@ -73,12 +70,6 @@ public class User extends BaseTimeEntity {
 
     public void updateRegisterStatus(final RegisterStatus registerStatus) {
         this.registerStatus = registerStatus;
-    }
-
-    public void updatePrimaryTimezone(String newTimezone) {
-        if (newTimezone != null && !this.primaryTimezone.equals(newTimezone)) {
-            this.primaryTimezone = newTimezone;
-        }
     }
 
     public void revertDeleteUser() {

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -41,11 +40,11 @@ public class UserCalendarService {
         }
     }
 
-    public UserCalendarTopicRes getTopicByDate(final long userId, final LocalDate date, final ZoneId userZone) {
-        if (date.isAfter(LocalDate.now(userZone))) {
+    public UserCalendarTopicRes getTopicByDate(final long userId, final LocalDate date) {
+        if (date.isAfter(LocalDate.now())) {
             throw new FutureDateNotAllowedException(UserCalendarApiErrorCode.FUTURE_DATE_NOT_ALLOWED);
         }
-        return topicFacade.findTopicByDate(userId, date, userZone);
+        return topicFacade.findTopicByDate(userId, date);
     }
 
     public UserCalendarMonthlyRes getWrittenDatesOfMonth(final Long userId, final int year, final int month) {

@@ -2,7 +2,6 @@ package org.sopt.controller.token;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.sopt.context.TimezoneContextHolder;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
 import org.sopt.exception.AuthErrorCode;
@@ -18,7 +17,6 @@ import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.core.TokenHasher;
 import org.sopt.jwt.core.TokenId;
 import org.sopt.jwt.support.AuthConstants;
-import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
 import org.springframework.stereotype.Service;
@@ -58,11 +56,7 @@ public class TokenService {
         System.out.println("1. 토큰에서 뽑은 identifier: " + identifier); // Redis의 UUID와 똑같은지 확인
 
         AuthProvider provider = AuthProvider.valueOf(claims.get(JwtClaimsKeys.PROVIDER, String.class));
-
-        User user = userFacade.getUserById(userId);
-        UserRole role = user.getRole();
-        String currentZoneId = TimezoneContextHolder.getTimezone().getId();
-        user.setPrimaryTimezone(currentZoneId);
+        UserRole role = userFacade.getUserById(userId).getRole();
 
         // Redis 에서 토큰 정보 조회 & 해시 대조
         String tokenId = new TokenId(userId, identifier).toString();

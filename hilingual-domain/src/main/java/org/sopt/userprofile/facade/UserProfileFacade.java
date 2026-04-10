@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,8 +68,12 @@ public class UserProfileFacade {
     /**
     updater
      */
-    public void incrementTotalDiariesAndRecalculateStreak(final long userId, final LocalDate writtenDate, final ZoneId userZone) {
-        userProfileUpdater.incrementTotalDiariesAndRecalculateStreak(userId, writtenDate, userZone);
+    public void incrementTotalDiariesAndRecalculateStreak(final long userId, final LocalDate writtenDate) {
+        userProfileUpdater.incrementTotalDiariesAndRecalculateStreak(userId, writtenDate);
+    }
+
+    public void decrementTotalDiariesAndRecalculateStreak(final long userId, final LocalDate writtenDate) {
+        userProfileUpdater.decrementTotalDiariesAndRecalculateStreak(userId, writtenDate);
     }
 
     public int updateProfileImgByUserId(final long userId, final String newImgUrl, final LocalDateTime updatedAt) {
