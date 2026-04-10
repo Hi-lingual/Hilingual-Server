@@ -1,7 +1,6 @@
 package org.sopt.jwt.core;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -10,7 +9,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.exception.*;
-import org.sopt.jwt.auth.authentication.UserRole;
+import org.sopt.type.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.support.AuthConstants;
 import org.springframework.beans.factory.InitializingBean;
@@ -60,7 +59,6 @@ public class JwtTokenProvider implements InitializingBean {
     ) {
         final Instant now = Instant.now();
         return Jwts.builder()
-                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .subject(String.valueOf(userId))
                 .claim(AuthConstants.USER_ID_CLAIM_NAME, userId)
                 .claim(JwtClaimsKeys.ROLE, role.name())
@@ -83,7 +81,6 @@ public class JwtTokenProvider implements InitializingBean {
     ) {
         final Instant now = Instant.now();
         return Jwts.builder()
-                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .subject(String.valueOf(userId))
                 .claim(AuthConstants.USER_ID_CLAIM_NAME, userId)
                 .claim(JwtClaimsKeys.PROVIDER, provider.name())
