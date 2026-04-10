@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew build)",
+      "Bash(./gradlew build -x test)",
+      "Bash(./gradlew test*)",
+      "Bash(./gradlew clean*)",
+      "Bash(./gradlew :hilingual-api:bootRun)",
+      "Bash(./gradlew :hilingual-api:test*)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/application-prod.yml)",
+      "Read(./**/application-secret*)",
+      "Bash(rm -rf *)",
+      "Bash(sudo *)"
+    ]
+  }
+}
