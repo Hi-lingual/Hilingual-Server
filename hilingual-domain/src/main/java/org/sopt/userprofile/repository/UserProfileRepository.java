@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {
     boolean existsByNickname(String nickname);
@@ -59,6 +60,21 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     @Modifying
     @Query("UPDATE UserProfile up SET up.followingCount = up.followingCount - 1 WHERE up.user.id IN (SELECT f.follower.id FROM Follow f WHERE f.followee.id = :userId)")
     void decreaseFollowingCountOfFollowers(@Param("userId") Long userId);
+
+    /*
+     * 스트릭 스케줄러용 최적화 쿼리
+     * 지정된 타임존 목록에 속해 있으면서, 스트릭이 0보다 큰 유저의 프로필만 User와 함께 페치 조인
+     */
+    @Query("""
+        SELECT up FROM UserProfile up
+        JOIN FETCH up.user u
+        WHERE u.primaryTimezone IN :timezones
+          AND up.streak > :streakThreshold
+    """)
+    List<UserProfile> findTargetsForStreakReset(
+            @Param("timezones") Set<String> timezones,
+            @Param("streakThreshold") int streakThreshold
+    );
 
     long count();
 }
