@@ -72,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Claims claims = jwtTokenProvider.parseAndVerify(token);
             String type = claims.get(JwtClaimsKeys.TYPE, String.class);
 
-            if (JwtClaimsKeys.ACCESS.equals(type)) {
+            if (JwtClaimsKeys.ACCESS.equals(type)|| "ADMIN_STATIC".equals(type)) {
                 if (log.isDebugEnabled()) {
                     log.debug("JWT parsed. sub={}, sid={}", claims.getSubject(), claims.get("sid"));
                 }

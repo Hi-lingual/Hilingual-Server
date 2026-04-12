@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.context.TimezoneContextHolder;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
-import org.sopt.exception.AuthErrorCode;
-import org.sopt.exception.InvalidTokenException;
-import org.sopt.exception.TokenNotFoundException;
+import org.sopt.exception.*;
 import org.sopt.jwt.auth.authentication.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.domain.Token;
@@ -155,6 +153,12 @@ public class TokenService {
     @Transactional
     public void logout(final String accessToken) {
         Claims claims = getClaimsFromAccessToken(accessToken);
+        String type = claims.get(JwtClaimsKeys.TYPE, String.class);
+
+        // 관리자 토큰인 경우 로그아웃 불가
+        if ("ADMIN_STATIC".equals(type)) {
+            throw new InvalidAdminLogoutException(AuthErrorCode.INVALID_ADMIN_LOGOUT);
+        }
 
         // Claim 에서 정보 추출
         Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
@@ -168,6 +172,12 @@ public class TokenService {
     @Transactional
     public void leave(final String accessToken) {
         Claims claims = getClaimsFromAccessToken(accessToken);
+        String type = claims.get(JwtClaimsKeys.TYPE, String.class);
+
+        // 관리자 토큰인 경우 탈퇴 불가
+        if ("ADMIN_STATIC".equals(type)) {
+            throw new InvalidAdminLeaveException(AuthErrorCode.INVALID_ADMIN_LEAVE);
+        }
 
         // Claim 에서 정보 추출
         Long userId = claims.get(AuthConstants.USER_ID_CLAIM_NAME, Long.class);
@@ -182,7 +192,7 @@ public class TokenService {
         Claims claims = jwtTokenProvider.parseAndVerify(accessToken);
         final String type = claims.get(JwtClaimsKeys.TYPE, String.class);
 
-        if (!JwtClaimsKeys.ACCESS.equals(type)) {
+        if (!JwtClaimsKeys.ACCESS.equals(type) && !"ADMIN_STATIC".equals(type)) {
             throw new InvalidTokenException(AuthErrorCode.TYPE_ERROR_JWT_TOKEN);
         }
         return claims;
