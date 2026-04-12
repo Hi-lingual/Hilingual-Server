@@ -49,6 +49,9 @@ spring:
     time-zone: UTC
     deserialization:
       fail-on-unknown-properties: true
+    serialization:
+      write-date-timestamps-as-nanoseconds: false
+      write-dates-as-timestamps: false
 
 apple:
   oauth:

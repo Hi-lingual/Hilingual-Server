@@ -56,6 +56,9 @@ spring:
     time-zone: UTC
     deserialization:
       fail-on-unknown-properties: true
+    serialization:
+      write-dates-as-timestamps: false
+      write-date-timestamps-as-nanoseconds: false
 
 logging:
   file:

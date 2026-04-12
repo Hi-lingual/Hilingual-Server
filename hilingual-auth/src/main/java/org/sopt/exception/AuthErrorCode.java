@@ -16,6 +16,8 @@ public enum AuthErrorCode implements ErrorCode {
     UNSUPPORTED_JWT_TOKEN(HttpStatus.BAD_REQUEST, 40014, "지원하지 않는 형식의 토큰입니다."),
     INVALID_AUTH_HEADER(HttpStatus.BAD_REQUEST, 40023, "Authorization 헤더 형식이 잘못되었습니다."),
     INVALID_TOKEN_ID(HttpStatus.BAD_REQUEST, 40024, "잘못된 토큰 ID 형식입니다."),
+    INVALID_ADMIN_LOGOUT(HttpStatus.BAD_REQUEST, 40038, "어드민 계정은 로그아웃할 수 없습니다."),
+    INVALID_ADMIN_LEAVE(HttpStatus.BAD_REQUEST, 40039, "어드민 계정은 탈퇴할 수 없습니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증되지 않은 사용자입니다."),
