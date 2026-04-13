@@ -6,6 +6,8 @@ import org.sopt.context.TimezoneContextHolder;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
 import org.sopt.exception.AuthErrorCode;
+import org.sopt.exception.InvalidAdminLeaveException;
+import org.sopt.exception.InvalidAdminLogoutException;
 import org.sopt.exception.InvalidTokenException;
 import org.sopt.exception.TokenNotFoundException;
 import org.sopt.type.UserRole;
