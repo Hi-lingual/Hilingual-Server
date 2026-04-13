@@ -1,6 +1,9 @@
 dependencies {
     implementation project(":hilingual-common")
 
+    // Spring Web (Servlet Filter)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
@@ -10,7 +13,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // Open Feign
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0'
+    implementation('org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0') {
+        exclude group: 'commons-fileupload', module: 'commons-fileupload'
+    }
 
     // OAuth
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'

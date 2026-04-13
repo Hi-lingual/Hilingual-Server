@@ -2,7 +2,7 @@ package org.sopt.controller.auth.dto;
 
 import jakarta.validation.constraints.NotNull;
 import org.sopt.device.dto.DeviceInfo;
-import org.sopt.jwt.auth.authentication.UserRole;
+import org.sopt.type.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.domain.type.DeviceType;
 import org.springframework.util.StringUtils;

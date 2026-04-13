@@ -1,4 +1,4 @@
-package org.sopt.jwt.auth.authentication;
+package org.sopt.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
 
-    group = 'org.hilingual'
+    group = 'org.sopt'
     version = '1.0-SNAPSHOT'
 
     java {
@@ -38,7 +38,6 @@ subprojects {
     }
 
     dependencies {
-        testImplementation platform('org.junit:junit-bom:5.10.0')
         testImplementation 'org.junit.jupiter:junit-jupiter'
 
         // lombok
@@ -47,19 +46,6 @@ subprojects {
 
         // Test
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-        // Spring Boot
-        implementation 'org.springframework.boot:spring-boot-starter-web'
-        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-        // Validation
-        implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-        // Monitoring
-        implementation 'org.springframework.boot:spring-boot-starter-actuator'
-        implementation 'io.micrometer:micrometer-registry-prometheus'
-
-
     }
 
     tasks.named("test") {

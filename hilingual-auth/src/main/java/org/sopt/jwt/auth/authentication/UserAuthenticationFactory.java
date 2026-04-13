@@ -3,6 +3,7 @@ package org.sopt.jwt.auth.authentication;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import org.sopt.jwt.support.AuthConstants;
+import org.sopt.type.UserRole;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
