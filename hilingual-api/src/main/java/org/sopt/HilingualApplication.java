@@ -1,6 +1,7 @@
 package org.sopt;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.annotation.PostConstruct;
 import org.sopt.aws.config.AWSProperties;
 import org.sopt.openai.OpenAIProperties;
 import org.springframework.boot.SpringApplication;
@@ -13,6 +14,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import java.util.TimeZone;
 
 @EnableJpaAuditing
 @EnableScheduling
@@ -27,6 +30,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableRedisRepositories(basePackages = "org.sopt.jwt.auth.domain")
 @EnableConfigurationProperties({AWSProperties.class, OpenAIProperties.class})
 public class HilingualApplication {
+    @PostConstruct
+    public void init() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
+
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.configure()
                 .directory("./")

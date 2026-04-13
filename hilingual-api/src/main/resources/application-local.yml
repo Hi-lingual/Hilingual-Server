@@ -20,6 +20,8 @@ spring:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
   flyway:
     enabled: false
 
@@ -44,9 +46,12 @@ spring:
             jwk-set-uri: https://appleid.apple.com/auth/keys
             user-name-attribute: sub
   jackson:
-    time-zone: Asia/Seoul
+    time-zone: UTC
     deserialization:
       fail-on-unknown-properties: true
+    serialization:
+      write-date-timestamps-as-nanoseconds: false
+      write-dates-as-timestamps: false
 
 apple:
   oauth:

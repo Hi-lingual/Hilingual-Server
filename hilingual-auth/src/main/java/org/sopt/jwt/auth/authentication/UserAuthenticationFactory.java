@@ -19,7 +19,7 @@ public class UserAuthenticationFactory {
     public void authenticateUser(Claims claims, HttpServletRequest request) {
         // AccessToken 만 통과
         String type = claims.get("type", String.class);
-        if (!"ACCESS_TOKEN".equals(type)) {
+        if (!"ACCESS_TOKEN".equals(type) && !"ADMIN_STATIC".equals(type)) {
             throw new BadCredentialsException("Access token required");
         }
 

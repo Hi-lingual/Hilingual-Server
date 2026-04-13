@@ -1,6 +1,7 @@
 package org.sopt.controller.feed.dto;
 
 
+import com.google.api.client.util.DateTime;
 import org.sopt.diary.domain.Diary;
 import org.sopt.userprofile.domain.UserProfile;
 
@@ -34,6 +35,7 @@ public record SharedDiaryListRes(
     public record SharedDiary(
             Long diaryId,
             Long sharedDate,
+            LocalDateTime createdAt,
             Integer likeCount,
             Boolean isLiked,
             String diaryImg,
@@ -47,6 +49,7 @@ public record SharedDiaryListRes(
             return new SharedDiary(
                     diary.getId(),
                     (minutesDiff < ONE_MINUTE) ? LESS_THAN_MINUTE : minutesDiff,
+                    diary.getCreatedAt(),
                     diary.getIsLiked(),
                     isLikedByUser,
                     diaryImgUrl, // 변환된 URL 사용

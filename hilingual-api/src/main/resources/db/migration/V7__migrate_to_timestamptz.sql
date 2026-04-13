@@ -1,0 +1,47 @@
+ALTER TABLE diary
+ALTER COLUMN created_at TYPE TIMESTAMPTZ
+        USING created_at AT TIME ZONE 'UTC';
+
+ALTER TABLE block
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ
+        USING updated_at AT TIME ZONE 'UTC';
+
+ALTER TABLE device
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ
+        USING updated_at AT TIME ZONE 'UTC';
+
+ALTER TABLE diary_feedback
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ
+        USING updated_at AT TIME ZONE 'UTC';
+
+ALTER TABLE feed_alarm
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ
+        USING updated_at AT TIME ZONE 'UTC';
+
+ALTER TABLE follow
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ
+        USING updated_at AT TIME ZONE 'UTC';
+
+ALTER TABLE notice
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ
+        USING updated_at AT TIME ZONE 'UTC';
+
+ALTER TABLE recommend
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ
+        USING updated_at AT TIME ZONE 'UTC';
+
+ALTER TABLE user_calendar
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ
+        USING updated_at AT TIME ZONE 'UTC';
+
+ALTER TABLE user_profile
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ
+        USING updated_at AT TIME ZONE 'UTC';
+
+ALTER TABLE users
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ
+        USING updated_at AT TIME ZONE 'UTC';
+
+ALTER TABLE voca
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ
+        USING updated_at AT TIME ZONE 'UTC';
