@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sopt.device.domain.Device;
 import org.sopt.device.dto.DeviceInfo;
 import org.sopt.device.exception.DeviceCoreErrorCode;
+import org.sopt.device.exception.DeviceNotFoundException;
 import org.sopt.device.exception.InvalidTimezoneFormatException;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
@@ -14,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.DateTimeException;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -55,6 +57,25 @@ public class DeviceFacade {
 
             deviceSaver.save(newDevice);
         }
+    }
+
+    public List<Device> findAllByUserId(final long userId) {
+        return deviceRetriever.findAllByUserId(userId);
+    }
+
+    public Device findByUserIdAndUuid(final long userId, final String uuid) {
+        return deviceRetriever.findByUserIdAndUuid(userId, uuid)
+                .orElseThrow(() -> new DeviceNotFoundException(DeviceCoreErrorCode.DEVICE_NOT_FOUND));
+    }
+
+    // userId 검증으로 타 사용자의 토큰 정리를 방지 (IDOR 방어)
+    @Transactional
+    public void clearFcmToken(final long userId, final long deviceId) {
+        Device device = deviceRetriever.findById(deviceId);
+        if (!device.getUser().getId().equals(userId)) {
+            throw new DeviceNotFoundException(DeviceCoreErrorCode.DEVICE_NOT_FOUND);
+        }
+        device.clearFcmToken();
     }
 
     @Transactional
