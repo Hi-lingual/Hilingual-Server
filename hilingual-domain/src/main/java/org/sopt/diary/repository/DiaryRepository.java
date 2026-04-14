@@ -3,6 +3,7 @@ package org.sopt.diary.repository;
 import org.sopt.diary.domain.Diary;
 import org.sopt.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -39,5 +40,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
            """)
     Optional<Diary> findDiaryWithDetailsById(@Param("diaryId") Long diaryId);
 
-    void deleteAllByUserId(Long userId);
+    @Modifying(clearAutomatically = true, flushAutomatically = true) // 중요!
+    @Query("delete from Diary d where d.user.id = :userId")
+    void deleteAllByUserId(@Param("userId") Long userId);
 }

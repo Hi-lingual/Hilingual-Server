@@ -3,6 +3,7 @@ package org.sopt.recommend.repository;
 import org.sopt.recommend.domain.Recommend;
 import org.sopt.recommend.dto.RecommendWithBookmarkDto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -35,4 +36,8 @@ public interface RecommendRepository extends JpaRepository<Recommend, Long> {
         where r.id = :id
     """)
     Optional<Recommend> findByIdWithDiary(@Param("id") Long id);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from Recommend r where r.diary.user.id = :userId")
+    void deleteAllByUserId(Long userId);
 }
