@@ -1,6 +1,7 @@
 package org.sopt.jwt.core;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -14,6 +15,7 @@ import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.support.AuthConstants;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -94,12 +96,26 @@ public class JwtTokenProvider implements InitializingBean {
 
     /** 토큰 파싱 + 서명 검증 + 클레임 반환 (오차 60초 허용) */
     public Claims parseAndVerify(final String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .clockSkewSeconds(60)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts.parser()
+                    .verifyWith(secretKey)
+                    .clockSkewSeconds(60)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException e) {
+            Claims claims = e.getClaims();
+            String type = claims.get("type", String.class);
+
+            if ("ADMIN_STATIC".equals(type)) {
+                log.info("만료된 ADMIN_STATIC 토큰을 허용합니다. (만료일: {})", e.getClaims().getExpiration());
+                return claims;
+            }
+            throw e;
+
+        } catch (JwtException e) {
+            throw new InvalidTokenException(AuthErrorCode.INVALID_TOKEN_ID);
+        }
     }
 
     /** Authorization 헤더에서 Bearer 토큰 추출 */
