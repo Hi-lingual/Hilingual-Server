@@ -12,6 +12,12 @@ dependencies {
     implementation('org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0') {
         exclude group: 'commons-fileupload', module: 'commons-fileupload'
     }
+
+    // Firebase Admin SDK (FCM만 사용 — 불필요한 모듈 제외)
+    implementation('com.google.firebase:firebase-admin:9.4.3') {
+        exclude group: 'com.google.cloud', module: 'google-cloud-storage'
+        exclude group: 'com.google.cloud', module: 'google-cloud-firestore'
+    }
 }
 
 bootJar { enabled = false }
