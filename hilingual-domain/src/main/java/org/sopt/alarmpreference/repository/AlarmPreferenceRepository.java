@@ -3,6 +3,7 @@ package org.sopt.alarmpreference.repository;
 import org.sopt.alarmpreference.domain.AlarmPreference;
 import org.sopt.alarmpreference.type.AlarmType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -26,6 +27,8 @@ public interface AlarmPreferenceRepository extends JpaRepository<AlarmPreference
            """)
     List<Long> findEnabledUserIdsByType(AlarmType alarmType);
 
+    @Modifying(clearAutomatically = true)
+    @Query("delete from AlarmPreference a where a.user.id = :userId")
     void deleteAllByUserId(Long userId);
 
 }
