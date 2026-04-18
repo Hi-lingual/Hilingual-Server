@@ -2,6 +2,7 @@ package org.sopt.jwt.core;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -73,6 +74,23 @@ public class JwtTokenProvider implements InitializingBean {
                 .compact();
     }
 
+    public String generateAdminStaticToken(long userId) {
+        final Instant now = Instant.now();
+        long eternal = 1000L * 60 * 60 * 24 * 365 * 100;
+
+        return Jwts.builder()
+                .subject(String.valueOf(userId))
+                .claim(AuthConstants.USER_ID_CLAIM_NAME, userId)
+                .claim(JwtClaimsKeys.ROLE, UserRole.ADMIN.name())
+                .claim(JwtClaimsKeys.PROVIDER, AuthProvider.ADMIN.name())
+                .claim(JwtClaimsKeys.SESSION_ID, "ADMIN")
+                .claim(JwtClaimsKeys.TYPE, "ADMIN_STATIC")
+                .issuedAt(Date.from(now))
+                .expiration(new Date(now.toEpochMilli() + eternal))
+                .signWith(secretKey, Jwts.SIG.HS512)
+                .compact();
+    }
+
     /** * RefreshToken 생성
      * @param identifier 구버전 앱은 랜덤 SessionId, 신버전 앱은 DeviceUuid가 들어옴
      * */
@@ -129,6 +147,7 @@ public class JwtTokenProvider implements InitializingBean {
         if (!StringUtils.hasText(token)) throw new TokenNotFoundException(AuthErrorCode.AUTH_TOKEN_NOT_FOUND);
         return token;
     }
+
 
     public String newSessionId() {
         return UUID.randomUUID().toString();
