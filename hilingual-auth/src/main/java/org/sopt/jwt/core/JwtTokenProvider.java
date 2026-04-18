@@ -140,12 +140,13 @@ public class JwtTokenProvider implements InitializingBean {
     public String getJwtFromRequest(final HttpServletRequest request) {
         final String bearerToken = request.getHeader(AuthConstants.AUTHORIZATION_HEADER);
 
-        if (!StringUtils.hasText(bearerToken)) throw new TokenNotFoundException(AuthErrorCode.AUTH_HEADER_NOT_FOUND);
-        if (!bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) throw new InvalidAuthHeaderException(AuthErrorCode.INVALID_AUTH_HEADER);
+        // 헤더가 없거나 Bearer로 시작하지 않으면 그냥 토큰 없음으로 간주
+        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
+            return null;
+        }
 
         String token = bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
-        if (!StringUtils.hasText(token)) throw new TokenNotFoundException(AuthErrorCode.AUTH_TOKEN_NOT_FOUND);
-        return token;
+        return StringUtils.hasText(token) ? token : null;
     }
 
 
