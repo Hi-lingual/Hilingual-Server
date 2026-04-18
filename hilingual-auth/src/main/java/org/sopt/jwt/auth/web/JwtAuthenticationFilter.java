@@ -43,11 +43,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/v1/users/profile/check",
             "/api/v1/admin/notices",
             "/api/v1/admin/notices/{noticeId}/delivery",
-            "/api/v1/admin/issue/{userId}"
+            "/api/v1/admin/issue/**"
     );
 
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        log.info("Request URI: {}", request.getRequestURI());
+
         String path = request.getServletPath();
         // SKIP 리스트에 있는 경로라면 true를 반환하여 필터가 실행되지 않도록 함
         return (SKIP.stream().anyMatch(p -> PM.match(p, path)));

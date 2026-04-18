@@ -20,7 +20,7 @@ public class AuthConstants {
             "/api/v1/users/profile/check",
             "/api/v1/admin/notices",
             "/api/v1/admin/notices/{noticeId}/delivery",
-            "/api/v1/admin/issue/{userId}"
+            "/api/v1/admin/issue/**"
     };
 
     private AuthConstants() {
