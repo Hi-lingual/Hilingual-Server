@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -88,12 +89,20 @@ public class UserProfileUpdater {
     @Scheduled(cron = "0 0,15,30,45 * * * *")
     @Transactional
     public void resetStreakIfBrokenGlobal() {
-        Instant now = Instant.now();
+        Instant rawNow = Instant.now();
+
+        // 스케줄러 지연 방어: 현재 시간을 가장 가까운 과거의 15분 단위로 내림 처리
+        // ex) 00:01:05 -> 00:00:00 / 00:16:20 -> 00:15:00
+        int currentMinute = rawNow.atZone(ZoneOffset.UTC).getMinute();
+        int targetMinute = (currentMinute / 15) * 15;
+
+        Instant truncatedNow = rawNow.truncatedTo(ChronoUnit.HOURS)
+                .plus(targetMinute, ChronoUnit.MINUTES);
 
         // 현재 자정을 맞이한 타임존만 추출
         Set<String> midnightZones = ZoneId.getAvailableZoneIds().stream()
                 .filter(zone -> {
-                    LocalTime localTime = LocalTime.ofInstant(now, ZoneId.of(zone));
+                    LocalTime localTime = LocalTime.ofInstant(truncatedNow, ZoneId.of(zone));
                     return localTime.getHour() == 0 && localTime.getMinute() == 0;
                 })
                 .collect(Collectors.toSet());
