@@ -1,8 +1,11 @@
 package org.sopt.controller.user.dto;
 
+import com.google.api.client.util.DateTime;
 import org.sopt.feedalarm.domain.FeedAlarm;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public record FeedAlarmItemRes(
         Long noticeId,
@@ -10,7 +13,8 @@ public record FeedAlarmItemRes(
         String title,
         Long targetId,
         boolean isRead,
-        String publishedAt
+        String publishedAt,
+        LocalDateTime publishedAtUtc
 ) implements NotificationItemRes {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
@@ -22,7 +26,8 @@ public record FeedAlarmItemRes(
                 a.getTitle(),
                 a.getTargetId(),
                 a.getReadAt() != null,
-                a.getCreatedAt().toLocalDate().format(DATE_FORMATTER)
+                a.getCreatedAt().toLocalDate().format(DATE_FORMATTER),
+                a.getCreatedAt()
         );
     }
 }
