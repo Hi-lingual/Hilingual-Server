@@ -9,6 +9,7 @@ import org.sopt.recommend.facade.RecommendFacade;
 import org.sopt.voca.domain.Voca;
 import org.sopt.voca.facade.VocaFacade;
 import org.sopt.voca.facade.VocaRetriever;
+import org.sopt.voca.type.SavedRoot;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,12 +44,36 @@ public class VocaService {
     // 특정 단어 세부 조회
     public VocaDetailResponse getVocaDetails(Long userId, Long recommendId) {
         return vocaFacade.findOptionalByUserIdAndRecommendId(userId, recommendId)
-                .map(v -> VocaDetailResponse.ofSnapshot(v, true))
+                .map(v -> {
+                    // 북마크된 경우
+                    Recommend recommend = recommendFacade.findByIdWithDiary(v.getRecommendId());
+
+                    String writtenDate = null;
+                    if (v.getSavedRoot() == SavedRoot.MY) {
+                        writtenDate = recommend.getDiary().getWrittenDate().toString();
+                    }
+
+                    return VocaDetailResponse.ofSnapshot(v, writtenDate, true);                })
                 .orElseGet(() -> {
+                    // 북마크되지 않은 경우
                     Recommend recommend = recommendFacade.findByIdWithDiary(recommendId);
+
+                    SavedRoot root = determineSavedRoot(userId, recommend);
+
                     String writtenFrom = buildWrittenFrom(userId, recommend, false);
-                    return VocaDetailResponse.of(recommend, writtenFrom, false);
+
+                    String writtenDate = null;
+                    if (root == SavedRoot.MY) {
+                        writtenDate = recommend.getDiary().getWrittenDate().toString();
+                    }
+
+                    return VocaDetailResponse.of(recommend, writtenFrom, writtenDate, root, false);
                 });
+    }
+
+    private SavedRoot determineSavedRoot(Long userId, Recommend rec) {
+        Long ownerId = rec.getDiary().getUser().getId();
+        return ownerId.equals(userId) ? SavedRoot.MY : SavedRoot.FEED;
     }
 
     private String buildWrittenFrom(Long userId, Recommend rec, boolean isBookmarked) {

@@ -122,8 +122,7 @@ public class DiaryService {
 
         String imageUrl = s3Service.toPublicUrl(imageKey);
 
-        String date = diary.getWrittenDate()
-                .format(DateTimeFormatter.ofPattern("M월 d일 EEEE", Locale.KOREAN));
+        String date = String.valueOf(diary.getWrittenDate());
 
         List<DiaryDetailsRes.DiffRange> diffRanges = diaryDiffService.extractDiffRanges(originalText, rewriteText);
 

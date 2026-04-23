@@ -3,6 +3,7 @@ package org.sopt.controller.user.api;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.sopt.alarmpreference.type.AlarmType;
+import org.sopt.annotation.UserTimezone;
 import org.sopt.controller.user.dto.*;
 import org.sopt.controller.user.service.UserService;
 import org.sopt.jwt.core.JwtTokenProvider;
@@ -12,6 +13,7 @@ import org.sopt.user.type.NotificationTab;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZoneId;
 import java.util.List;
 
 @RestController
@@ -33,7 +35,8 @@ public class UserController {
     // 홈
     @GetMapping("/home/info")
     public ResponseEntity<HomeUserProfileRes> getUserProfile(
-            @UserId Long userId
+            @UserId Long userId,
+            @UserTimezone final ZoneId userZone
     ) {
         return ResponseEntity.ok(userService.getHomeUserInfo(userId));
     }
