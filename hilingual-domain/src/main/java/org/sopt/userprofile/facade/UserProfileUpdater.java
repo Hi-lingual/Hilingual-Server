@@ -40,6 +40,9 @@ public class UserProfileUpdater {
      * 일기를 쓴 순간에 호출 (streak 업데이트)
      */
     public void updateStreakOnWrite(UserProfile profile, LocalDate writtenDate, ZoneId userZone) {
+        // 일기 작성 시 타임존 변경된 경우 저장
+        profile.getUser().updatePrimaryTimezone(userZone.getId());
+
         // 전달받은 유저의 로컬 타임존
         LocalDate today     = LocalDate.now(userZone); // D
         LocalDate yesterday = today.minusDays(1); // 어제
@@ -151,15 +154,21 @@ public class UserProfileUpdater {
             WriteStatus y   = userCalendarFacade.getStatus(profile.getUser(), yesterday);
             WriteStatus dby = userCalendarFacade.getStatus(profile.getUser(), dayBeforeYesterday);
 
-            // 어제와 그제 모두 작성하지 않은 경우 스트릭 초기화
-            if (dby != WriteStatus.WRITTEN && y != WriteStatus.WRITTEN) {
-                profile.updateStreak(0);
+            // 48시간 유예기간이 끝나는 그저께가 기준
+            if (dby != WriteStatus.WRITTEN) {
+                // 그저께 작성하지 않은 경우 - 오늘부터 이어지는 미래 일기 탐색
+                int forwardStreak = calculateForwardStreakFromDate(profile.getUser(), today);
+
+                // 어제 작성하지 않은 경우
+                if (y != WriteStatus.WRITTEN) {
+                    // 오늘부터 이어지는 미래 일기만 남음
+                    profile.updateStreak(forwardStreak);
+                } else {
+                    // 어제는 씀 - 어제 + 오늘부터 이어지는 미래 일기
+                    profile.updateStreak(1 + forwardStreak);
+                }
             }
-            // (15일 X, 16일 O) -> 어제 작성했으므로 스트릭 1 (이 케이스는 updateStreakOnWrite에서 처리되나 안전하게 처리)
-            else if (dby != WriteStatus.WRITTEN) {
-                profile.updateStreak(1);
-            }
-            // 그 외 (연속 작성 중) -> 기존 스트릭 유지
+            // 그 외 (dby == WRITTEN) -> 유예기간이 아직 남아있거나 잘 쓰고 있는 상태. 기존 스트릭 안전하게 유지
         }
     }
 
@@ -167,7 +176,6 @@ public class UserProfileUpdater {
         long cnt = userCalendarFacade.countWritten(profile.getUser().getId());
         profile.updateTotalDiaries((int) cnt);
     }
-
 
     @Transactional
     public int updateProfileImgByUserId(final long userId, final String newImgUrl, final LocalDateTime updatedAt) {
