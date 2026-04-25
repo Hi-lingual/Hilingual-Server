@@ -24,8 +24,6 @@ public class UserProfileUpdater {
     private final UserCalendarFacade userCalendarFacade;
     private final UserProfileRepository userProfileRepository;
     private final UserProfileRetriever userProfileRetriever;
-    private final UserProfileFacade userProfileFacade;
-
     /**
      * 일기 작성 시 totalDiaries 증가 및 streak 재계산
      */
