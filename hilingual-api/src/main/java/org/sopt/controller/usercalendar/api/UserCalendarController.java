@@ -10,6 +10,7 @@ import org.sopt.controller.usercalendar.exception.InvalidMonthException;
 import org.sopt.controller.usercalendar.exception.UserCalendarApiErrorCode;
 import org.sopt.controller.usercalendar.exception.UserCalendarInvalidDateFormatException;
 import org.sopt.controller.usercalendar.service.UserCalendarService;
+import org.sopt.web.UserZone;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +44,7 @@ public class UserCalendarController {
     @GetMapping("/{date}/topic")
     public ResponseEntity<UserCalendarTopicRes> getTopicByDate(
             @UserId Long userId,
-            @UserTimezone final ZoneId userZone,
+            @UserTimezone final UserZone userZone,
             @PathVariable final String date
     ) {
         final LocalDate parsedDate;
@@ -54,7 +55,7 @@ public class UserCalendarController {
             throw new UserCalendarInvalidDateFormatException(UserCalendarApiErrorCode.INVALID_DATE_FORMAT);
         }
 
-        return ResponseEntity.ok(userCalendarService.getTopicByDate(userId, parsedDate, userZone));
+        return ResponseEntity.ok(userCalendarService.getTopicByDate(userId, parsedDate, userZone.zoneId()));
     }
 
     @GetMapping("/month")
