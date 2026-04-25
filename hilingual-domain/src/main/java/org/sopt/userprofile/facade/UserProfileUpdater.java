@@ -6,6 +6,7 @@ import org.sopt.usercalendar.domain.WriteStatus;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.repository.UserProfileRepository;
+import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,33 +42,38 @@ public class UserProfileUpdater {
     public void updateStreakOnWrite(UserProfile profile, LocalDate writtenDate, ZoneId userZone) {
         // 전달받은 유저의 로컬 타임존
         LocalDate today     = LocalDate.now(userZone); // D
-        LocalDate yesterday = today.minusDays(1); // Y
-        LocalDate dayBeforeYesterday = today.minusDays(2);
+        LocalDate yesterday = today.minusDays(1); // 어제
+        LocalDate dayBeforeYesterday = today.minusDays(2); // 그저께
+        LocalDate tomorrow = today.plusDays(1); // 내일
 
         // 캘린더 사실값 조회
         WriteStatus yStatus = userCalendarFacade.getStatus(profile.getUser(), yesterday);
-        WriteStatus dStatus = userCalendarFacade.getStatus(profile.getUser(), today);
 
         int newStreak = profile.getStreak();
+        int forwardStreakFromTomorrow = calculateForwardStreakFromDate(profile.getUser(), tomorrow);
 
         if (writtenDate.equals(today)) {
             if (yStatus == WriteStatus.WRITTEN) {
                 // 어제부터의 연속을 사실값으로 재계산 후 +오늘
                 int base = calculateStreakFromDate(profile.getUser(), yesterday);
-                newStreak = base + 1;
+                newStreak = base + 1 + forwardStreakFromTomorrow;
             } else { // 어제 일기가 없는 경우
                 WriteStatus dbyStatus = userCalendarFacade.getStatus(profile.getUser(), dayBeforeYesterday);
                 if (dbyStatus == WriteStatus.WRITTEN) { // 그저께 일기가 있는 경우
                     newStreak = calculateStreakFromDate(profile.getUser(), dayBeforeYesterday) ;
                 } else {
                     // (NONE 또는 DELETED) → 오늘 단독은 즉시 1
-                    newStreak = 1;
+                    newStreak = 1 + forwardStreakFromTomorrow;
                 }
             }
-        } else if (writtenDate.equals(yesterday)) { // 어제 일기를 보충한 경우
-            // 어제부터의 연속을 사실값으로 재계산
-            int base = calculateStreakFromDate(profile.getUser(), yesterday);
-            newStreak = base + (dStatus == WriteStatus.WRITTEN ? 1 : 0); // 오늘 일기 작성되어 있다면 추가로 +1
+        } else { // today가 아닌 과거의 어떤 날짜를 보충한 경우
+            // 어제부터의 과거
+            int pastStreak = calculateStreakFromDate(profile.getUser(), writtenDate.minusDays(1));
+
+            // 오늘부터 미래
+            int forwardStreakFromToday = calculateForwardStreakFromDate(profile.getUser(), writtenDate.plusDays(1));
+
+            newStreak = pastStreak + 1 + forwardStreakFromToday;
         }
         // 그 외 날짜는 변화 없음
 
@@ -82,6 +88,17 @@ public class UserProfileUpdater {
         while (userCalendarFacade.getStatus(user, cur) == WriteStatus.WRITTEN) {
             streak++;
             cur = cur.minusDays(1);
+        }
+        return streak;
+    }
+
+    // 특정 날짜부터 미래로 연속 작성 일수를 계산하는 헬퍼 메서드
+    private int calculateForwardStreakFromDate(User user, LocalDate startDate) {
+        int streak = 0;
+        LocalDate cur = startDate;
+        while (userCalendarFacade.getStatus(user, cur) == WriteStatus.WRITTEN) {
+            streak++;
+            cur = cur.plusDays(1);
         }
         return streak;
     }
