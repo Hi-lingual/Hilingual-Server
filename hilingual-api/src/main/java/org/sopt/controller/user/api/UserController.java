@@ -39,7 +39,7 @@ public class UserController {
             @UserId Long userId,
             @UserTimezone final UserZone userZone
     ) {
-        return ResponseEntity.ok(userService.getHomeUserInfo(userId));
+        return ResponseEntity.ok(userService.getHomeUserInfo(userId, userZone.zoneId()));
     }
 
     // 마이페이지

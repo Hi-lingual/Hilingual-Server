@@ -43,15 +43,6 @@ public class UserCalendarService {
     }
 
     public UserCalendarTopicRes getTopicByDate(final long userId, final LocalDate targetDate, final ZoneId userZone) {
-        // 1. 유저 타임존 기준의 현재 시점 계산
-        ZonedDateTime nowInUserZone = ZonedDateTime.now(userZone);
-        LocalDate today = nowInUserZone.toLocalDate();
-
-        // 2. 미래 날짜 검증
-        if (targetDate.isAfter(today)) {
-            throw new FutureDateNotAllowedException(UserCalendarApiErrorCode.FUTURE_DATE_NOT_ALLOWED);
-        }
-
         return topicFacade.findTopicByDate(userId, targetDate, userZone);
     }
 
