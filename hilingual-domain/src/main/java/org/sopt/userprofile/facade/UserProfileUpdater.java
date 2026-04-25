@@ -178,6 +178,48 @@ public class UserProfileUpdater {
     }
 
     @Transactional
+    public void syncStreak(final long userId, ZoneId userZone) {
+        UserProfile profile = userProfileRetriever.findByUserId(userId);
+        profile.getUser().updatePrimaryTimezone(userZone.getId());
+
+        LocalDate today = LocalDate.now(userZone);
+        LocalDate yesterday = today.minusDays(1);
+        LocalDate dayBeforeYesterday = today.minusDays(2);
+        LocalDate tomorrow = today.plusDays(1);
+
+        WriteStatus dStatus = userCalendarFacade.getStatus(profile.getUser(), today);
+        WriteStatus yStatus = userCalendarFacade.getStatus(profile.getUser(), yesterday);
+        WriteStatus dbyStatus = userCalendarFacade.getStatus(profile.getUser(), dayBeforeYesterday);
+
+        int newStreak;
+
+        if (dStatus == WriteStatus.WRITTEN) { // 오늘 일기 쓴 경우
+            if (yStatus == WriteStatus.WRITTEN) { // 오늘 + 어제 쓴 경우
+                // 오늘O, 어제O -> 과거부터 오늘을 거쳐 내일까지의 모든 연속 합체
+                newStreak = calculateStreakFromDate(profile.getUser(), yesterday) + 1 + calculateForwardStreakFromDate(profile.getUser(), tomorrow);
+            } else if (dbyStatus == WriteStatus.WRITTEN) { // 오늘 + 그저께 쓴 경우 - 스트릭 유지
+                newStreak = calculateStreakFromDate(profile.getUser(), dayBeforeYesterday);
+            } else { // 오늘만 쓴 경우 - 새로 시작 + 내일 연결
+                newStreak = 1 + calculateForwardStreakFromDate(profile.getUser(), tomorrow);
+            }
+        } else if (yStatus == WriteStatus.WRITTEN) {
+            // 오늘X, 어제O - 어제까지의 연속성 유지
+            newStreak = calculateStreakFromDate(profile.getUser(), yesterday);
+        } else if (dbyStatus == WriteStatus.WRITTEN) {
+            // 오늘X, 어제X, 그저께O - 스트릭 유지
+            newStreak = calculateStreakFromDate(profile.getUser(), dayBeforeYesterday);
+        } else {
+            // 다 끊긴 경우 - 미래 체크
+            newStreak = calculateForwardStreakFromDate(profile.getUser(), tomorrow);
+        }
+
+        profile.updateStreak(newStreak);
+        resyncTotal(profile);
+        userProfileRepository.save(profile);
+    }
+
+
+    @Transactional
     public int updateProfileImgByUserId(final long userId, final String newImgUrl, final LocalDateTime updatedAt) {
         return userProfileRepository.updateProfileImgByUserId(userId, newImgUrl, updatedAt);
     }
