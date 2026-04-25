@@ -10,6 +10,7 @@ import org.sopt.diaryfeedback.diff.dto.DiaryDetailsRes;
 import org.sopt.controller.diary.dto.DiaryRes;
 import org.sopt.controller.diary.service.DiaryService;
 import org.sopt.jwt.annotation.UserId;
+import org.sopt.web.UserZone;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,12 +27,12 @@ public class DiaryController {
     @PostMapping
     public ResponseEntity<DiaryRes> createDiary(
             @UserId Long userId,
-            @UserTimezone ZoneId userZone,
+            @UserTimezone UserZone userZone,
             @Valid @RequestBody CreateDiaryReq req
     ) {
         LocalDate writtenDate = LocalDate.parse(req.date());
         return ResponseEntity.ok(
-                diaryService.createDiaryWithFeedback(userId, req.originalText(), writtenDate, req.image(), userZone)
+                diaryService.createDiaryWithFeedback(userId, req.originalText(), writtenDate, req.image(), userZone.zoneId())
         );
     }
 

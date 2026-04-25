@@ -10,6 +10,7 @@ import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.jwt.annotation.UserId;
 import org.sopt.user.type.NotificationTab;
+import org.sopt.web.UserZone;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +37,7 @@ public class UserController {
     @GetMapping("/home/info")
     public ResponseEntity<HomeUserProfileRes> getUserProfile(
             @UserId Long userId,
-            @UserTimezone final ZoneId userZone
+            @UserTimezone final UserZone userZone
     ) {
         return ResponseEntity.ok(userService.getHomeUserInfo(userId));
     }

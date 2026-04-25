@@ -24,7 +24,6 @@ public class UserProfileUpdater {
     private final UserCalendarFacade userCalendarFacade;
     private final UserProfileRepository userProfileRepository;
     private final UserProfileRetriever userProfileRetriever;
-
     /**
      * 일기 작성 시 totalDiaries 증가 및 streak 재계산
      */
@@ -43,6 +42,7 @@ public class UserProfileUpdater {
         // 전달받은 유저의 로컬 타임존
         LocalDate today     = LocalDate.now(userZone); // D
         LocalDate yesterday = today.minusDays(1); // Y
+        LocalDate dayBeforeYesterday = today.minusDays(2);
 
         // 캘린더 사실값 조회
         WriteStatus yStatus = userCalendarFacade.getStatus(profile.getUser(), yesterday);
@@ -55,14 +55,19 @@ public class UserProfileUpdater {
                 // 어제부터의 연속을 사실값으로 재계산 후 +오늘
                 int base = calculateStreakFromDate(profile.getUser(), yesterday);
                 newStreak = base + 1;
-            } else {
-                // (NONE 또는 DELETED) → 오늘 단독은 즉시 1
-                newStreak = 1;
+            } else { // 어제 일기가 없는 경우
+                WriteStatus dbyStatus = userCalendarFacade.getStatus(profile.getUser(), dayBeforeYesterday);
+                if (dbyStatus == WriteStatus.WRITTEN) { // 그저께 일기가 있는 경우
+                    newStreak = calculateStreakFromDate(profile.getUser(), dayBeforeYesterday) ;
+                } else {
+                    // (NONE 또는 DELETED) → 오늘 단독은 즉시 1
+                    newStreak = 1;
+                }
             }
-        } else if (writtenDate.equals(yesterday)) {
-            // 어제 보충 시: 어제부터의 연속을 사실값으로 재계산
-            int base = calculateStreakFromDate(profile.getUser(), yesterday); // ≥1
-            newStreak = base + (dStatus == WriteStatus.WRITTEN ? 1 : 0);
+        } else if (writtenDate.equals(yesterday)) { // 어제 일기를 보충한 경우
+            // 어제부터의 연속을 사실값으로 재계산
+            int base = calculateStreakFromDate(profile.getUser(), yesterday);
+            newStreak = base + (dStatus == WriteStatus.WRITTEN ? 1 : 0); // 오늘 일기 작성되어 있다면 추가로 +1
         }
         // 그 외 날짜는 변화 없음
 
@@ -121,7 +126,8 @@ public class UserProfileUpdater {
         // 대상 유저들의 로컬 날짜 기준으로 스트릭 검사 및 갱신
         for (UserProfile profile : targetProfiles) {
             ZoneId userZone = ZoneId.of(profile.getUser().getPrimaryTimezone());
-            LocalDate today = LocalDate.now(userZone);
+
+            LocalDate today = LocalDate.ofInstant(truncatedNow, userZone);
             LocalDate yesterday = today.minusDays(1);
             LocalDate dayBeforeYesterday = today.minusDays(2);
 
