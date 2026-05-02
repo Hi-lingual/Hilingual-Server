@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sopt.common.config.BaseTimeEntity;
 import org.sopt.recommend.domain.Recommend;
 import org.sopt.user.domain.User;
@@ -39,6 +41,7 @@ public class Voca extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_USER_ID, nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @Column(name = COLUMN_RECOMMEND_ID, nullable = false)
