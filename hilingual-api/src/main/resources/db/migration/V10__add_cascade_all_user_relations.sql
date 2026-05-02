@@ -24,3 +24,23 @@ ALTER TABLE device
         FOREIGN KEY (user_id)
             REFERENCES users(id)
             ON DELETE CASCADE;
+
+ALTER TABLE block DROP CONSTRAINT IF EXISTS block_blocker_id_fkey;
+ALTER TABLE block
+    ADD CONSTRAINT block_blocker_id_fkey
+        FOREIGN KEY (blocker_id)
+            REFERENCES users(id)
+            ON DELETE CASCADE;
+
+ALTER TABLE block DROP CONSTRAINT IF EXISTS block_blocked_id_fkey;
+ALTER TABLE block
+    ADD CONSTRAINT block_blocked_id_fkey
+        FOREIGN KEY (blocked_id)
+            REFERENCES users(id)
+            ON DELETE CASCADE;
+
+ALTER TABLE follow DROP CONSTRAINT IF EXISTS follow_follower_id_fkey;
+ALTER TABLE follow ADD CONSTRAINT follow_follower_id_fkey FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE follow DROP CONSTRAINT IF EXISTS follow_followee_id_fkey;
+ALTER TABLE follow ADD CONSTRAINT follow_followee_id_fkey FOREIGN KEY (followee_id) REFERENCES users(id) ON DELETE CASCADE;
