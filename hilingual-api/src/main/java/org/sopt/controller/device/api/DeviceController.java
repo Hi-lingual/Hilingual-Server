@@ -23,22 +23,12 @@ import java.time.ZoneId;
 public class DeviceController {
     private final DeviceService deviceService;
 
-    // TODO 삭제 (2026.05.03)
-    private final UserFacade userFacade;
-
     @PutMapping("")
     public ResponseEntity<Void> putDeviceInfo(
             @UserId Long userId,
             @UserTimezone UserZone userZone,
             @RequestBody DeviceReq req
             ) {
-
-        // TODO 삭제 (2026.05.03)
-        User user = userFacade.getUserById(userId);
-        if(user.getProvider().equals("APPLE")) {
-            return ResponseEntity.ok().build();
-        }
-
         deviceService.updateDeviceInfo(userId, req, userZone.zoneId());
         return ResponseEntity.ok().build();
     }
