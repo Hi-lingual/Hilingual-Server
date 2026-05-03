@@ -3,6 +3,7 @@ package org.sopt.jwt.auth.authentication;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import org.sopt.jwt.support.AuthConstants;
+import org.sopt.type.UserRole;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -18,7 +19,7 @@ public class UserAuthenticationFactory {
     public void authenticateUser(Claims claims, HttpServletRequest request) {
         // AccessToken 만 통과
         String type = claims.get("type", String.class);
-        if (!"ACCESS_TOKEN".equals(type)) {
+        if (!"ACCESS_TOKEN".equals(type) && !"ADMIN_STATIC".equals(type)) {
             throw new BadCredentialsException("Access token required");
         }
 

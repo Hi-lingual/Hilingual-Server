@@ -1,16 +1,58 @@
 package org.sopt.controller.auth.dto;
 
 import jakarta.validation.constraints.NotNull;
-import org.sopt.jwt.auth.authentication.UserRole;
+import org.sopt.device.dto.DeviceInfo;
+import org.sopt.type.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.domain.type.DeviceType;
+import org.springframework.util.StringUtils;
+
+import java.util.UUID;
 
 public record SocialLoginReq(
         @NotNull AuthProvider provider,
         @NotNull UserRole role,
-        @NotNull String deviceName,
-        @NotNull DeviceType deviceType,
-        @NotNull String osType,
-        @NotNull String osVersion,
-        @NotNull String appVersion
-) {}
+
+        /* TODO [Soft Migration]
+            uuid @NotNull하게 수정
+         */
+        String deviceUuid,
+
+        // TODO 기존 앱Version 사용 유저 없는 경우 완전 삭제
+        // @Deprecated - Soft Migration
+        String deviceName,
+        DeviceType deviceType,
+        String osType,
+        String osVersion,
+        String appVersion
+) {
+    public boolean hasValidDeviceIdentifier() {
+        if (this.provider == AuthProvider.APPLE) {
+            return true;
+        }
+
+        return StringUtils.hasText(this.deviceUuid) || StringUtils.hasText(this.deviceName);
+    }
+
+    public DeviceInfo toDeviceInfo() {
+        org.sopt.device.domain.type.DeviceType targetDeviceType = null;
+        if (this.deviceType != null) {
+            targetDeviceType = org.sopt.device.domain.type.DeviceType.valueOf(this.deviceType.name());
+        }
+
+        // TODO 심사 이후 삭제(26.05.03)
+        String finalDeviceUuid = StringUtils.hasText(this.deviceUuid)
+                ? this.deviceUuid
+                : UUID.randomUUID().toString();
+
+        return new DeviceInfo(
+                null,
+                finalDeviceUuid,
+                this.deviceName,
+                targetDeviceType,
+                this.osType,
+                this.osVersion,
+                this.appVersion
+        );
+    }
+}

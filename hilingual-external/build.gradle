@@ -1,12 +1,23 @@
 dependencies {
     implementation project(":hilingual-common")
 
-    // Multipart file
-    implementation("software.amazon.awssdk:bom:2.21.0")
-    implementation("software.amazon.awssdk:s3:2.21.0")
+    // Spring Web (Feign)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // AWS SDK (BOM으로 버전 관리)
+    implementation platform("software.amazon.awssdk:bom:2.29.45")
+    implementation("software.amazon.awssdk:s3")
 
     // Open Feign
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0'
+    implementation('org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0') {
+        exclude group: 'commons-fileupload', module: 'commons-fileupload'
+    }
+
+    // Firebase Admin SDK (FCM만 사용 — 불필요한 모듈 제외)
+    implementation('com.google.firebase:firebase-admin:9.4.3') {
+        exclude group: 'com.google.cloud', module: 'google-cloud-storage'
+        exclude group: 'com.google.cloud', module: 'google-cloud-firestore'
+    }
 }
 
 bootJar { enabled = false }

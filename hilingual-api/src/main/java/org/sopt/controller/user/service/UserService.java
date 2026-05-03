@@ -14,12 +14,14 @@ import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
+import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.sopt.noticedelivery.domain.NoticeDelivery;
 import org.sopt.noticedelivery.facade.NoticeDeliveryFacade;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +36,7 @@ public class UserService {
     private final FeedAlarmFacade feedAlarmFacade;
     private final AlarmPreferenceFacade alarmPreferenceFacade;
     private final S3Service s3Service;
+    private final UserProfileFacade userProfileFacade;
 
     public UserDefaultInfoRes getUserDefaultInfo(final long userId) {
         User user = userFacade.getUserById(userId);
@@ -46,9 +49,11 @@ public class UserService {
         );
     }
 
-    public HomeUserProfileRes getHomeUserInfo(final long userId) {
+    public HomeUserProfileRes getHomeUserInfo(final long userId, final ZoneId userZone) {
         User user = userFacade.getUserById(userId);
         UserProfile userProfile = user.getUserProfile();
+
+        userProfileFacade.syncStreak(userId, userZone);
 
         return HomeUserProfileRes.from(
                 userProfile,

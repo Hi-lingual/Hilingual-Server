@@ -1,31 +1,39 @@
+def querydslDir = layout.buildDirectory.dir("generated/querydsl")
+
+sourceSets {
+    main.java.srcDirs += [querydslDir]
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.getGeneratedSourceOutputDirectory().set(querydslDir)
+}
+
+tasks.named("clean").configure {
+    doLast {
+        delete(querydslDir)
+    }
+}
+
 dependencies {
-    implementation project(":hilingual-external")
     implementation project(":hilingual-common")
-    implementation project(":hilingual-auth")
+
+    // Spring Data JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Spring Web (HttpStatus used in exception codes)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // QueryDSL
+    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+    annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 
     // database
     runtimeOnly 'org.postgresql:postgresql'
-
-    // Bouncy Castle Provider
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.81'
-    implementation 'org.bouncycastle:bcpkix-jdk18on:1.81'
-
-    // OAuth
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    implementation 'com.google.oauth-client:google-oauth-client-java6:1.36.0'
-    implementation 'com.google.oauth-client:google-oauth-client-jetty:1.36.0'
-    implementation 'com.google.api-client:google-api-client:2.4.0'
-
-    // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
-
-    // Webflux
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
-
-    // Redis
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 bootJar { enabled = false }

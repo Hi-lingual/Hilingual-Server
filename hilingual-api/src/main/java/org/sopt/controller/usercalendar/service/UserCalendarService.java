@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -26,25 +28,13 @@ public class UserCalendarService {
     private final S3Service s3Service;
 
     public UserCalendarDiarySummaryRes getDiarySummary(final LocalDate date, final Long userId) {
-        validateNotFuture(date);
-
         final Diary diary = userCalendarFacade.findDiaryByDate(userId, date);
         final String diaryImgUrl = s3Service.toPublicUrl(diary.getImageUrl());
         return UserCalendarDiarySummaryRes.of(diary, diaryImgUrl);
 
     }
-
-    public static void validateNotFuture(LocalDate date) {
-        if (date.isAfter(LocalDate.now())) {
-            throw new FutureDateNotAllowedException(UserCalendarApiErrorCode.FUTURE_DATE_NOT_ALLOWED);
-        }
-    }
-
-    public UserCalendarTopicRes getTopicByDate(final long userId, final LocalDate date) {
-        if (date.isAfter(LocalDate.now())) {
-            throw new FutureDateNotAllowedException(UserCalendarApiErrorCode.FUTURE_DATE_NOT_ALLOWED);
-        }
-        return topicFacade.findTopicByDate(userId, date);
+    public UserCalendarTopicRes getTopicByDate(final long userId, final LocalDate targetDate, final ZoneId userZone) {
+        return topicFacade.findTopicByDate(userId, targetDate, userZone);
     }
 
     public UserCalendarMonthlyRes getWrittenDatesOfMonth(final Long userId, final int year, final int month) {

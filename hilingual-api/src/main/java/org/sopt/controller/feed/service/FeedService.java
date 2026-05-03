@@ -23,7 +23,7 @@ import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
-import org.sopt.userprofile.dto.UserSearchProjection;
+import org.sopt.userprofile.dto.UserSearchDto;
 import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -174,19 +174,19 @@ public class FeedService {
         String likeKeyword = "%" + keyword + "%";
         String startKeyword = keyword + "%";
 
-        List<UserSearchProjection> userList = userProfileFacade.getUserListByNickname(userId, likeKeyword, startKeyword);
+        List<UserSearchDto> userList = userProfileFacade.getUserListByNickname(userId, likeKeyword, startKeyword);
 
         List<UserListRes.SearchUser> searchUserList = userList.stream()
                 .map(projection -> {
-                    String originalImgUrl = projection.getProfileImg();
+                    String originalImgUrl = projection.profileImg();
                     String publicImgUrl = (originalImgUrl != null) ? s3Service.toPublicUrl(originalImgUrl) : " ";
 
                     return new UserListRes.SearchUser(
-                            projection.getUserId(),
-                            (publicImgUrl != null) ? publicImgUrl : " ",
-                            projection.getNickname(),
-                            projection.getIsFollowing(),
-                            projection.getIsFollowed()
+                            projection.userId(),
+                            publicImgUrl,
+                            projection.nickname(),
+                            projection.isFollowing(),
+                            projection.isFollowed()
                     );
                 })
                 .toList();

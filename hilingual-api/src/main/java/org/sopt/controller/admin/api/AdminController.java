@@ -6,8 +6,8 @@ import org.sopt.controller.admin.dto.NoticeCreateReq;
 import org.sopt.controller.admin.dto.NoticeCreateRes;
 import org.sopt.controller.admin.service.AdminNoticeService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +30,5 @@ public class AdminController {
         adminNoticeService.deliver(noticeId);
         return ResponseEntity.ok().build();
     }
-
 }
 

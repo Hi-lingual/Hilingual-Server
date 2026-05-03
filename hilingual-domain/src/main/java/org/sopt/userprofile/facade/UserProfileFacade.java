@@ -2,11 +2,12 @@ package org.sopt.userprofile.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.userprofile.domain.UserProfile;
-import org.sopt.userprofile.dto.UserSearchProjection;
+import org.sopt.userprofile.dto.UserSearchDto;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +47,7 @@ public class UserProfileFacade {
         return userProfileRetriever.isNicknameExists(nickname);
     }
 
-    public List<UserSearchProjection> getUserListByNickname(Long userId, String keyword, String startKeyword) {
+    public List<UserSearchDto> getUserListByNickname(Long userId, String keyword, String startKeyword) {
         return userProfileRetriever.findUsersByNickname(userId, keyword, startKeyword);
     }
 
@@ -68,12 +69,8 @@ public class UserProfileFacade {
     /**
     updater
      */
-    public void incrementTotalDiariesAndRecalculateStreak(final long userId, final LocalDate writtenDate) {
-        userProfileUpdater.incrementTotalDiariesAndRecalculateStreak(userId, writtenDate);
-    }
-
-    public void decrementTotalDiariesAndRecalculateStreak(final long userId, final LocalDate writtenDate) {
-        userProfileUpdater.decrementTotalDiariesAndRecalculateStreak(userId, writtenDate);
+    public void incrementTotalDiariesAndRecalculateStreak(final long userId, final LocalDate writtenDate, final ZoneId userZone) {
+        userProfileUpdater.incrementTotalDiariesAndRecalculateStreak(userId, writtenDate, userZone);
     }
 
     public int updateProfileImgByUserId(final long userId, final String newImgUrl, final LocalDateTime updatedAt) {
@@ -94,5 +91,9 @@ public class UserProfileFacade {
 
     public void decreaseFollowingCountOfFollowers(final long userId) {
         userProfileUpdater.decreaseFollowingCountOfFollowers(userId);
+    }
+
+    public void syncStreak(final long userId, final ZoneId userZone) {
+        userProfileUpdater.syncStreak(userId, userZone);
     }
 }

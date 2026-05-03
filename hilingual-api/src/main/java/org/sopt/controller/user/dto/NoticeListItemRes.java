@@ -2,6 +2,7 @@ package org.sopt.controller.user.dto;
 
 import org.sopt.noticedelivery.domain.NoticeDelivery;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public record NoticeListItemRes(
@@ -9,7 +10,8 @@ public record NoticeListItemRes(
         String category,
         String title,
         boolean isRead,
-        String publishedAt
+        String publishedAt,
+        LocalDateTime publishedAtUtc
 ) implements NotificationItemRes {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
@@ -22,7 +24,8 @@ public record NoticeListItemRes(
                 notice.getCategory().name(),
                 notice.getTitle(),
                 d.getReadAt() != null,
-                notice.getCreatedAt().toLocalDate().format(DATE_FORMATTER)
+                notice.getCreatedAt().toLocalDate().format(DATE_FORMATTER),
+                notice.getCreatedAt()
         );
     }
 }

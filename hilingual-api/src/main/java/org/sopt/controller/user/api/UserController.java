@@ -3,15 +3,18 @@ package org.sopt.controller.user.api;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.sopt.alarmpreference.type.AlarmType;
+import org.sopt.annotation.UserTimezone;
 import org.sopt.controller.user.dto.*;
 import org.sopt.controller.user.service.UserService;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.jwt.annotation.UserId;
 import org.sopt.user.type.NotificationTab;
+import org.sopt.web.UserZone;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZoneId;
 import java.util.List;
 
 @RestController
@@ -33,9 +36,10 @@ public class UserController {
     // 홈
     @GetMapping("/home/info")
     public ResponseEntity<HomeUserProfileRes> getUserProfile(
-            @UserId Long userId
+            @UserId Long userId,
+            @UserTimezone final UserZone userZone
     ) {
-        return ResponseEntity.ok(userService.getHomeUserInfo(userId));
+        return ResponseEntity.ok(userService.getHomeUserInfo(userId, userZone.zoneId()));
     }
 
     // 마이페이지

@@ -19,14 +19,20 @@ dependencies {
     implementation project(':hilingual-auth')
     implementation project(':hilingual-external')
 
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     // Configuration
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     // Dotenv
     implementation 'io.github.cdimascio:dotenv-java:3.2.0'
-
-    // Spring Actuator
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -34,10 +40,10 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-
     // Open Feign
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0'
+    implementation('org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0') {
+        exclude group: 'commons-fileupload', module: 'commons-fileupload'
+    }
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'

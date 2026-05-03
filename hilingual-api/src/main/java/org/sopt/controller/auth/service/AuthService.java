@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
 import org.sopt.block.facade.BlockFacade;
+import org.sopt.context.TimezoneContextHolder;
 import org.sopt.controller.auth.util.ApplePublicKeyList;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
@@ -17,13 +18,15 @@ import org.sopt.controller.auth.exception.*;
 import org.sopt.controller.auth.util.GoogleOAuth2UserInfo;
 import org.sopt.controller.auth.util.MyKeyLocator;
 import org.sopt.controller.token.TokenService;
+import org.sopt.device.dto.DeviceInfo;
+import org.sopt.device.facade.DeviceFacade;
 import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
 import org.sopt.exception.code.GlobalErrorCode;
 import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.follow.facade.FollowFacade;
-import org.sopt.jwt.auth.authentication.UserRole;
+import org.sopt.type.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.user.domain.User;
@@ -36,6 +39,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -57,15 +61,21 @@ public class AuthService {
     private final AlarmPreferenceFacade alarmPreferenceFacade;
     private final VocaFacade vocaFacade;
     private final UserProfileFacade userProfileFacade;
+    private final DeviceFacade deviceFacade;
 
     private static final Integer PROVIDER_TOKEN_MIN_LENGTH = 101;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
+    @Transactional
     public SocialLoginRes socialLogin(String providerToken, SocialLoginReq req) {
         if (providerToken == null || providerToken.length() < PROVIDER_TOKEN_MIN_LENGTH || req.role() != UserRole.USER) {
             throw new UnAuthorizedException(AuthErrorCode.UNAUTHORIZED);
+        }
+
+        if (!req.hasValidDeviceIdentifier()) {
+            throw new InvalidUserInfoException(AuthApiErrorCode.INVALID_USER_INFO);
         }
 
         if (req.provider() == AuthProvider.GOOGLE) {
@@ -94,13 +104,9 @@ public class AuthService {
         userProfileFacade.decreaseFollowingCountOfFollowers(userId);
 
         // User 정보 Hard Delete
-        userCalendarFacade.deleteAllByUserId(userId); // userCalendar 정보 삭제
         likedDiaryFacade.deleteAllByUserId(userId); // LikedDiary 삭제
-        vocaFacade.deleteAllByUserId(userId); // Voca 삭제
         diaryFacade.deleteAllByUserId(userId); // Diary, Recommend, DiaryFeedback 삭제
-        feedAlarmFacade.deleteAllByUserId(userId); // FeedAlarm 삭제
-        blockFacade.deleteAllByUserId(userId); // Block 삭제
-        followFacade.deleteAllByUserId(userId); // Follow 삭제
+
         alarmPreferenceFacade.deleteAllByUserId(userId); // AlarmPreference 삭제
 
         userFacade.deleteUserById(userId); // user, userProfile, noticeDelivery 삭제
@@ -147,6 +153,7 @@ public class AuthService {
         User user;
         Optional<User> optionalUser = userFacade.getByProviderAndProviderId(String.valueOf(req.provider()), providerId);
 
+        String currentZoneId = TimezoneContextHolder.getTimezone().getId();
         // 이미 유저가 존재하는 경우
         if(optionalUser.isPresent()) {
             user = optionalUser.get();
@@ -156,8 +163,7 @@ public class AuthService {
                 user.revertDeleteUser();
             }
 
-            // 이미 가입된 유저 토큰 재발급(= 초기 유저와 동일한 로직)
-            return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
+            user.setPrimaryTimezone(currentZoneId);
 
         } else {
             user = User.builder()
@@ -166,11 +172,23 @@ public class AuthService {
                     .notifyStatus(false)
                     .registerStatus(RegisterStatus.SOCIAL_LOGIN_COMPLETED)
                     .role(UserRole.USER)
+                    .primaryTimezone(currentZoneId)
                     .build();
 
-            User newUser = userFacade.save(user);
-            return tokenService.issueToken(req, newUser.getId(), RegisterStatus.SOCIAL_LOGIN_COMPLETED);
+            user = userFacade.save(user);
         }
+
+        // TODO 심사 이후 삭제(26.05.03)
+        if(StringUtils.hasText(req.deviceUuid()) || req.provider().equals(AuthProvider.APPLE)) {
+            DeviceInfo deviceInfo = req.toDeviceInfo();
+            deviceFacade.upsertDevice(user.getId(), deviceInfo);
+        }
+//        if(StringUtils.hasText(req.deviceUuid())) {
+//            DeviceInfo deviceInfo = req.toDeviceInfo();
+//            deviceFacade.upsertDevice(user.getId(), deviceInfo);
+//        }
+
+        return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
     }
 
     private GoogleIdToken.Payload verifyGoogleIdentityToken(String idTokenValue) {
