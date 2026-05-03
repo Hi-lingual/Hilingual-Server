@@ -7,6 +7,8 @@ import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.domain.type.DeviceType;
 import org.springframework.util.StringUtils;
 
+import java.util.UUID;
+
 public record SocialLoginReq(
         @NotNull AuthProvider provider,
         @NotNull UserRole role,
@@ -25,6 +27,10 @@ public record SocialLoginReq(
         String appVersion
 ) {
     public boolean hasValidDeviceIdentifier() {
+        if (this.provider == AuthProvider.APPLE) {
+            return true;
+        }
+
         return StringUtils.hasText(this.deviceUuid) || StringUtils.hasText(this.deviceName);
     }
 
@@ -34,9 +40,14 @@ public record SocialLoginReq(
             targetDeviceType = org.sopt.device.domain.type.DeviceType.valueOf(this.deviceType.name());
         }
 
+        // TODO 심사 이후 삭제(26.05.03)
+        String finalDeviceUuid = StringUtils.hasText(this.deviceUuid)
+                ? this.deviceUuid
+                : UUID.randomUUID().toString();
+
         return new DeviceInfo(
                 null,
-                this.deviceUuid,
+                finalDeviceUuid,
                 this.deviceName,
                 targetDeviceType,
                 this.osType,
