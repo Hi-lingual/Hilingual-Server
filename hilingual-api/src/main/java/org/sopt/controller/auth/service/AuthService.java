@@ -178,15 +178,10 @@ public class AuthService {
             user = userFacade.save(user);
         }
 
-        // TODO 심사 이후 삭제(26.05.03)
-        if(StringUtils.hasText(req.deviceUuid()) || req.provider().equals(AuthProvider.APPLE)) {
+        if(StringUtils.hasText(req.deviceUuid())) {
             DeviceInfo deviceInfo = req.toDeviceInfo();
             deviceFacade.upsertDevice(user.getId(), deviceInfo);
         }
-//        if(StringUtils.hasText(req.deviceUuid())) {
-//            DeviceInfo deviceInfo = req.toDeviceInfo();
-//            deviceFacade.upsertDevice(user.getId(), deviceInfo);
-//        }
 
         return tokenService.issueToken(req, user.getId(), user.getRegisterStatus());
     }

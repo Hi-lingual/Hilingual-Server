@@ -40,14 +40,9 @@ public record SocialLoginReq(
             targetDeviceType = org.sopt.device.domain.type.DeviceType.valueOf(this.deviceType.name());
         }
 
-        // TODO 심사 이후 삭제(26.05.03)
-        String finalDeviceUuid = StringUtils.hasText(this.deviceUuid)
-                ? this.deviceUuid
-                : UUID.randomUUID().toString();
-
         return new DeviceInfo(
                 null,
-                finalDeviceUuid,
+                this.deviceUuid,
                 this.deviceName,
                 targetDeviceType,
                 this.osType,
