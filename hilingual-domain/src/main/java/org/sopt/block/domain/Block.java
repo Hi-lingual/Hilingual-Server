@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sopt.common.config.BaseTimeEntity;
 import org.sopt.user.domain.User;
 
@@ -35,10 +37,12 @@ public class Block extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_BLOCKER_ID, nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User blocker;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_BLOCKED_ID, nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User blocked;
 
     public static Block create(User blocker, User blocked) {

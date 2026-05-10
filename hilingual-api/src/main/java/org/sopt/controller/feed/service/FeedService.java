@@ -179,7 +179,10 @@ public class FeedService {
         List<UserListRes.SearchUser> searchUserList = userList.stream()
                 .map(projection -> {
                     String originalImgUrl = projection.profileImg();
-                    String publicImgUrl = (originalImgUrl != null) ? s3Service.toPublicUrl(originalImgUrl) : " ";
+
+                    String publicImgUrl = (originalImgUrl != null && !originalImgUrl.trim().isEmpty())
+                            ? s3Service.toPublicUrl(originalImgUrl)
+                            : " ";
 
                     return new UserListRes.SearchUser(
                             projection.userId(),

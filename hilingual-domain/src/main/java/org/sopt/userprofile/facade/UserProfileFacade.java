@@ -92,4 +92,8 @@ public class UserProfileFacade {
     public void decreaseFollowingCountOfFollowers(final long userId) {
         userProfileUpdater.decreaseFollowingCountOfFollowers(userId);
     }
+
+    public void syncStreak(final long userId, final ZoneId userZone) {
+        userProfileUpdater.syncStreak(userId, userZone);
+    }
 }

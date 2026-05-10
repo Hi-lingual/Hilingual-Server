@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.alarmpreference.type.AlarmTypeConverter;
 import org.sopt.user.domain.User;
@@ -36,6 +38,7 @@ public class AlarmPreference {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_USER_ID, nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @Convert(converter = AlarmTypeConverter.class)

@@ -35,7 +35,7 @@ public record SharedDiaryListRes(
     public record SharedDiary(
             Long diaryId,
             Long sharedDate,
-            LocalDateTime createdAt,
+            String writtenDate,
             Integer likeCount,
             Boolean isLiked,
             String diaryImg,
@@ -49,7 +49,7 @@ public record SharedDiaryListRes(
             return new SharedDiary(
                     diary.getId(),
                     (minutesDiff < ONE_MINUTE) ? LESS_THAN_MINUTE : minutesDiff,
-                    diary.getCreatedAt(),
+                    diary.getWrittenDate().toString(),
                     diary.getIsLiked(),
                     isLikedByUser,
                     diaryImgUrl, // 변환된 URL 사용

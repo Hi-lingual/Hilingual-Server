@@ -7,6 +7,8 @@ import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.domain.type.DeviceType;
 import org.springframework.util.StringUtils;
 
+import java.util.UUID;
+
 public record SocialLoginReq(
         @NotNull AuthProvider provider,
         @NotNull UserRole role,
@@ -25,6 +27,10 @@ public record SocialLoginReq(
         String appVersion
 ) {
     public boolean hasValidDeviceIdentifier() {
+        if (this.provider == AuthProvider.APPLE) {
+            return true;
+        }
+
         return StringUtils.hasText(this.deviceUuid) || StringUtils.hasText(this.deviceName);
     }
 

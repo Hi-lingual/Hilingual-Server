@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sopt.common.config.BaseTimeEntity;
 import org.sopt.diary.domain.Diary;
 import org.sopt.user.domain.User;
@@ -33,10 +35,12 @@ public class LikedDiary extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_USER_ID, nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = COLUMN_DIARY_ID, nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Diary diary;
 
     public static LikedDiary create(User user, Diary diary) {

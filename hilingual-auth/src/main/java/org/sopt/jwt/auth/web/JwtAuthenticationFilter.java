@@ -1,6 +1,7 @@
 package org.sopt.jwt.auth.web;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,11 +9,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.exception.AuthErrorCode;
 import org.sopt.jwt.core.JwtClaimsKeys;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.auth.authentication.UserAuthenticationFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
@@ -47,6 +47,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        log.info("Request URI: {}", request.getRequestURI());
+
         String path = request.getServletPath();
         // SKIP 리스트에 있는 경로라면 true를 반환하여 필터가 실행되지 않도록 함
         return (SKIP.stream().anyMatch(p -> PM.match(p, path)));
@@ -58,32 +60,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        try {
+            final String token = jwtTokenProvider.getJwtFromRequest(request);
 
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+            if (StringUtils.hasText(token)) {
+                Claims claims = jwtTokenProvider.parseAndVerify(token);
+                String type = claims.get(JwtClaimsKeys.TYPE, String.class);
 
-        /** 헤더에서 토큰 추출 */
-        final String token = jwtTokenProvider.getJwtFromRequest(request);
-
-        /** 유효하면 파싱 및 검증해서 Claim 획득 */
-        if (StringUtils.hasText(token)) {
-            Claims claims = jwtTokenProvider.parseAndVerify(token);
-            String type = claims.get(JwtClaimsKeys.TYPE, String.class);
-
-            if (JwtClaimsKeys.ACCESS.equals(type)|| "ADMIN_STATIC".equals(type)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("JWT parsed. sub={}, sid={}", claims.getSubject(), claims.get("sid"));
-                }
-                userAuthenticationFactory.authenticateUser(claims, request);
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Skip authentication. tokenType={}", type);
+                if (JwtClaimsKeys.ACCESS.equals(type) || "ADMIN_STATIC".equals(type)) {
+                    userAuthenticationFactory.authenticateUser(claims, request);
                 }
             }
-        }
+            filterChain.doFilter(request, response);
 
-        filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            Claims claims = e.getClaims();
+            if ("ADMIN_STATIC".equals(claims.get("type"))) {
+                userAuthenticationFactory.authenticateUser(claims, request);
+                filterChain.doFilter(request, response);
+            } else {
+                request.setAttribute("exception", AuthErrorCode.EXPIRED_JWT_TOKEN);
+                filterChain.doFilter(request, response);
+            }
+        } catch (Exception e) {
+            request.setAttribute("exception", AuthErrorCode.INVALID_AUTH_HEADER);
+            filterChain.doFilter(request, response);
+        }
     }
 }
