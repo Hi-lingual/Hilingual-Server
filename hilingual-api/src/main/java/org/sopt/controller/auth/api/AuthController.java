@@ -38,10 +38,11 @@ public class AuthController {
      */
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(
+            @UserId Long userId,
             HttpServletRequest request
     ) {
         String accessToken = jwtTokenProvider.getJwtFromRequest(request);
-        return ResponseEntity.ok(authService.logout(accessToken));
+        return ResponseEntity.ok(authService.logout(userId, accessToken));
     }
 
     /*

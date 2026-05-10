@@ -78,6 +78,13 @@ public class DeviceFacade {
         device.clearFcmToken();
     }
 
+    // 로그아웃 시 uuid 기반으로 FCM 토큰 삭제 (레거시 앱은 uuid 없으므로 ifPresent로 안전하게 처리)
+    @Transactional
+    public void clearFcmTokenByUuid(final long userId, final String uuid) {
+        deviceRetriever.findByUserIdAndUuid(userId, uuid)
+                .ifPresent(Device::clearFcmToken);
+    }
+
     @Transactional
     public void deleteAllDevices(final long userId){
         deviceRemover.deleteAllByUserId(userId);
