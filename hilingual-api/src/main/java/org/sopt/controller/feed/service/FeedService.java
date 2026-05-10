@@ -24,6 +24,7 @@ import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.dto.UserSearchDto;
+import org.sopt.controller.notification.service.FcmNotificationService;
 import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +55,7 @@ public class FeedService {
     private final S3Service s3Service;
     private final FeedAlarmFacade feedAlarmFacade;
     private final AlarmPreferenceFacade alarmPreferenceFacade;
+    private final FcmNotificationService fcmNotificationService;
 
     @Transactional(readOnly = true)
     public FeedProfileRes getFeedProfile(Long userId, Long targetUserId) {
@@ -321,6 +324,9 @@ public class FeedService {
             if (alarmPreferenceFacade.isEnabled(diary.getUser().getId(), AlarmType.FEED)) {
                 // 같은 다이어리/같은 액터의 중복 알림 방지 로직은 Facade 내부에서 처리
                 feedAlarmFacade.createLikeDiaryAlarm(diary, user);
+                String dateStr = diary.getWrittenDate().format(DateTimeFormatter.ofPattern("M월 d일"));
+                String body = user.getUserProfile().getNickname() + "님이 당신의 " + dateStr + " 일기에 공감했습니다.";
+                fcmNotificationService.sendLikeNotification(diary.getUser().getId(), diary.getId(), body);
             }
             return LikeToggleRes.of(true);
         }
