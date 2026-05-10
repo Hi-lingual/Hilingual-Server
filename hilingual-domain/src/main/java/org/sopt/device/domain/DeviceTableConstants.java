@@ -15,4 +15,7 @@ public class DeviceTableConstants {
     public static final String COLUMN_OS_TYPE = "os_type";
     public static final String COLUMN_OS_VERSION = "os_version";
     public static final String COLUMN_APP_VERSION = "app_version";
+
+    public static final String COLUMN_FCM_TOKEN = "fcm_token";
+    public static final String COLUMN_FCM_TOKEN_UPDATED_AT = "fcm_token_updated_at";
 }
