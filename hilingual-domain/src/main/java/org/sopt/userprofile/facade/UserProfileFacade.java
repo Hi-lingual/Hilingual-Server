@@ -96,4 +96,8 @@ public class UserProfileFacade {
     public void syncStreak(final long userId, final ZoneId userZone) {
         userProfileUpdater.syncStreak(userId, userZone);
     }
+
+    public String updateUserNickname(final long userId, final String nickname) {
+        return userProfileUpdater.updateNickname(userId, nickname);
+    }
 }
