@@ -2,8 +2,9 @@ package org.sopt.controller.userprofile.api;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.sopt.controller.discord.service.WebhookService;
 import org.sopt.controller.user.dto.NicknameAvailableRes;
+import org.sopt.controller.userprofile.dto.UserNicknameReq;
+import org.sopt.controller.userprofile.dto.UserNicknameRes;
 import org.sopt.controller.userprofile.dto.UserProfileImgReq;
 import org.sopt.controller.userprofile.dto.UserProfileReq;
 import org.sopt.dto.BaseResponseDto;
@@ -39,6 +40,20 @@ public class UserProfileController {
         return ResponseEntity.ok(GlobalSuccessCode.OK);
     }
 
+    /*
+     * 닉네임 변경
+     */
+    @PatchMapping("/profile/nickname")
+    public BaseResponseDto<UserNicknameRes> changeUserNickname(
+            @UserId Long userId,
+            @RequestBody @NotNull UserNicknameReq userNicknameReq
+    ) {
+        return userProfileService.changeUserNickname(userId, userNicknameReq);
+    }
+
+    /*
+     * 프로필 이미지 변경
+     */
     @PatchMapping("/mypage/profileImg")
     public ResponseEntity<Void> changeUserProfileImg(
             @UserId Long userId,
