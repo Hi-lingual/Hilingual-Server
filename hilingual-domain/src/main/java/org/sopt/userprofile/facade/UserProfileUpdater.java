@@ -5,6 +5,8 @@ import org.sopt.user.domain.User;
 import org.sopt.usercalendar.domain.WriteStatus;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.sopt.userprofile.domain.UserProfile;
+import org.sopt.userprofile.exception.InvalidSameNicknameException;
+import org.sopt.userprofile.exception.UserProfileCoreErrorCode;
 import org.sopt.userprofile.repository.UserProfileRepository;
 import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,6 +27,7 @@ public class UserProfileUpdater {
     private final UserCalendarFacade userCalendarFacade;
     private final UserProfileRepository userProfileRepository;
     private final UserProfileRetriever userProfileRetriever;
+
     /**
      * 일기 작성 시 totalDiaries 증가 및 streak 재계산
      */
@@ -34,6 +37,19 @@ public class UserProfileUpdater {
         updateStreakOnWrite(profile, writtenDate, userZone); // 캘린더 상태 기준으로 streak 반영
         resyncTotal(profile);                     // WRITTEN 개수로 동기화
         userProfileRepository.save(profile);
+    }
+
+    public String updateNickname(Long userId, String nickname) {
+        UserProfile profile = userProfileRetriever.findByUserId(userId);
+
+        if (nickname.equals(profile.getNickname())) {
+            throw new InvalidSameNicknameException(UserProfileCoreErrorCode.INVALID_SAME_NICKNAME);
+        }
+
+        profile.updateNickname(nickname);
+        userProfileRepository.save(profile);
+
+        return profile.getNickname();
     }
 
     /**
