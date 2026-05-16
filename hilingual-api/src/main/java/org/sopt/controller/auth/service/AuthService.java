@@ -52,14 +52,9 @@ public class AuthService {
 
     private final TokenService tokenService;
     private final UserFacade userFacade;
-    private final UserCalendarFacade userCalendarFacade;
     private final DiaryFacade diaryFacade;
     private final LikedDiaryFacade likedDiaryFacade;
-    private final FeedAlarmFacade feedAlarmFacade;
-    private final BlockFacade blockFacade;
-    private final FollowFacade followFacade;
     private final AlarmPreferenceFacade alarmPreferenceFacade;
-    private final VocaFacade vocaFacade;
     private final UserProfileFacade userProfileFacade;
     private final DeviceFacade deviceFacade;
 
