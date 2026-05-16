@@ -43,7 +43,7 @@ public class UserProfileController {
     /*
      * 닉네임 변경
      */
-    @PostMapping("/profile/nickname")
+    @PatchMapping("/profile/nickname")
     public BaseResponseDto<UserNicknameRes> changeUserNickname(
             @UserId Long userId,
             @RequestBody @NotNull UserNicknameReq userNicknameReq
