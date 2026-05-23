@@ -66,6 +66,10 @@ public class UserProfile extends BaseTimeEntity {
         this.streak = streak;
     }
 
+    public void updateNickname(final String nickname) {
+        this.nickname = nickname;
+    }
+
     public void increaseFollowingCount() {
         this.followingCount = this.followingCount + 1;
     }
