@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
 import org.sopt.controller.auth.service.AuthService;
-import org.sopt.controller.discord.service.WebhookService;
+import org.sopt.controller.slack.service.WebhookService;
 import org.sopt.jwt.annotation.UserId;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,6 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final WebhookService webhookService;
 
     /*
      * 소셜 로그인(구글, 애플)

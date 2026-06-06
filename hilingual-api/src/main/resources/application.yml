@@ -129,6 +129,6 @@ spring:
 
 ---
 
-discord:
+slack:
   webhook:
     url: ${NEW_USER_WEBHOOK}
