@@ -1,13 +1,12 @@
 package org.sopt.controller.userprofile.service;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import lombok.RequiredArgsConstructor;
 import org.sopt.alarmpreference.domain.AlarmPreference;
 import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
 import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.aws.s3.dto.Purpose;
 import org.sopt.aws.s3.service.S3Service;
-import org.sopt.controller.discord.service.WebhookService;
+import org.sopt.controller.slack.service.WebhookService;
 import org.sopt.controller.userprofile.dto.UserNicknameReq;
 import org.sopt.controller.userprofile.dto.UserNicknameRes;
 import org.sopt.controller.userprofile.dto.UserProfileImgReq;
@@ -18,7 +17,6 @@ import org.sopt.controller.userprofile.exception.UserProfileApiErrorCode;
 import org.sopt.controller.userprofile.exception.UserProfileImagePurposeMismatchException;
 import org.sopt.dto.BaseResponseDto;
 import org.sopt.exception.code.GlobalSuccessCode;
-import org.sopt.exception.code.SuccessCode;
 import org.sopt.forbiddenword.facade.ForbiddenWordFacade;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.domain.User;
