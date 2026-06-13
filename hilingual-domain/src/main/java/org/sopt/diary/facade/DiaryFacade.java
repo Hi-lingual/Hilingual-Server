@@ -65,8 +65,8 @@ public class DiaryFacade {
      * Saver
      */
     @Transactional
-    public Diary saveDiary(User user, String originalText, String rewriteText, String imageUrl, LocalDate writtenDate, ZoneId userZone) {
-        return diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate, userZone);
+    public Diary saveDiary(User user, String originalText, String rewriteText, String imageUrl, LocalDate writtenDate, ZoneId userZone, boolean isRecovery) {
+        return diarySaver.save(user, originalText, rewriteText, imageUrl, writtenDate, userZone, isRecovery);
     }
 
 

@@ -61,7 +61,7 @@ public class DiaryService {
             CreateDiaryReq.ImageRef imageRef,
             ZoneId userZone
     ) {
-        Diary diary = createDiary(userId, originalText, writtenDate, imageRef, userZone);
+        Diary diary = createDiary(userId, originalText, writtenDate, imageRef, userZone, false);
         return new DiaryRes(diary.getId(), diary.getIsAdWatched());
     }
 
@@ -77,19 +77,18 @@ public class DiaryService {
         // 티켓 검증 - 유저가 해당 날짜에 광고 보고 발급받은 is_used = false 상태의 RecoveryTicket이 존재하는지
         RecoveryTicket ticket = recoveryTicketFacade.getValidTicket(userId, writtenDate);
 
-        Diary diary = createDiary(userId, originalText, writtenDate, imageRef, userZone);
+        Diary diary = createDiary(userId, originalText, writtenDate, imageRef, userZone, true);
 
         // 티켓 사용 처리 - 일기 작성 완료 시 해당 티켓을 is_used = true로 변경
-        // 일기 상태 마킹 - 새로 생성되는 Diary의 is_recovered = true
         ticket.markIsUsed();
-        diary.markIsRecovered();
 
         return new DiaryRes(diary.getId(), diary.getIsAdWatched());
     }
 
     private Diary createDiary(
             Long userId, String originalText, LocalDate writtenDate,
-            CreateDiaryReq.ImageRef imageRef, ZoneId userZone
+            CreateDiaryReq.ImageRef imageRef, ZoneId userZone,
+            boolean isRecovery
     ) {
         User user = userFacade.getUserById(userId);
 
@@ -105,7 +104,8 @@ public class DiaryService {
                 ai.rewriteText(),
                 fileKey,
                 writtenDate,
-                userZone
+                userZone,
+                isRecovery
         );
 
         saveFeedbacks(diary, ai.feedbackList());

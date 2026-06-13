@@ -31,11 +31,11 @@ public class UserCalendarFacade {
     private final RecoveryTicketRetriever recoveryTicketRetriever;
 
     @Transactional
-    public void markWrittenDate(User user, LocalDate writtenDate) {
+    public void updateCalendarStatus(User user, LocalDate writtenDate, WriteStatus status) {
         userCalendarRetriever.findByUserAndDate(user, writtenDate)
                 .ifPresentOrElse(
-                        UserCalendar::markWritten,
-                        () -> userCalendarSaver.save(user, writtenDate)
+                        calendar -> calendar.updateStatus(status),
+                        () -> userCalendarSaver.save(user, writtenDate, status)
                 );
     }
 

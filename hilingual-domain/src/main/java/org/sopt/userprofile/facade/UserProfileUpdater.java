@@ -88,11 +88,17 @@ public class UserProfileUpdater {
         } else { // today가 아닌 과거의 어떤 날짜를 보충한 경우
             // 어제부터의 과거
             int pastStreak = calculateStreakFromDate(profile.getUser(), writtenDate.minusDays(1));
-
             // 오늘부터 미래
             int forwardStreakFromToday = calculateForwardStreakFromDate(profile.getUser(), writtenDate.plusDays(1));
 
-            newStreak = pastStreak + 1 + forwardStreakFromToday;
+            int continuedDateLength = pastStreak + 1 + forwardStreakFromToday;
+            LocalDate endOfChain = writtenDate.plusDays(forwardStreakFromToday);
+
+            if(endOfChain.equals(today) || endOfChain.equals(yesterday)){
+                newStreak = continuedDateLength;
+            } else { // 최근 일기는 작성하지 않고 과거 일기만 작성한 경우 streak 변화 X
+                newStreak = profile.getStreak();
+            }
         }
         // 그 외 날짜는 변화 없음
 
@@ -104,7 +110,9 @@ public class UserProfileUpdater {
     private int calculateStreakFromDate(User user, LocalDate startDate) {
         int streak = 0;
         LocalDate cur = startDate;
-        while (userCalendarFacade.getStatus(user, cur) == WriteStatus.WRITTEN) {
+        while (
+                userCalendarFacade.getStatus(user, cur) == WriteStatus.WRITTEN ||
+                userCalendarFacade.getStatus(user, cur) == WriteStatus.RECOVERED) {
             streak++;
             cur = cur.minusDays(1);
         }

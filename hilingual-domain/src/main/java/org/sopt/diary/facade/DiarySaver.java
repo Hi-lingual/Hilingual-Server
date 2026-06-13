@@ -7,6 +7,7 @@ import org.sopt.diary.exception.DiaryAlreadyWrittenException;
 import org.sopt.diary.exception.DiaryCoreErrorCode;
 import org.sopt.diary.repository.DiaryRepository;
 import org.sopt.user.domain.User;
+import org.sopt.usercalendar.domain.WriteStatus;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,14 +33,18 @@ public class DiarySaver {
             final String rewriteText,
             final String imageUrl,
             final LocalDate writtenDate,
-            final ZoneId userZone
+            final ZoneId userZone,
+            final boolean isRecovery
             ) {
         try {
             Diary saved = diaryRepository.save(
-                    Diary.create(user, originalText, rewriteText, imageUrl, writtenDate)
+                    Diary.create(user, originalText, rewriteText, imageUrl, writtenDate, isRecovery)
             );
 
-            userCalendarFacade.markWrittenDate(user, writtenDate);
+            // 플래그에 따라 캘린더에 저장할 상태값 결정
+            WriteStatus status = isRecovery ? WriteStatus.RECOVERED : WriteStatus.WRITTEN;
+            userCalendarFacade.updateCalendarStatus(user, writtenDate, status);
+
             userProfileFacade.incrementTotalDiariesAndRecalculateStreak(user.getId(), writtenDate, userZone);
 
             return saved;
