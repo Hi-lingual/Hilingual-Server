@@ -5,7 +5,7 @@ import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
 import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.token.TokenService;
-import org.sopt.controller.user.dto.*;
+import org.sopt.controller.user.dto.v1.*;
 import org.sopt.controller.user.exception.CannotLoadProviderException;
 import org.sopt.controller.user.exception.UserApiErrorCode;
 import org.sopt.feedalarm.domain.FeedAlarm;

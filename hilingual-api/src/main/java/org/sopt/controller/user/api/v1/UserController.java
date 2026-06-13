@@ -1,10 +1,10 @@
-package org.sopt.controller.user.api;
+package org.sopt.controller.user.api.v1;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.annotation.UserTimezone;
-import org.sopt.controller.user.dto.*;
+import org.sopt.controller.user.dto.v1.*;
 import org.sopt.controller.user.service.UserService;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
@@ -14,7 +14,6 @@ import org.sopt.web.UserZone;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.ZoneId;
 import java.util.List;
 
 @RestController
