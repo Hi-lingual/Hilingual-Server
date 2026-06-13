@@ -20,6 +20,8 @@ import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.openai.OpenAIService;
 import org.sopt.openai.dto.res.GptFeedbackResponse;
 import org.sopt.recommend.domain.Recommend;
+import org.sopt.recoveryticket.domain.RecoveryTicket;
+import org.sopt.recoveryticket.facade.RecoveryTicketFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
@@ -46,8 +48,7 @@ public class DiaryService {
     private final DiaryFeedbackService diaryFeedbackService;
     private final RecommendService recommendService;
     private final DiaryDiffService diaryDiffService;
-    private final UserCalendarFacade userCalendarFacade;
-    private final UserProfileFacade userProfileFacade;
+    private final RecoveryTicketFacade recoveryTicketFacade;
 
     private final S3Service s3Service;
 
@@ -59,6 +60,36 @@ public class DiaryService {
             LocalDate writtenDate,
             CreateDiaryReq.ImageRef imageRef,
             ZoneId userZone
+    ) {
+        Diary diary = createDiary(userId, originalText, writtenDate, imageRef, userZone);
+        return new DiaryRes(diary.getId(), diary.getIsAdWatched());
+    }
+
+    // [스트릭 부활 전용] 일기 피드백 요청
+    @Transactional
+    public DiaryRes createRecoveryDiaryWithFeedback(
+            Long userId,
+            String originalText,
+            LocalDate writtenDate,
+            CreateDiaryReq.ImageRef imageRef,
+            ZoneId userZone
+    ) {
+        // 티켓 검증 - 유저가 해당 날짜에 광고 보고 발급받은 is_used = false 상태의 RecoveryTicket이 존재하는지
+        RecoveryTicket ticket = recoveryTicketFacade.getValidTicket(userId, writtenDate);
+
+        Diary diary = createDiary(userId, originalText, writtenDate, imageRef, userZone);
+
+        // 티켓 사용 처리 - 일기 작성 완료 시 해당 티켓을 is_used = true로 변경
+        // 일기 상태 마킹 - 새로 생성되는 Diary의 is_recovered = true
+        ticket.markIsUsed();
+        diary.markIsRecovered();
+
+        return new DiaryRes(diary.getId(), diary.getIsAdWatched());
+    }
+
+    private Diary createDiary(
+            Long userId, String originalText, LocalDate writtenDate,
+            CreateDiaryReq.ImageRef imageRef, ZoneId userZone
     ) {
         User user = userFacade.getUserById(userId);
 
@@ -80,7 +111,7 @@ public class DiaryService {
         saveFeedbacks(diary, ai.feedbackList());
         saveRecommends(diary, ai.phraseList());
 
-        return new DiaryRes(diary.getId(), diary.getIsAdWatched());
+        return diary;
     }
 
     private String bindDiaryImageIfPresent(Long userId, LocalDate writtenDate, CreateDiaryReq.ImageRef imageRef) {
