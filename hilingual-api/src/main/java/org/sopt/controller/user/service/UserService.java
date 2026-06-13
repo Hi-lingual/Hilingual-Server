@@ -5,20 +5,20 @@ import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
 import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.token.TokenService;
-import org.sopt.controller.user.dto.*;
+import org.sopt.controller.user.dto.v1.*;
 import org.sopt.controller.user.exception.CannotLoadProviderException;
 import org.sopt.controller.user.exception.UserApiErrorCode;
 import org.sopt.feedalarm.domain.FeedAlarm;
 import org.sopt.feedalarm.facade.FeedAlarmFacade;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
+import org.sopt.noticedelivery.domain.NoticeDelivery;
+import org.sopt.noticedelivery.facade.NoticeDeliveryFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.sopt.noticedelivery.domain.NoticeDelivery;
-import org.sopt.noticedelivery.facade.NoticeDeliveryFacade;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -116,7 +116,6 @@ public class UserService {
     @Transactional
     public void markNoticeRead(final long userId, final long noticeId){
         feedAlarmFacade.markAlarmAsRead(userId, noticeId);
-        return;
     }
 
     public List<NoticeListItemRes> getNoticeAlarms(long userId) {
