@@ -5,7 +5,7 @@ import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
 import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.token.TokenService;
-import org.sopt.controller.user.dto.*;
+import org.sopt.controller.user.dto.v1.*;
 import org.sopt.controller.user.exception.CannotLoadProviderException;
 import org.sopt.controller.user.exception.UserApiErrorCode;
 import org.sopt.feedalarm.domain.FeedAlarm;
@@ -69,19 +69,12 @@ public class UserService {
     }
 
     private String parseProviderInfo(String provider) {
-        String loginProviderInfo;
 
-        switch (provider) {
-            case "GOOGLE":
-                loginProviderInfo = "구글 로그인";
-                break;
-            case "APPLE":
-                loginProviderInfo = "애플 로그인";
-                break;
-            default:
-                throw new CannotLoadProviderException(UserApiErrorCode.PROVIDER_LOAD_ERROR);
-        }
-        return loginProviderInfo;
+        return switch (provider) {
+            case "GOOGLE" -> "구글 로그인";
+            case "APPLE" -> "애플 로그인";
+            default -> throw new CannotLoadProviderException(UserApiErrorCode.PROVIDER_LOAD_ERROR);
+        };
     }
 
     public NotiStatusRes getUserNotiSatus(final Long userId) {
@@ -116,7 +109,6 @@ public class UserService {
     @Transactional
     public void markNoticeRead(final long userId, final long noticeId){
         feedAlarmFacade.markAlarmAsRead(userId, noticeId);
-        return;
     }
 
     public List<NoticeListItemRes> getNoticeAlarms(long userId) {
