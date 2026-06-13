@@ -59,6 +59,9 @@ public class Diary extends BaseTimeEntity {
     @Column(name = COLUMN_IS_LIKED, nullable = false)
     private Integer isLiked = 0;
 
+    @Column(name = COLUMN_IS_RECOVERED, nullable = false)
+    private Boolean isRecovered = Boolean.FALSE;
+
     @Column(name = COLUMN_SHARED_TIME)
     private LocalDateTime sharedTime;
 
@@ -98,7 +101,8 @@ public class Diary extends BaseTimeEntity {
                 writtenDate,
                 Boolean.FALSE, // isPublic
                 Boolean.FALSE, // isAdWatched
-                0,             // isLiked
+                0,             // isLiked,
+                false,         // isRecovered
                 null,
                 user,
                 null,
@@ -117,6 +121,10 @@ public class Diary extends BaseTimeEntity {
 
     public void markAdWatched() {
         this.isAdWatched = true;
+    }
+
+    public void markIsRecovered() {
+        this.isRecovered = true;
     }
 
 }
