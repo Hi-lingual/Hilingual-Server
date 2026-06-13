@@ -12,9 +12,18 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class RecoveryTicketFacade {
     private final RecoveryTicketRetriever recoveryTicketRetriever;
+    private final RecoveryTicketSaver recoveryTicketSaver;
 
     public RecoveryTicket getValidTicket(final Long userId, final LocalDate writtenDate) {
         return recoveryTicketRetriever.findValidTicket(userId, writtenDate)
                 .orElseThrow(() -> new RecoveryTicketNotFoundException(RecoveryTicketCoreErrorCode.RECOVERY_TICKET_NOT_FOUND));
+    }
+
+    public boolean existsValidTicket(final Long userId, final LocalDate targetDate) {
+        return recoveryTicketRetriever.existsValidTicket(userId, targetDate);
+    }
+
+    public RecoveryTicket save(final RecoveryTicket ticket) {
+        return recoveryTicketSaver.save(ticket);
     }
 }
