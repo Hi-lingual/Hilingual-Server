@@ -40,6 +40,9 @@ public class UserProfile extends BaseTimeEntity {
     @Column(name = COLUMN_FOLLOWER_COUNT, nullable = false)
     private Integer followerCount = 0;
 
+    @Column(name = COLUMN_RECOVERY_CHANCE_COUNT, nullable = false)
+    private Integer recoveryChanceCount = 3;
+
     @OneToOne
     @JoinColumn(name = COLUMN_USER_ID, nullable = false)
     private User user;
@@ -54,6 +57,7 @@ public class UserProfile extends BaseTimeEntity {
                 0,
                 0,
                 0,
+                3,
                 user
         );
     }
@@ -86,4 +90,11 @@ public class UserProfile extends BaseTimeEntity {
         this.followerCount = Math.max(0, this.followerCount - 1);
     }
 
+    public void decreaseRecoveryChanceCount() {
+        this.recoveryChanceCount = Math.max(0, this.recoveryChanceCount - 1);
+    }
+
+    public void resetRecoveryChanceCount() {
+        this.recoveryChanceCount = 3;
+    }
 }
