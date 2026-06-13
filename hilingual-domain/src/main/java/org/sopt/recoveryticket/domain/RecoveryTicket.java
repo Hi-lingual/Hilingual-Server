@@ -44,6 +44,15 @@ public class RecoveryTicket extends BaseTimeEntity {
     @JoinColumn(name = COLUMN_USER_ID, nullable = false)
     private User user;
 
+    public static RecoveryTicket create(User user, LocalDate writtenDate) {
+        return new RecoveryTicket(
+                null,
+                writtenDate,
+                Boolean.FALSE,
+                user
+        );
+    }
+
     public void markIsUsed() {
         this.isUsed = true;
     }
