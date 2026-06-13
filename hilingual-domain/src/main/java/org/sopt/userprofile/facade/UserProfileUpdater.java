@@ -188,6 +188,41 @@ public class UserProfileUpdater {
         }
     }
 
+    /**
+     * [스케줄러] 월간 스트릭 부활권 초기화
+     * 매 15분마다 실행, 해당 시간에 '매월 1일 자정'을 맞이한 타임존 유저들의
+     * 스트릭 부활권(recovery_chance_count)을 3개로 일괄 초기화
+     */
+    @Scheduled(cron = "0 0,15,30,45 * * * *")
+    @Transactional
+    public void resetMonthlyRecoveryChanceGlobal() {
+        Instant rawNow = Instant.now();
+
+        // 스케줄러 지연 방어: 15분 단위 내림
+        int currentMinute = rawNow.atZone(ZoneOffset.UTC).getMinute();
+        int targetMinute = (currentMinute / 15) * 15;
+        Instant truncatedNow = rawNow.truncatedTo(ChronoUnit.HOURS)
+                .plus(targetMinute, ChronoUnit.MINUTES);
+
+        // 현재 시간이 매월 1일이면서 자정인 타임존만 추출
+        Set<String> firstDayMidnightZones = ZoneId.getAvailableZoneIds().stream()
+                .filter(zone -> {
+                    ZonedDateTime zdt = truncatedNow.atZone(ZoneId.of(zone));
+                    return zdt.getDayOfMonth() == 1 &&
+                            zdt.getHour() == 0 &&
+                            zdt.getMinute() == 0;
+                })
+                .collect(Collectors.toSet());
+
+        if (firstDayMidnightZones.isEmpty()) {
+            return;
+        }
+
+        // 업데이트 실행
+        LocalDateTime now = LocalDateTime.now();
+        userProfileRepository.bulkResetRecoveryChanceCount(firstDayMidnightZones, now);
+    }
+
     private void resyncTotal(UserProfile profile) {
         long cnt = userCalendarFacade.countWritten(profile.getUser().getId());
         profile.updateTotalDiaries((int) cnt);
