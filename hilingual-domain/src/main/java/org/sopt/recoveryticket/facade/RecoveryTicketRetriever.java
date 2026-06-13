@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 
 
 @Component
@@ -23,6 +24,10 @@ public class RecoveryTicketRetriever {
         LocalDate endDate = yearMonth.atEndOfMonth();
 
         return recoveryTicketRepository.findUnlockedTicketsByUserIdAndDateRange(userId, startDate, endDate);
+    }
+
+    public Optional<RecoveryTicket> findValidTicket(final Long userId, final LocalDate writtenDate) {
+        return recoveryTicketRepository.findByUserIdAndWrittenDateAndIsUsedFalse(userId, writtenDate);
     }
 
 }
