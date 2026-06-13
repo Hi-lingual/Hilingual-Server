@@ -30,4 +30,8 @@ public class RecoveryTicketRetriever {
         return recoveryTicketRepository.findByUserIdAndWrittenDateAndIsUsedFalse(userId, writtenDate);
     }
 
+    public boolean existsValidTicket(final Long userId, final LocalDate writtenDate) {
+        return recoveryTicketRepository.existsByUserIdAndWrittenDateAndIsUsedFalse(userId, writtenDate);
+    }
+
 }

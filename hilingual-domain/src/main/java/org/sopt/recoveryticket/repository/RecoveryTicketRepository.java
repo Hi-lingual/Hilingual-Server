@@ -35,5 +35,7 @@ public interface RecoveryTicketRepository extends JpaRepository<RecoveryTicket, 
             @Param("userId") Long userId,
             @Param("writtenDate") LocalDate writtenDate
     );
+
+    boolean existsByUserIdAndWrittenDateAndIsUsedFalse(Long userId, LocalDate writtenDate);
 }
 
