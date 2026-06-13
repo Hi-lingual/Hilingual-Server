@@ -49,17 +49,11 @@ public class UserService {
         );
     }
 
-    public HomeUserProfileRes getHomeUserInfo(final long userId, final ZoneId userZone) {
+    public User getHomeUserInfo(final long userId, final ZoneId userZone) {
         User user = userFacade.getUserById(userId);
-        UserProfile userProfile = user.getUserProfile();
-
         userProfileFacade.syncStreak(userId, userZone);
 
-        return HomeUserProfileRes.from(
-                userProfile,
-                user.getNotifyStatus(),
-                s3Service.toPublicUrl(userProfile.getProfileImg())
-        );
+        return user;
     }
 
     @Transactional
