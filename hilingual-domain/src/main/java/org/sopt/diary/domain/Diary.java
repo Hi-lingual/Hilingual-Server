@@ -91,7 +91,8 @@ public class Diary extends BaseTimeEntity {
 
     public static Diary create(
             User user, String originalText, String rewriteText,
-            String imageUrl, LocalDate writtenDate
+            String imageUrl, LocalDate writtenDate,
+            boolean isRecovered
     ) {
         return new Diary(
                 null,
@@ -102,7 +103,7 @@ public class Diary extends BaseTimeEntity {
                 Boolean.FALSE, // isPublic
                 Boolean.FALSE, // isAdWatched
                 0,             // isLiked,
-                false,         // isRecovered
+                isRecovered,         // isRecovered
                 null,
                 user,
                 null,
