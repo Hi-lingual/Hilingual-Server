@@ -76,5 +76,22 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
             @Param("streakThreshold") int streakThreshold
     );
 
+    /*
+     * 월간 스트릭 부활권 초기화용 벌크 업데이트 쿼리
+     * 지정된 타임존 목록에 속해 있으면서, 부활권이 3개 미만인 유저만 3개로 초기화
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("""
+           UPDATE UserProfile up
+           SET up.recoveryChanceCount = 3,
+               up.updatedAt = :updatedAt
+           WHERE up.recoveryChanceCount < 3
+             AND up.user.primaryTimezone IN :timezones
+           """)
+    int bulkResetRecoveryChanceCount(
+            @Param("timezones") Set<String> timezones,
+            @Param("updatedAt") LocalDateTime updatedAt
+    );
+
     long count();
 }
