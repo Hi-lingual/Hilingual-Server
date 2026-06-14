@@ -38,8 +38,8 @@ public class UserCalendar extends BaseTimeEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    public void markWritten() {
-        this.status = WriteStatus.WRITTEN;
+    public void updateStatus(WriteStatus status) {
+        this.status = status;
     }
 
     public static UserCalendar create(LocalDate date, WriteStatus status, User user) {

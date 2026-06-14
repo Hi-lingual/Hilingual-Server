@@ -1,20 +1,21 @@
-package org.sopt.controller.user.api;
+package org.sopt.controller.user.api.v1;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.sopt.alarmpreference.type.AlarmType;
 import org.sopt.annotation.UserTimezone;
-import org.sopt.controller.user.dto.*;
+import org.sopt.aws.s3.service.S3Service;
+import org.sopt.controller.user.dto.v1.*;
 import org.sopt.controller.user.service.UserService;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.jwt.annotation.UserId;
+import org.sopt.user.domain.User;
 import org.sopt.user.type.NotificationTab;
 import org.sopt.web.UserZone;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.ZoneId;
 import java.util.List;
 
 @RestController
@@ -23,6 +24,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final S3Service s3Service;
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/reissue")
@@ -39,7 +41,15 @@ public class UserController {
             @UserId Long userId,
             @UserTimezone final UserZone userZone
     ) {
-        return ResponseEntity.ok(userService.getHomeUserInfo(userId, userZone.zoneId()));
+        User user = userService.getHomeUserInfo(userId, userZone.zoneId());
+
+        return ResponseEntity.ok(
+                HomeUserProfileRes.from(
+                        user.getUserProfile(),
+                        user.getNotifyStatus(),
+                        s3Service.toPublicUrl(user.getUserProfile().getProfileImg())
+                )
+        );
     }
 
     // 마이페이지

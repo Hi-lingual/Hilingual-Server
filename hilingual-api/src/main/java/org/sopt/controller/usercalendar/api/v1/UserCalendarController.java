@@ -1,10 +1,11 @@
-package org.sopt.controller.usercalendar.api;
+package org.sopt.controller.usercalendar.api.v1;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.annotation.UserTimezone;
+import org.sopt.diary.domain.type.DiaryStatus;
 import org.sopt.jwt.annotation.UserId;
 import org.sopt.usercalendar.dto.UserCalendarDiarySummaryRes;
-import org.sopt.usercalendar.dto.UserCalendarMonthlyRes;
+import org.sopt.controller.usercalendar.dto.v1.UserCalendarMonthlyRes;
 import org.sopt.usercalendar.dto.UserCalendarTopicRes;
 import org.sopt.controller.usercalendar.exception.InvalidMonthException;
 import org.sopt.controller.usercalendar.exception.UserCalendarApiErrorCode;
@@ -15,8 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/home/calendar")
@@ -64,11 +66,18 @@ public class UserCalendarController {
             @RequestParam final int year,
             @RequestParam final int month
     ) {
-
         if (month < 1 || month > 12) {
             throw new InvalidMonthException(UserCalendarApiErrorCode.INVALID_MONTH);
         }
-        return ResponseEntity.ok(userCalendarService.getWrittenDatesOfMonth(userId, year, month));
+
+        Map<LocalDate, DiaryStatus> statusMap = userCalendarService.getMonthlyCalendarStatus(userId, year, month);
+        List<LocalDate> writtenDates = statusMap.entrySet().stream()
+                .filter(entry -> entry.getValue() == DiaryStatus.WRITTEN || entry.getValue() == DiaryStatus.RECOVERED)
+                .map(Map.Entry::getKey)
+                .sorted()
+                .toList();
+
+        return ResponseEntity.ok(UserCalendarMonthlyRes.from(writtenDates));
     }
 
 }

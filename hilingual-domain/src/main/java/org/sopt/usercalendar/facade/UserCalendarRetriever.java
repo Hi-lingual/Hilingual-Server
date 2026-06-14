@@ -7,7 +7,6 @@ import org.sopt.user.domain.User;
 import org.sopt.usercalendar.domain.UserCalendar;
 import org.sopt.usercalendar.exception.UserCalendarCoreErrorCode;
 import org.sopt.usercalendar.exception.UserCalendarDiaryNotFoundException;
-import org.sopt.usercalendar.dto.UserCalendarDiarySummaryRes;
 import org.sopt.usercalendar.repository.UserCalendarRepository;
 import org.springframework.stereotype.Component;
 

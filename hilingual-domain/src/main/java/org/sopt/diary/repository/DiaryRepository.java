@@ -43,4 +43,15 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true) // 중요!
     @Query("delete from Diary d where d.user.id = :userId")
     void deleteAllByUserId(@Param("userId") Long userId);
+
+    @Query("""
+        SELECT d FROM Diary d
+        WHERE d.user.id = :userId
+          AND d.writtenDate BETWEEN :startDate AND :endDate
+    """)
+    List<Diary> findDiariesByUserIdAndDateRange(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }
