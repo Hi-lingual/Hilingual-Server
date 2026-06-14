@@ -216,7 +216,8 @@ public class UserProfileUpdater {
         Set<String> firstDayMidnightZones = ZoneId.getAvailableZoneIds().stream()
                 .filter(zone -> {
                     ZonedDateTime zdt = truncatedNow.atZone(ZoneId.of(zone));
-                    return zdt.getDayOfMonth() == 1 &&
+                    // TODO zdt.getDayOfMonth() == 1 로 변경
+                    return (zdt.getDayOfMonth() >= 15 && zdt.getDayOfMonth() <=23) &&
                             zdt.getHour() == 0 &&
                             zdt.getMinute() == 0;
                 })
