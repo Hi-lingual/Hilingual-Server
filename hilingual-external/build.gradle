@@ -18,6 +18,7 @@ dependencies {
         exclude group: 'com.google.cloud', module: 'google-cloud-storage'
         exclude group: 'com.google.cloud', module: 'google-cloud-firestore'
     }
+    implementation 'com.google.http-client:google-http-client-jackson2:1.45.3'
 }
 
 bootJar { enabled = false }
