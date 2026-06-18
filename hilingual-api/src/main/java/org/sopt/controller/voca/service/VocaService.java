@@ -49,7 +49,7 @@ public class VocaService {
         return vocaFacade.findOptionalByUserIdAndRecommendId(userId, recommendId)
                 .map(v -> {
                     // 북마크된 경우
-                    String writtenDate = (v.getWrittenDate() != null) ? v.getWrittenDate().toString() : null;
+                    String writtenDate = ((v.getSavedRoot() == SavedRoot.MY) && (v.getWrittenDate() != null)) ? v.getWrittenDate().toString() : null;
 
                     return VocaDetailResponse.ofSnapshot(v, writtenDate, true);
                 })
