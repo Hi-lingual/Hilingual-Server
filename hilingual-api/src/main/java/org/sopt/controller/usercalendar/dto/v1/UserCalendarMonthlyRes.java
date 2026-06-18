@@ -4,9 +4,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record UserCalendarMonthlyRes(
-        List<LocalDate> dateList
+        List<DateInfo> dateList
 ) {
+    public record DateInfo(LocalDate date) {}
+
     public static UserCalendarMonthlyRes from(List<LocalDate> dates) {
-        return new UserCalendarMonthlyRes(dates);
+        List<DateInfo> dateInfoList = dates.stream()
+                .map(DateInfo::new)
+                .toList();
+
+        return new UserCalendarMonthlyRes(dateInfoList);
     }
 }

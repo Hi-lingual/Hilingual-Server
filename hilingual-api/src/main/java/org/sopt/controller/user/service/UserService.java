@@ -45,7 +45,8 @@ public class UserService {
         return UserDefaultInfoRes.from(
                 userProfile.getNickname(),
                 parseProviderInfo(user.getProvider()),
-                s3Service.toPublicUrl(userProfile.getProfileImg())
+                s3Service.toPublicUrl(userProfile.getProfileImg()),
+                userId
         );
     }
 

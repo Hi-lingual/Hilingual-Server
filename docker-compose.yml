@@ -13,6 +13,7 @@ services:
       - .env
     volumes:
       - /var/log/spring/blue:/logs
+      - ./firebase-service-account.json:/app/firebase-service-account.json:ro
 
     networks: [app-net]            # bridge 네트워크 설정
 
@@ -28,6 +29,7 @@ services:
       - .env
     volumes:
       - /var/log/spring/green:/logs
+      - ./firebase-service-account.json:/app/firebase-service-account.json:ro
     networks: [app-net]
 
   redis:

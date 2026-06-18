@@ -3,10 +3,7 @@ package org.sopt.controller.userprofile.api;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.user.dto.v1.NicknameAvailableRes;
-import org.sopt.controller.userprofile.dto.UserNicknameReq;
-import org.sopt.controller.userprofile.dto.UserNicknameRes;
-import org.sopt.controller.userprofile.dto.UserProfileImgReq;
-import org.sopt.controller.userprofile.dto.UserProfileReq;
+import org.sopt.controller.userprofile.dto.*;
 import org.sopt.dto.BaseResponseDto;
 import org.sopt.jwt.annotation.UserId;
 import org.sopt.controller.userprofile.service.UserProfileService;
@@ -32,12 +29,12 @@ public class UserProfileController {
      * 회원가입(프로필 등록)
      */
     @PostMapping("/profile")
-    public ResponseEntity<?> saveUserProfile(
+    public ResponseEntity<UserIdRes> saveUserProfile(
             @UserId Long userId,
             @RequestBody @NotNull UserProfileReq userProfileReq
     ) {
         userProfileService.save(userId, userProfileReq);
-        return ResponseEntity.ok(GlobalSuccessCode.OK);
+        return ResponseEntity.ok(new UserIdRes(userId));
     }
 
     /*

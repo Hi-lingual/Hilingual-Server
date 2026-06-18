@@ -10,6 +10,9 @@ out/
 # 환경변수 및 설정 파일
 .env
 
+# Firebase 서비스 계정 키
+firebase-service-account.json
+
 # OS 및 툴 생성 파일
 .DS_Store
 Thumbs.db
