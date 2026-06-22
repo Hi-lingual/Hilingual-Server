@@ -56,7 +56,10 @@ public interface UserCalendarRepository extends JpaRepository<UserCalendar, Long
     @Query("""
     SELECT COUNT(uc) FROM UserCalendar uc
     WHERE uc.user.id = :userId
-      AND uc.status  = org.sopt.usercalendar.domain.WriteStatus.WRITTEN
-""")
+      AND uc.status IN (
+      org.sopt.usercalendar.domain.WriteStatus.WRITTEN,
+      org.sopt.usercalendar.domain.WriteStatus.RECOVERED
+      )
+    """)
     long countWrittenByUserId(@Param("userId") Long userId);
 }
