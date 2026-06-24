@@ -2,7 +2,10 @@ package org.sopt.controller.voca.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.voca.dto.res.VocaDetailResponse;
+import org.sopt.controller.voca.exception.VocaApiErrorCode;
+import org.sopt.controller.voca.exception.VocaSourceNotFoundException;
 import org.sopt.recommend.domain.Recommend;
+import org.sopt.recommend.exception.RecommendNotFoundException;
 import org.sopt.voca.dto.VocaListRes;
 import org.sopt.controller.voca.dto.res.VocaSearchListResponse;
 import org.sopt.recommend.facade.RecommendFacade;
@@ -46,7 +49,12 @@ public class VocaService {
         return vocaFacade.findOptionalByUserIdAndRecommendId(userId, recommendId)
                 .map(v -> {
                     // 북마크된 경우
-                    Recommend recommend = recommendFacade.findByIdWithDiary(v.getRecommendId());
+                    Recommend recommend;
+                    try {
+                        recommend = recommendFacade.findByIdWithDiary(v.getRecommendId());
+                    } catch (RecommendNotFoundException e) {
+                        throw new VocaSourceNotFoundException(VocaApiErrorCode.VOCA_SOURCE_NOT_FOUND);
+                    }
 
                     String writtenDate = null;
                     if (v.getSavedRoot() == SavedRoot.MY) {
@@ -56,7 +64,12 @@ public class VocaService {
                     return VocaDetailResponse.ofSnapshot(v, writtenDate, true);                })
                 .orElseGet(() -> {
                     // 북마크되지 않은 경우
-                    Recommend recommend = recommendFacade.findByIdWithDiary(recommendId);
+                    Recommend recommend;
+                    try{
+                        recommend = recommendFacade.findByIdWithDiary(recommendId);
+                    } catch (RecommendNotFoundException e) {
+                        throw new VocaSourceNotFoundException(VocaApiErrorCode.VOCA_SOURCE_NOT_FOUND);
+                    }
 
                     SavedRoot root = determineSavedRoot(userId, recommend);
 
