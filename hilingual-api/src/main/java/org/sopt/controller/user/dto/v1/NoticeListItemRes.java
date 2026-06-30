@@ -1,4 +1,4 @@
-package org.sopt.controller.user.dto;
+package org.sopt.controller.user.dto.v1;
 
 import org.sopt.noticedelivery.domain.NoticeDelivery;
 

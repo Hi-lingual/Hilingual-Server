@@ -11,6 +11,7 @@ import org.sopt.user.domain.User;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Component
@@ -42,5 +43,14 @@ public class DiaryRetriever {
     public Diary findDiaryWithDetails(final long diaryId) {
         return diaryRepository.findDiaryWithDetailsById(diaryId)
                 .orElseThrow(() -> new DiaryNotFoundException(DiaryCoreErrorCode.DIARY_NOT_FOUND));
+    }
+
+    public List<Diary> findDiariesByMonth(final Long userId, final int year, final int month) {
+        // 년/월 정보로 해당 월의 1일과 말일 계산
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+
+        return diaryRepository.findDiariesByUserIdAndDateRange(userId, startDate, endDate);
     }
 }

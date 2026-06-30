@@ -88,11 +88,17 @@ public class UserProfileUpdater {
         } else { // today가 아닌 과거의 어떤 날짜를 보충한 경우
             // 어제부터의 과거
             int pastStreak = calculateStreakFromDate(profile.getUser(), writtenDate.minusDays(1));
-
             // 오늘부터 미래
             int forwardStreakFromToday = calculateForwardStreakFromDate(profile.getUser(), writtenDate.plusDays(1));
 
-            newStreak = pastStreak + 1 + forwardStreakFromToday;
+            int continuedDateLength = pastStreak + 1 + forwardStreakFromToday;
+            LocalDate endOfChain = writtenDate.plusDays(forwardStreakFromToday);
+
+            if(endOfChain.equals(today) || endOfChain.equals(yesterday)){
+                newStreak = continuedDateLength;
+            } else { // 최근 일기는 작성하지 않고 과거 일기만 작성한 경우 streak 변화 X
+                newStreak = profile.getStreak();
+            }
         }
         // 그 외 날짜는 변화 없음
 
@@ -104,7 +110,9 @@ public class UserProfileUpdater {
     private int calculateStreakFromDate(User user, LocalDate startDate) {
         int streak = 0;
         LocalDate cur = startDate;
-        while (userCalendarFacade.getStatus(user, cur) == WriteStatus.WRITTEN) {
+        while (
+                userCalendarFacade.getStatus(user, cur) == WriteStatus.WRITTEN ||
+                userCalendarFacade.getStatus(user, cur) == WriteStatus.RECOVERED) {
             streak++;
             cur = cur.minusDays(1);
         }
@@ -186,6 +194,41 @@ public class UserProfileUpdater {
             }
             // 그 외 (dby == WRITTEN) -> 유예기간이 아직 남아있거나 잘 쓰고 있는 상태. 기존 스트릭 안전하게 유지
         }
+    }
+
+    /**
+     * [스케줄러] 월간 스트릭 부활권 초기화
+     * 매 15분마다 실행, 해당 시간에 '매월 1일 자정'을 맞이한 타임존 유저들의
+     * 스트릭 부활권(recovery_chance_count)을 3개로 일괄 초기화
+     */
+    @Scheduled(cron = "0 0,15,30,45 * * * *")
+    @Transactional
+    public void resetMonthlyRecoveryChanceGlobal() {
+        Instant rawNow = Instant.now();
+
+        // 스케줄러 지연 방어: 15분 단위 내림
+        int currentMinute = rawNow.atZone(ZoneOffset.UTC).getMinute();
+        int targetMinute = (currentMinute / 15) * 15;
+        Instant truncatedNow = rawNow.truncatedTo(ChronoUnit.HOURS)
+                .plus(targetMinute, ChronoUnit.MINUTES);
+
+        // 현재 시간이 매월 1일이면서 자정인 타임존만 추출
+        Set<String> firstDayMidnightZones = ZoneId.getAvailableZoneIds().stream()
+                .filter(zone -> {
+                    ZonedDateTime zdt = truncatedNow.atZone(ZoneId.of(zone));
+                    return zdt.getDayOfMonth() == 1 &&
+                            zdt.getHour() == 0 &&
+                            zdt.getMinute() == 0;
+                })
+                .collect(Collectors.toSet());
+
+        if (firstDayMidnightZones.isEmpty()) {
+            return;
+        }
+
+        // 업데이트 실행
+        LocalDateTime now = LocalDateTime.now();
+        userProfileRepository.bulkResetRecoveryChanceCount(firstDayMidnightZones, now);
     }
 
     private void resyncTotal(UserProfile profile) {

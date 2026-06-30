@@ -16,8 +16,8 @@ public class UserCalendarSaver {
 
     private final UserCalendarRepository userCalendarRepository;
 
-    public void save(User user, LocalDate writtenDate) {
-        UserCalendar newCalendar = UserCalendar.create(writtenDate, WriteStatus.WRITTEN, user);
+    public void save(User user, LocalDate writtenDate, WriteStatus status) {
+        UserCalendar newCalendar = UserCalendar.create(writtenDate, status, user);
         try {
             userCalendarRepository.save(newCalendar);
         } catch (DataIntegrityViolationException e) {

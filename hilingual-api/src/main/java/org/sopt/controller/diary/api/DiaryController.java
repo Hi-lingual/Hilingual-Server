@@ -24,6 +24,7 @@ public class DiaryController {
 
     private final DiaryService diaryService;
 
+    // 일기 피드백 요청 API
     @PostMapping
     public ResponseEntity<DiaryRes> createDiary(
             @UserId Long userId,
@@ -33,6 +34,19 @@ public class DiaryController {
         LocalDate writtenDate = LocalDate.parse(req.date());
         return ResponseEntity.ok(
                 diaryService.createDiaryWithFeedback(userId, req.originalText(), writtenDate, req.image(), userZone.zoneId())
+        );
+    }
+
+    // [스트릭 부활 전용] 일기 피드백 요청 API
+    @PostMapping("/recovery")
+    public ResponseEntity<DiaryRes> createRecoveryDiary(
+            @UserId Long userId,
+            @UserTimezone UserZone userZone,
+            @Valid @RequestBody CreateDiaryReq req
+    ) {
+        LocalDate writtenDate = LocalDate.parse(req.date());
+        return ResponseEntity.ok(
+                diaryService.createRecoveryDiaryWithFeedback(userId, req.originalText(), writtenDate, req.image(), userZone.zoneId())
         );
     }
 

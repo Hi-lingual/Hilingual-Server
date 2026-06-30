@@ -1,11 +1,9 @@
-package org.sopt.controller.user.dto;
+package org.sopt.controller.user.dto.v1;
 
-import com.google.api.client.util.DateTime;
 import org.sopt.feedalarm.domain.FeedAlarm;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 public record FeedAlarmItemRes(
         Long noticeId,
