@@ -49,19 +49,10 @@ public class VocaService {
         return vocaFacade.findOptionalByUserIdAndRecommendId(userId, recommendId)
                 .map(v -> {
                     // 북마크된 경우
-                    Recommend recommend;
-                    try {
-                        recommend = recommendFacade.findByIdWithDiary(v.getRecommendId());
-                    } catch (RecommendNotFoundException e) {
-                        throw new VocaSourceNotFoundException(VocaApiErrorCode.VOCA_SOURCE_NOT_FOUND);
-                    }
+                    String writtenDate = ((v.getSavedRoot() == SavedRoot.MY) && (v.getWrittenDate() != null)) ? v.getWrittenDate().toString() : null;
 
-                    String writtenDate = null;
-                    if (v.getSavedRoot() == SavedRoot.MY) {
-                        writtenDate = recommend.getDiary().getWrittenDate().toString();
-                    }
-
-                    return VocaDetailResponse.ofSnapshot(v, writtenDate, true);                })
+                    return VocaDetailResponse.ofSnapshot(v, writtenDate, true);
+                })
                 .orElseGet(() -> {
                     // 북마크되지 않은 경우
                     Recommend recommend;

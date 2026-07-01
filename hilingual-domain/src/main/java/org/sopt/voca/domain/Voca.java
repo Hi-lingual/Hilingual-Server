@@ -12,6 +12,7 @@ import org.sopt.recommend.domain.Recommend;
 import org.sopt.user.domain.User;
 import org.sopt.voca.type.SavedRoot;
 import org.sopt.voca.type.SavedRootConverter;
+import java.time.LocalDate;
 
 import static org.sopt.voca.domain.VocaTableConstants.*;
 
@@ -59,6 +60,9 @@ public class Voca extends BaseTimeEntity {
     @Column(name = COLUMN_WRITTEN_FROM, nullable = false)
     private String writtenFrom;
 
+    @Column(name = COLUMN_WRITTEN_DATE, nullable = true)
+    private LocalDate writtenDate;
+
     public static Voca fromMyDiary(User user, Recommend recommend, String writtenFrom) {
         return new Voca(
                 null, SavedRoot.MY, user,
@@ -66,7 +70,8 @@ public class Voca extends BaseTimeEntity {
                 recommend.getPhrase(),
                 recommend.getPhraseType(),
                 recommend.getExplanation(),
-                writtenFrom
+                writtenFrom,
+                recommend.getDiary().getWrittenDate()
         );
     }
 
@@ -77,7 +82,8 @@ public class Voca extends BaseTimeEntity {
                 recommend.getPhrase(),
                 recommend.getPhraseType(),
                 recommend.getExplanation(),
-                writtenFrom
+                writtenFrom,
+                null
         );
     }
 }

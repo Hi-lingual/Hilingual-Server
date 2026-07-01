@@ -15,4 +15,5 @@ public class VocaTableConstants {
     public static final String COLUMN_PHRASE_TYPE = "phrase_type";
     public static final String COLUMN_EXPLANATION = "explanation";
     public static final String COLUMN_WRITTEN_FROM = "written_from";
+    public static final String COLUMN_WRITTEN_DATE = "written_date";
 }
