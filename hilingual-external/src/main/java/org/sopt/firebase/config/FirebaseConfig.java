@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.firebase.FCMClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,5 +48,10 @@ public class FirebaseConfig {
             }
         }
         return FirebaseMessaging.getInstance();
+    }
+
+    @Bean
+    public FCMClient fcmClient(FirebaseMessaging firebaseMessaging) {
+        return new FCMClient(firebaseMessaging);
     }
 }
