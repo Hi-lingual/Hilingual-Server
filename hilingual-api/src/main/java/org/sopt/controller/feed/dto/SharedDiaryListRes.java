@@ -39,7 +39,9 @@ public record SharedDiaryListRes(
             Integer likeCount,
             Boolean isLiked,
             String diaryImg,
-            String originalText
+            String originalText,
+            LocalDateTime createdAt,
+            Boolean isRecovered
     ) {
         public static SharedDiary of(final Diary diary, final boolean isLikedByUser, final String diaryImgUrl) {
             LocalDateTime now = LocalDateTime.now();
@@ -53,7 +55,9 @@ public record SharedDiaryListRes(
                     diary.getIsLiked(),
                     isLikedByUser,
                     diaryImgUrl, // 변환된 URL 사용
-                    diary.getOriginalText()
+                    diary.getOriginalText(),
+                    diary.getCreatedAt(),
+                    diary.getIsRecovered()
             );
         }
     }
