@@ -32,6 +32,7 @@ import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
+import org.sopt.user.util.ExternalIdGenerator;
 import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.sopt.userprofile.facade.UserProfileFacade;
 import org.sopt.voca.facade.VocaFacade;
@@ -168,6 +169,7 @@ public class AuthService {
             user = User.builder()
                     .provider(String.valueOf(req.provider()))
                     .providerId(providerId)
+                    .externalId(ExternalIdGenerator.generate(String.valueOf(req.provider()), providerId))
                     .notifyStatus(false)
                     .registerStatus(RegisterStatus.SOCIAL_LOGIN_COMPLETED)
                     .role(UserRole.USER)
