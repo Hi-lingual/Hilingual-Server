@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.user.domain.User;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -36,5 +37,9 @@ public class UserFacade {
 
     public boolean existsByProviderId(final String providerId) {
         return userRetriever.existsByProviderId(providerId);
+    }
+
+    public List<User> getByExternalIdIn(final List<String> externalIds) {
+        return userRetriever.findByExternalIdIn(externalIds);
     }
 }
