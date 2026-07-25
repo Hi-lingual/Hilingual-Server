@@ -54,4 +54,16 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    @Query("""
+        SELECT d FROM Diary d
+        WHERE d.user.id IN :userIds
+          AND d.writtenDate BETWEEN :startDate AND :endDate
+          AND d.isPublic = TRUE
+    """)
+    List<Diary> findSharedByUserIdsAndDateRange(
+            @Param("userIds") List<Long> userIds,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }
