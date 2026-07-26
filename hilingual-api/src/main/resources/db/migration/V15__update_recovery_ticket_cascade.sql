@@ -1,4 +1,4 @@
--- V16__update_recovery_ticket_cascade.sql
+-- V15__update_recovery_ticket_cascade.sql
 
 ALTER TABLE recovery_ticket
     DROP CONSTRAINT IF EXISTS recovery_ticket_user_id_fkey;

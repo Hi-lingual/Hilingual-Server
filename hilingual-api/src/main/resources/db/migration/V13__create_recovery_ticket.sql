@@ -1,4 +1,4 @@
--- V14__create_recovery_ticket.sql
+-- V13__create_recovery_ticket.sql
 
 create table if not exists recovery_ticket
 (
