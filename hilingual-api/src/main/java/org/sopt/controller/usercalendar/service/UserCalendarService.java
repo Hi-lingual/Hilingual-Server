@@ -5,9 +5,9 @@ import org.sopt.aws.s3.service.S3Service;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.domain.type.DiaryStatus;
 import org.sopt.topic.facade.TopicFacade;
-import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.sopt.usercalendar.dto.UserCalendarDiarySummaryRes;
 import org.sopt.usercalendar.dto.UserCalendarTopicRes;
+import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
