@@ -46,7 +46,8 @@ public class UserProfileQueryRepository {
                                 .from(follow2)
                                 .where(follow2.follower.id.eq(up.user.id)
                                         .and(follow2.followee.id.eq(currentUserId)))
-                                .exists()
+                                .exists(),
+                        up.user.externalId
                 ))
                 .from(up)
                 .where(

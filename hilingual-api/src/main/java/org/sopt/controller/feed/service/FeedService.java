@@ -176,6 +176,9 @@ public class FeedService {
     public UserListRes getUserList(Long userId, String keyword) {
         String likeKeyword = "%" + keyword + "%";
         String startKeyword = keyword + "%";
+        boolean isAdmin = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
 
         List<UserSearchDto> userList = userProfileFacade.getUserListByNickname(userId, likeKeyword, startKeyword);
 
@@ -192,7 +195,8 @@ public class FeedService {
                             publicImgUrl,
                             projection.nickname(),
                             projection.isFollowing(),
-                            projection.isFollowed()
+                            projection.isFollowed(),
+                            isAdmin ? projection.externalId() : null
                     );
                 })
                 .toList();
