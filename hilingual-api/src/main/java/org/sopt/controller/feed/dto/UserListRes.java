@@ -10,6 +10,7 @@ public record UserListRes(
             String profileImg,
             String nickname,
             Boolean isFollowing,
-            Boolean isFollowed
+            Boolean isFollowed,
+            String externalId
     ){ }
 }
