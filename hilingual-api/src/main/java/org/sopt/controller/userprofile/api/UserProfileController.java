@@ -4,9 +4,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.user.dto.v1.NicknameAvailableRes;
 import org.sopt.controller.userprofile.dto.*;
-import org.sopt.controller.userprofile.service.UserProfileService;
 import org.sopt.dto.BaseResponseDto;
 import org.sopt.jwt.annotation.UserId;
+import org.sopt.controller.userprofile.service.UserProfileService;
+import org.sopt.exception.code.GlobalSuccessCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

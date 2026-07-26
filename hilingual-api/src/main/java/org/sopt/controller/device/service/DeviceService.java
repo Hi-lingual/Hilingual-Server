@@ -2,9 +2,11 @@ package org.sopt.controller.device.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.device.dto.DeviceReq;
+import org.sopt.controller.device.dto.UpdateFcmTokenReq;
 import org.sopt.controller.device.exception.DeviceApiErrorCode;
 import org.sopt.controller.device.exception.MissingDeviceIdentifierException;
 
+import org.sopt.device.domain.Device;
 import org.sopt.device.dto.DeviceInfo;
 import org.sopt.device.facade.DeviceFacade;
 import org.sopt.user.domain.User;
@@ -35,4 +37,9 @@ public class DeviceService {
         deviceFacade.upsertDevice(userId, deviceInfo);
     }
 
+    @Transactional
+    public void updateFcmToken(final long userId, final UpdateFcmTokenReq req) {
+        Device device = deviceFacade.findByUserIdAndUuid(userId, req.uuid());
+        device.updateFcmToken(req.fcmToken());
+    }
 }

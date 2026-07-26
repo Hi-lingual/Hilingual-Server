@@ -155,7 +155,7 @@ public class TokenService {
     }
 
     @Transactional
-    public void logout(final String accessToken) {
+    public String logout(final String accessToken) {
         Claims claims = getClaimsFromAccessToken(accessToken);
         String type = claims.get(JwtClaimsKeys.TYPE, String.class);
 
@@ -171,6 +171,9 @@ public class TokenService {
         // Redis 에서 기존 토큰 삭제
         String tokenId = new TokenId(userId, identifier).toString();
         tokenRepository.deleteById(tokenId);
+
+        // identifier 반환 (신버전=deviceUuid, 구버전=랜덤ID)
+        return identifier;
     }
 
     @Transactional

@@ -6,9 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface DeviceRepository extends JpaRepository<Device, Long> {
+
+    List<Device> findAllByUser_Id(Long userId);
 
     Optional<Device> findByUser_IdAndUuid(Long userId, String uuid);
 

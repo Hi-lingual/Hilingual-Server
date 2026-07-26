@@ -11,6 +11,8 @@ import org.sopt.common.config.BaseTimeEntity;
 import org.sopt.device.domain.type.DeviceType;
 import org.sopt.user.domain.User;
 
+import java.time.LocalDateTime;
+
 import static org.sopt.device.domain.DeviceTableConstants.*;
 
 @Entity
@@ -63,6 +65,12 @@ public class Device extends BaseTimeEntity {
     @Column(name = COLUMN_APP_VERSION)
     private String appVersion;
 
+    @Column(name = COLUMN_FCM_TOKEN)
+    private String fcmToken;
+
+    @Column(name = COLUMN_FCM_TOKEN_UPDATED_AT)
+    private LocalDateTime fcmTokenUpdatedAt;
+
     // 최초 생성
     public static Device create(
             User user, String uuid, String timezone,
@@ -71,7 +79,8 @@ public class Device extends BaseTimeEntity {
     ) {
         return new Device(
                 null, user, uuid, timezone,
-                deviceName, deviceType,osType, osVersion, appVersion
+                deviceName, deviceType, osType, osVersion, appVersion,
+                null, null
         );
     }
 
@@ -82,5 +91,15 @@ public class Device extends BaseTimeEntity {
         this.timezone = timezone;
         this.osVersion = osVersion;
         this.appVersion = appVersion;
+    }
+
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+        this.fcmTokenUpdatedAt = LocalDateTime.now();
+    }
+
+    public void clearFcmToken() {
+        this.fcmToken = null;
+        this.fcmTokenUpdatedAt = LocalDateTime.now();
     }
 }

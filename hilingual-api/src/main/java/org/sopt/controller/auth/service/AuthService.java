@@ -84,8 +84,10 @@ public class AuthService {
         throw new InvalidProviderException(AuthApiErrorCode.INVALID_PROVIDER);
     }
 
-    public Void logout(String accessToken) {
-        tokenService.logout(accessToken);
+    @Transactional
+    public Void logout(Long userId, String accessToken) {
+        String deviceUuid = tokenService.logout(accessToken);
+        deviceFacade.clearFcmTokenByUuid(userId, deviceUuid);
         return null;
     }
 
@@ -103,6 +105,8 @@ public class AuthService {
         diaryFacade.deleteAllByUserId(userId); // Diary, Recommend, DiaryFeedback 삭제
 
         alarmPreferenceFacade.deleteAllByUserId(userId); // AlarmPreference 삭제
+
+        deviceFacade.deleteAllDevices(userId); // Device 삭제 (FCM 토큰 포함)
 
         userFacade.deleteUserById(userId); // user, userProfile, noticeDelivery 삭제
 

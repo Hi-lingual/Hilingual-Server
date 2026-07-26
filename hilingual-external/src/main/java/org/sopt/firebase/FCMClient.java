@@ -10,13 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.sopt.firebase.dto.FCMMessageRequest;
 import org.sopt.firebase.exception.FCMErrorCode;
 import org.sopt.firebase.exception.FCMException;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
-@ConditionalOnBean(FirebaseMessaging.class)
 public class FCMClient {
 
     private final FirebaseMessaging firebaseMessaging;

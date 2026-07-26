@@ -11,6 +11,7 @@ import org.sopt.controller.follow.dto.NewFollowInfoRes;
 
 import org.sopt.controller.follow.exception.FollowApiErrorCode;
 import org.sopt.controller.follow.exception.SelfFollowNotAllowedException;
+import org.sopt.controller.notification.service.FcmNotificationService;
 
 import org.sopt.controller.follow.dto.FollowerListRes;
 import org.sopt.controller.follow.dto.FollowingListRes;
@@ -45,6 +46,7 @@ public class FollowService {
     private final FeedAlarmFacade feedAlarmFacade;
     private final AlarmPreferenceFacade alarmPreferenceFacade;
     private final S3Service s3Service;
+    private final FcmNotificationService fcmNotificationService;
 
     @Transactional
     public void follow(Long userId, Long targetUserId) {
@@ -67,6 +69,8 @@ public class FollowService {
 
         if (alarmPreferenceFacade.isEnabled(followee.getId(), AlarmType.FEED)) {
             feedAlarmFacade.createFollowAlarm(followee, follower);
+            String body = follower.getUserProfile().getNickname() + "님이 당신을 팔로우했습니다.";
+            fcmNotificationService.sendFollowNotification(followee.getId(), follower.getId(), body);
         }
     }
 
