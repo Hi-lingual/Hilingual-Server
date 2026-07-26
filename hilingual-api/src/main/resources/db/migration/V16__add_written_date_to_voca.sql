@@ -1,4 +1,4 @@
--- V17__add_written_date_to_voca
+-- V16__add_written_date_to_voca
 
 ALTER TABLE voca
     ADD COLUMN IF NOT EXISTS written_date DATE;

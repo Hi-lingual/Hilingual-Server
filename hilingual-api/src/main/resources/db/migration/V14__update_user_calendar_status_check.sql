@@ -1,4 +1,4 @@
--- V15__update_user_calendar_status_check
+-- V14__update_user_calendar_status_check
 
 ALTER TABLE user_calendar
     DROP CONSTRAINT IF EXISTS user_calendar_status_check;
