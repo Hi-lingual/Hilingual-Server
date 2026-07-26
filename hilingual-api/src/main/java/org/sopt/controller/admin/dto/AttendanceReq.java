@@ -1,9 +1,6 @@
 package org.sopt.controller.admin.dto;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,7 +8,7 @@ import java.util.List;
 public record AttendanceReq(
         @NotEmpty
         @Size(max = 100, message = "externalIds는 최대 100개까지 조회할 수 있습니다.")
-        List<String> externalIds,
+        List<@NotBlank String> externalIds,
 
         @NotNull
         LocalDate startDate,
