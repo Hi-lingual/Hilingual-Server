@@ -99,6 +99,10 @@ aws-property:
 openai:
   api-key: ${OPENAI_API_KEY}
 
+firebase:
+  enabled: true
+  service-account-path: /Users/choyeongju/Downloads/firebase-service-account.json
+
 ---
 
 spring:
