@@ -7,6 +7,7 @@ public class UserTableConstants {
     public static final String COLUMN_ROLE = "role";
     public static final String COLUMN_PROVIDER = "provider";
     public static final String COLUMN_PROVIDER_ID = "provider_id";
+    public static final String COLUMN_EXTERNAL_ID = "external_id";
     public static final String COLUMN_IS_DELETED = "is_deleted";
     public static final String COLUMN_DELETED_AT = "deleted_at";
     public static final String COLUMN_NOTIFY_STATUS = "notify_status";

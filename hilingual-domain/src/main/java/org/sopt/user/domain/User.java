@@ -45,6 +45,9 @@ public class User extends BaseTimeEntity {
     @Column(name = COLUMN_PROVIDER_ID, nullable = false, length = 255)
     private String providerId; // 유저 고유 ID
 
+    @Column(name = COLUMN_EXTERNAL_ID, nullable = false, length = 64, updatable = false)
+    private String externalId; // provider+providerId 의 SHA-256 hex. 재가입해도 동일.
+
     @Convert(converter = RegisterStatusConverter.class)
     @Column(name = COLUMN_REGISTER_STATUS, nullable = false)
     private RegisterStatus registerStatus = RegisterStatus.SOCIAL_LOGIN_COMPLETED;
