@@ -8,6 +8,7 @@ import org.sopt.user.exception.UserNotFoundException;
 import org.sopt.user.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -34,4 +35,7 @@ public class UserRetriever {
         return userRepository.existsByProviderId(providerId);
     }
 
+    public List<User> findByExternalIdIn(final List<String> externalIds) {
+        return userRepository.findByExternalIdIn(externalIds);
+    }
 }
