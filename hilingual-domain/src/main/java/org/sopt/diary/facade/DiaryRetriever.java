@@ -53,4 +53,9 @@ public class DiaryRetriever {
 
         return diaryRepository.findDiariesByUserIdAndDateRange(userId, startDate, endDate);
     }
+
+    public List<Diary> findSharedByUserIdsAndDateRange(
+            final List<Long> userIds, final LocalDate startDate, final LocalDate endDate) {
+        return diaryRepository.findSharedByUserIdsAndDateRange(userIds, startDate, endDate);
+    }
 }

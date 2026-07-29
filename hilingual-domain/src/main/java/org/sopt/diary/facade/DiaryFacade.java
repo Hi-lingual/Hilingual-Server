@@ -107,4 +107,9 @@ public class DiaryFacade {
         diaryUpdater.markAdWatched(diary);
     }
 
+    public List<Diary> getSharedDiaries(
+            final List<Long> userIds, final LocalDate startDate, final LocalDate endDate) {
+        return diaryRetriever.findSharedByUserIdsAndDateRange(userIds, startDate, endDate);
+    }
+
 }
