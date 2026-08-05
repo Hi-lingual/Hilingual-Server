@@ -23,10 +23,11 @@ public class VocaController {
     @GetMapping
     public ResponseEntity<VocaListRes> getVocaList(
             @UserId Long userId,
-            @RequestParam(value = "sort", required = false, defaultValue = "1") final String sortStr
+            @RequestParam(value = "sort", required = false, defaultValue = "1") final String sortStr,
+            @RequestParam(value = "unmemorizedOnly", required = false, defaultValue = "false") final boolean unmemorizedOnly
     ) {
         int sort = parseAndValidateSortType(sortStr);
-        return ResponseEntity.ok(vocaService.getVocaList(userId, sort));
+        return ResponseEntity.ok(vocaService.getVocaList(userId, sort, unmemorizedOnly));
     }
 
     // 단어장 검색
