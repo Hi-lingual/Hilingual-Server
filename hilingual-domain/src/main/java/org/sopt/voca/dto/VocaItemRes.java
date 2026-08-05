@@ -9,14 +9,18 @@ public record VocaItemRes(
         Long phraseId,
         String phrase,
         List<String> phraseType,
-        Boolean isBookmarked
+        String explanation,
+        Boolean isBookmarked,
+        Boolean isMemorized
 ) {
     public static VocaItemRes from(final Voca voca) {
         return new VocaItemRes(
                 voca.getRecommendId(),
                 voca.getPhrase(),
                 parsePhraseTypes(voca.getPhraseType()),
-                Boolean.TRUE
+                voca.getExplanation(),
+                Boolean.TRUE,
+                voca.isMemorized()
         );
     }
 
