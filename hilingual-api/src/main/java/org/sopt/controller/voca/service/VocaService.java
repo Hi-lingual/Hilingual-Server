@@ -30,8 +30,8 @@ public class VocaService {
     private final VocaFacade vocaFacade;
 
     // 단어장 목록 조회
-    public VocaListRes getVocaList(final Long userId, final int sort) {
-        return vocaRetriever.findGroupedVoca(userId, sort);
+    public VocaListRes getVocaList(final Long userId, final int sort, final boolean unmemorizedOnly) {
+        return vocaRetriever.findGroupedVoca(userId, sort, unmemorizedOnly);
     }
 
     // 단어장 검색

@@ -16,4 +16,5 @@ public class VocaTableConstants {
     public static final String COLUMN_EXPLANATION = "explanation";
     public static final String COLUMN_WRITTEN_FROM = "written_from";
     public static final String COLUMN_WRITTEN_DATE = "written_date";
+    public static final String COLUMN_IS_MEMORIZED = "is_memorized";
 }
