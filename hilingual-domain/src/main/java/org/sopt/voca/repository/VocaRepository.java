@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,6 +59,9 @@ public interface VocaRepository extends JpaRepository<Voca, Long> {
                                                   @Param("keyword") String keyword);
 
     Optional<Voca> findByUserIdAndRecommendId(Long userId, Long recommendId);
+
+    //일괄 조희(본인 소유 + recommendId 목록)
+    List<Voca> findAllByUserIdAndRecommendIdIn(Long userId, Collection<Long> recommendIds);
 
     void deleteAllByUserId(Long userId);
 }
