@@ -1,6 +1,8 @@
 package org.sopt.controller.voca.api;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.sopt.controller.voca.dto.req.VocaMemorizationUpdateRequest;
 import org.sopt.controller.voca.dto.res.VocaDetailResponse;
 import org.sopt.jwt.annotation.UserId;
 import org.sopt.voca.dto.VocaListRes;
@@ -49,6 +51,16 @@ public class VocaController {
             @PathVariable final Long phraseId
     ) {
         return ResponseEntity.ok(vocaService.getVocaDetails(userId, phraseId));
+    }
+
+    //단어 외움 상태 일괄 수정
+    @PatchMapping("/memorization")
+    public ResponseEntity<Void> updateMemorization(
+            @UserId Long userId,
+            @Valid @RequestBody final VocaMemorizationUpdateRequest request
+            ){
+        vocaService.updateMemorization(userId, request);
+        return ResponseEntity.ok().build();
     }
 
 

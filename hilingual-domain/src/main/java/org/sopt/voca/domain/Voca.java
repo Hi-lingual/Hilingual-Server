@@ -91,4 +91,6 @@ public class Voca extends BaseTimeEntity {
                 false
         );
     }
+
+    public void updateMemorized(final boolean memorized) { this.isMemorized = memorized; }
 }
