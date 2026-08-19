@@ -33,6 +33,10 @@ public class TopicFacade {
         return UserCalendarTopicRes.of(topic.getTopicKor(), topic.getTopicEn(), remainingTime);
     }
 
+    public Optional<Topic> findByDate(final LocalDate date){
+        return topicRetriever.findByDate(date);
+    }
+
     private int calculateRemainingMinutesUntilDeadline(LocalDate topicDate, ZoneId userZone) {
         final ZonedDateTime now = ZonedDateTime.now(userZone);
         final ZonedDateTime deadline = topicDate.plusDays(2).atStartOfDay(userZone);
