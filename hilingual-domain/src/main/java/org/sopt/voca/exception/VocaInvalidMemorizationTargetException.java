@@ -13,6 +13,4 @@ public class VocaInvalidMemorizationTargetException extends VocaCoreException {
     public HttpStatus getStatus(){
         return HttpStatus.BAD_REQUEST;
     }
-
-
 }
