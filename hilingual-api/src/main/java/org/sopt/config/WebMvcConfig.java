@@ -2,6 +2,7 @@ package org.sopt.config;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.web.TimezoneInterceptor;
+import org.sopt.web.UserIdOrNullArgumentResolver;
 import org.sopt.web.UserTimezoneArgumentResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -16,6 +17,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private final TimezoneInterceptor timezoneInterceptor;
     private final UserTimezoneArgumentResolver userTimezoneArgumentResolver;
+    private final UserIdOrNullArgumentResolver userIdOrNullArgumentResolver;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -26,5 +28,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(userTimezoneArgumentResolver);
+        resolvers.add(userIdOrNullArgumentResolver);
     }
 }
