@@ -1,6 +1,7 @@
 package org.sopt.controller.voca.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.controller.voca.dto.req.VocaMemorizationUpdateRequest;
 import org.sopt.controller.voca.dto.res.VocaDetailResponse;
 import org.sopt.controller.voca.exception.VocaApiErrorCode;
 import org.sopt.controller.voca.exception.VocaSourceNotFoundException;
@@ -19,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,8 +33,8 @@ public class VocaService {
     private final VocaFacade vocaFacade;
 
     // 단어장 목록 조회
-    public VocaListRes getVocaList(final Long userId, final int sort) {
-        return vocaRetriever.findGroupedVoca(userId, sort);
+    public VocaListRes getVocaList(final Long userId, final int sort, final boolean unmemorizedOnly) {
+        return vocaRetriever.findGroupedVoca(userId, sort, unmemorizedOnly);
     }
 
     // 단어장 검색
@@ -104,5 +107,16 @@ public class VocaService {
             return date.format(fmt) + " 일기에서 저장됨";
         }
         return "피드에서 저장됨";
+    }
+
+    @Transactional
+    public void updateMemorization(final Long userId, final VocaMemorizationUpdateRequest request){
+        final Map<Long, Boolean> memorizationByRecommendId = request.items().stream()
+                .collect(Collectors.toMap(
+                        VocaMemorizationUpdateRequest.Item::phraseId,
+                        VocaMemorizationUpdateRequest.Item::isMemorized,
+                        (existing, replacement) -> replacement
+                ));
+        vocaFacade.updateMemorization(userId, memorizationByRecommendId);
     }
 }

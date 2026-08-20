@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,17 +32,21 @@ public interface VocaRepository extends JpaRepository<Voca, Long> {
     @Query("""
         SELECT v FROM Voca v
         WHERE v.user.id = :userId
+            AND (:unmemorizedOnly = false OR v.isMemorized = false)
         ORDER BY LOWER(v.phrase)
     """)
-    List<Voca> findAllByUserIdOrderByPhraseAsc(@Param("userId") Long userId);
+    List<Voca> findAllByUserIdOrderByPhraseAsc(@Param("userId") Long userId,
+                                               @Param("unmemorizedOnly") Boolean unmemorizedOnly);
 
     // 최신순 정렬 (Voca.createdAt 기반)
     @Query("""
         SELECT v FROM Voca v
         WHERE v.user.id = :userId
+            AND (:unmemorizedOnly = false OR v.isMemorized = false)
         ORDER BY v.createdAt DESC
     """)
-    List<Voca> findAllByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
+    List<Voca> findAllByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId,
+                                                   @Param("unmemorizedOnly") Boolean unmemorizedOnly);
 
     // 검색 (Prefix 기반)
     @Query("""
@@ -54,6 +59,9 @@ public interface VocaRepository extends JpaRepository<Voca, Long> {
                                                   @Param("keyword") String keyword);
 
     Optional<Voca> findByUserIdAndRecommendId(Long userId, Long recommendId);
+
+    //일괄 조희(본인 소유 + recommendId 목록)
+    List<Voca> findAllByUserIdAndRecommendIdIn(Long userId, Collection<Long> recommendIds);
 
     void deleteAllByUserId(Long userId);
 }

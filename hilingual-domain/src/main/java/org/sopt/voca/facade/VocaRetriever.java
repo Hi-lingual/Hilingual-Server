@@ -16,10 +16,10 @@ public class VocaRetriever {
     private final VocaRepository vocaRepository;
     private final VocaGroupFactory vocaGroupFactory;
 
-    public VocaListRes findGroupedVoca(final Long userId, final int sort) {
+    public VocaListRes findGroupedVoca(final Long userId, final int sort, final boolean unmemorizedOnly) {
         List<Voca> vocas = (sort == 1)
-                ? vocaRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
-                : vocaRepository.findAllByUserIdOrderByPhraseAsc(userId);
+                ? vocaRepository.findAllByUserIdOrderByCreatedAtDesc(userId, unmemorizedOnly)
+                : vocaRepository.findAllByUserIdOrderByPhraseAsc(userId, unmemorizedOnly);
 
         return (sort == 1)
                 ? vocaGroupFactory.createByDateGroup(vocas)

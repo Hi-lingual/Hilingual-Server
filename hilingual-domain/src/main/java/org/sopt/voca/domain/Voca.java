@@ -63,6 +63,9 @@ public class Voca extends BaseTimeEntity {
     @Column(name = COLUMN_WRITTEN_DATE, nullable = true)
     private LocalDate writtenDate;
 
+    @Column(name = COLUMN_IS_MEMORIZED, nullable = false)
+    private boolean isMemorized;
+
     public static Voca fromMyDiary(User user, Recommend recommend, String writtenFrom) {
         return new Voca(
                 null, SavedRoot.MY, user,
@@ -71,7 +74,8 @@ public class Voca extends BaseTimeEntity {
                 recommend.getPhraseType(),
                 recommend.getExplanation(),
                 writtenFrom,
-                recommend.getDiary().getWrittenDate()
+                recommend.getDiary().getWrittenDate(),
+                false
         );
     }
 
@@ -83,7 +87,10 @@ public class Voca extends BaseTimeEntity {
                 recommend.getPhraseType(),
                 recommend.getExplanation(),
                 writtenFrom,
-                null
+                null,
+                false
         );
     }
+
+    public void updateMemorized(final boolean memorized) { this.isMemorized = memorized; }
 }
