@@ -1,6 +1,7 @@
 package org.sopt.userprofile.facade;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.user.domain.User;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.dto.UserSearchDto;
 import org.springframework.stereotype.Component;
@@ -53,6 +54,10 @@ public class UserProfileFacade {
 
     public long count() {
         return userProfileRetriever.count();
+    }
+
+    public int calculateStreak(final Long userId, final LocalDate date){
+        return userProfileUpdater.calculateStreak(User.ref(userId), date);
     }
 
     /**
