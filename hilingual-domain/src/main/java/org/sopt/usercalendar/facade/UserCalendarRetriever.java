@@ -46,4 +46,8 @@ public class UserCalendarRetriever {
         return userCalendarRepository.countWrittenByUserId(userId);
     }
 
+    public List<UserCalendar> findByUserIdAndDateBetween(final Long userId, final LocalDate start, final LocalDate end){
+        return userCalendarRepository.findAllByUserIdAndDateBetween(userId, start, end);
+    }
+
 }
