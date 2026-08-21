@@ -19,18 +19,16 @@ public class WidgetService {
     private final TopicFacade topicFacade;
     private final UserCalendarFacade userCalendarFacade;
 
-    public WidgetTopicResponse getTopicWidget(final Long userId, final ZoneId userZone){
-        final LocalDate today = LocalDate.now(userZone);
-
-        final String topicEn = topicFacade.findByDate(today)
+    public WidgetTopicResponse getTopicWidget(final Long userId, final LocalDate date){
+        final String topicEn = topicFacade.findByDate(date)
                 .map(Topic::getTopicEn)
                 .orElse(null);
 
         final Boolean isWrittenToday = (userId == null)
                 ? null
-                : isWritten(userCalendarFacade.getStatusByUserIdAndDate(userId, today));
+                : isWritten(userCalendarFacade.getStatusByUserIdAndDate(userId, date));
 
-        return new WidgetTopicResponse(today, topicEn, isWrittenToday);
+        return new WidgetTopicResponse(date, topicEn, isWrittenToday);
     }
 
     private boolean isWritten(final WriteStatus status){
