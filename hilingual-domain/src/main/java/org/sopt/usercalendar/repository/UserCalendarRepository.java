@@ -62,4 +62,13 @@ public interface UserCalendarRepository extends JpaRepository<UserCalendar, Long
       )
     """)
     long countWrittenByUserId(@Param("userId") Long userId);
+
+    @Query("""
+    SELECT uc FROM UserCalendar uc
+    WHERE uc.user.id = :userId
+        AND uc.date BETWEEN :start AND :end
+    """)
+    List<UserCalendar> findAllByUserIdAndDateBetween(@Param("userId") Long usrId,
+                                                     @Param("start") LocalDate start,
+                                                     @Param("end") LocalDate end);
 }
