@@ -1,0 +1,49 @@
+package org.sopt.controller.widget.api;
+
+import lombok.RequiredArgsConstructor;
+import org.sopt.controller.widget.dto.res.WidgetStreakResponse;
+import org.sopt.controller.widget.dto.res.WidgetTopicResponse;
+import org.sopt.controller.widget.exception.WidgetApiErrorCode;
+import org.sopt.controller.widget.exception.WidgetInvalidDateFormatException;
+import org.sopt.controller.widget.service.WidgetService;
+import org.sopt.jwt.annotation.UserId;
+import org.sopt.jwt.annotation.UserIdOrNull;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
+@RestController
+@RequestMapping("/api/v1/widget")
+@RequiredArgsConstructor
+public class WidgetController{
+    private final WidgetService widgetService;
+
+    @GetMapping("/topic")
+    public ResponseEntity<WidgetTopicResponse> getTopicWidget(
+            @UserIdOrNull final Long userId,
+            @RequestParam final String date
+            ){
+        return ResponseEntity.ok(widgetService.getTopicWidget(userId, parseDate(date)));
+    }
+
+    @GetMapping("/streak")
+    public ResponseEntity<WidgetStreakResponse> getStreakWidget(
+            @UserId final Long userId,
+            @RequestParam final String date
+            ){
+        return ResponseEntity.ok(widgetService.getStreakWidget(userId, parseDate(date)));
+    }
+
+    private LocalDate parseDate(final String date){
+        try{
+            return LocalDate.parse(date); //ISO yyyy-MM-dd
+        } catch (DateTimeParseException e){
+            throw new WidgetInvalidDateFormatException(WidgetApiErrorCode.INVALID_DATE_FORMAT);
+        }
+    }
+}

@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -64,6 +65,11 @@ public class UserCalendarFacade {
         }
 
         return statusMap;
+    }
+
+    public Map<LocalDate, WriteStatus> getStatusesByDateRange(final Long userId, final LocalDate start, final LocalDate end){
+        return userCalendarRetriever.findByUserIdAndDateBetween(userId, start, end).stream()
+                .collect(Collectors.toMap(UserCalendar::getDate, UserCalendar::getStatus));
     }
 
     public boolean existsByUserAndDate(User user, LocalDate date) {
