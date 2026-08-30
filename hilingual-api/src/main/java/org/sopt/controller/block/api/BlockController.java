@@ -3,13 +3,10 @@ package org.sopt.controller.block.api;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.block.dto.BlockedListRes;
-import org.sopt.controller.userprofile.dto.UserProfileSummaryRes;
 import org.sopt.controller.block.service.BlockService;
 import org.sopt.jwt.annotation.UserId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
