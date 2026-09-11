@@ -3,6 +3,8 @@ package org.sopt.fcm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.device.domain.Device;
+import org.sopt.device.exception.DeviceCoreErrorCode;
+import org.sopt.device.exception.DeviceNotFoundException;
 import org.sopt.device.facade.DeviceFacade;
 import org.sopt.firebase.FCMClient;
 import org.sopt.firebase.dto.FCMMessageRequest;
@@ -68,7 +70,7 @@ public class StreakReminderScheduler {
             return;
         }
 
-        List<String> targetFcmTokens = new ArrayList<>();
+        List<TargetDeviceDto> targetDevices = new ArrayList<>();
 
         for (UserProfile profile : targetProfiles) {
             ZoneId userZone = ZoneId.of(profile.getUser().getPrimaryTimezone());
@@ -89,20 +91,24 @@ public class StreakReminderScheduler {
                 for (Device device : devices) {
                     String fcmToken = device.getFcmToken();
                     if (fcmToken != null && !fcmToken.isBlank()) {
-                        targetFcmTokens.add(fcmToken);
+                        targetDevices.add(new TargetDeviceDto(
+                                profile.getUser().getId(),
+                                device.getDeviceId(),
+                                fcmToken
+                        ));
                     }
                 }
             }
         }
 
-        if (targetFcmTokens.isEmpty()) {
+        if (targetDevices.isEmpty()) {
             return;
         }
 
-        sendStreakReminders(targetFcmTokens);
+        sendStreakReminders(targetDevices);
     }
 
-    private void sendStreakReminders(List<String> tokens) {
+    private void sendStreakReminders(List<TargetDeviceDto> targetDevices) {
         String title = "일기 작성 가능 시간이 3시간 남았어요!";
         String body = "지금 일기를 작성하면 오늘도 불꽃을 이어갈 수 있어요🔥";
         Map<String, String> data = Map.of(
@@ -110,15 +116,17 @@ public class StreakReminderScheduler {
                 "link", "hilingual://app/home"
         );
 
-        for (String token : tokens) {
+        for (TargetDeviceDto target : targetDevices) {
             try {
-                FCMMessageRequest request = FCMMessageRequest.of(token, title, body, data);
+                FCMMessageRequest request = FCMMessageRequest.of(target.fcmToken(), title, body, data);
                 fcmClient.send(request);
             } catch (FCMException e) {
-                // FCMErrorCode.FCM_INVALID_TOKEN 발생 시 만료된 토큰 정리 로직(예: device.clearFcmToken())을 연동할 수 있습니다.
                 if (e.getErrorCode() == FCMErrorCode.FCM_INVALID_TOKEN) {
-                    log.warn("만료되거나 유효하지 않은 FCM 토큰 감지: token={}", token);
-                    // TODO: 필요시 해당 토큰을 가진 Device 엔티티 조회 후 clearFcmToken() 실행 로직 추가
+                    log.warn("만료되거나 유효하지 않은 FCM 토큰 감지, 토큰 초기화 실행: userId={}, deviceId={}, token={}",
+                            target.userId(), target.deviceId(), target.fcmToken());
+
+                    clearFcmToken(target.userId(), target.deviceId());
+
                 } else {
                     log.error("스트릭 리마인더 푸시 발송 실패: errorCode={}, message={}", e.getErrorCode(), e.getMessage());
                 }
@@ -127,6 +135,15 @@ public class StreakReminderScheduler {
             }
         }
 
-        log.info("{}명의 유저 기기로 스트릭 리마인더 푸시 발송 처리 완료", tokens.size());
+        log.info("{}개의 기기로 스트릭 리마인더 푸시 발송 처리 완료", targetDevices.size());
+    }
+
+    @Transactional
+    private void clearFcmToken(final long userId, final long deviceId) {
+        Device device = deviceFacade.findByDeviceId(deviceId);
+        if (!device.getUser().getId().equals(userId)) {
+            throw new DeviceNotFoundException(DeviceCoreErrorCode.DEVICE_NOT_FOUND);
+        }
+        device.clearFcmToken();
     }
 }

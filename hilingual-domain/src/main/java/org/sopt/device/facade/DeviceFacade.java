@@ -63,6 +63,10 @@ public class DeviceFacade {
         return deviceRetriever.findAllByUserId(userId);
     }
 
+    public Device findByDeviceId(final long deviceId) {
+        return deviceRetriever.findById(deviceId);
+    }
+
     public Device findByUserIdAndUuid(final long userId, final String uuid) {
         return deviceRetriever.findByUserIdAndUuid(userId, uuid)
                 .orElseThrow(() -> new DeviceNotFoundException(DeviceCoreErrorCode.DEVICE_NOT_FOUND));
