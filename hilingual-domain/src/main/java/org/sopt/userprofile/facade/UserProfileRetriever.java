@@ -3,14 +3,15 @@ package org.sopt.userprofile.facade;
 import lombok.RequiredArgsConstructor;
 import org.sopt.userprofile.domain.UserProfile;
 import org.sopt.userprofile.dto.UserSearchDto;
-import org.sopt.userprofile.exception.UserProfileNotFoundException;
 import org.sopt.userprofile.exception.UserProfileCoreErrorCode;
+import org.sopt.userprofile.exception.UserProfileNotFoundException;
 import org.sopt.userprofile.repository.UserProfileQueryRepository;
 import org.sopt.userprofile.repository.UserProfileRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -46,5 +47,9 @@ public class UserProfileRetriever {
 
     public long count() {
         return userProfileRepository.count();
+    }
+
+    public List<UserProfile> findByPrimaryTimezoneInAndStreak(final Set<String> timezones, final int streak) {
+        return userProfileRepository.findByPrimaryTimezoneInAndStreak(timezones, streak);
     }
 }

@@ -1,4 +1,4 @@
-package org.sopt.fcm;
+package org.sopt.fcm.domain;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,6 +6,7 @@ import org.sopt.device.domain.Device;
 import org.sopt.device.exception.DeviceCoreErrorCode;
 import org.sopt.device.exception.DeviceNotFoundException;
 import org.sopt.device.facade.DeviceFacade;
+import org.sopt.fcm.dto.TargetDeviceDto;
 import org.sopt.firebase.FCMClient;
 import org.sopt.firebase.dto.FCMMessageRequest;
 import org.sopt.firebase.exception.FCMErrorCode;

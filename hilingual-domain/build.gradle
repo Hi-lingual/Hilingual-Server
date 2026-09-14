@@ -16,6 +16,7 @@ tasks.named("clean").configure {
 
 dependencies {
     implementation project(":hilingual-common")
+    implementation project(":hilingual-external")
 
     // Spring Data JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

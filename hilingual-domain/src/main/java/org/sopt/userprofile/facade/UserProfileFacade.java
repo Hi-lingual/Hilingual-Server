@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -56,8 +57,8 @@ public class UserProfileFacade {
         return userProfileRetriever.count();
     }
 
-    public int calculateStreak(final Long userId, final LocalDate date){
-        return userProfileUpdater.calculateStreak(User.ref(userId), date);
+    public List<UserProfile> findByPrimaryTimezoneInAndStreak(Set<String> primaryTimezones, int streak){
+        return userProfileRetriever.findByPrimaryTimezoneInAndStreak(primaryTimezones, streak);
     }
 
     /**
@@ -104,5 +105,9 @@ public class UserProfileFacade {
 
     public String updateUserNickname(final long userId, final String nickname) {
         return userProfileUpdater.updateNickname(userId, nickname);
+    }
+
+    public int calculateStreak(final Long userId, final LocalDate date){
+        return userProfileUpdater.calculateStreak(User.ref(userId), date);
     }
 }
