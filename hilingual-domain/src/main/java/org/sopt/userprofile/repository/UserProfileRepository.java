@@ -94,4 +94,10 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     );
 
     long count();
+
+    @Query("SELECT up FROM UserProfile up JOIN up.user u WHERE u.primaryTimezone IN :timezones AND up.streak = :streak")
+    List<UserProfile> findByPrimaryTimezoneInAndStreak(
+            @Param("timezones") Set<String> timezones,
+            @Param("streak") int streak
+    );
 }
