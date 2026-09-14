@@ -11,6 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "firebase")
 public class FirebaseProperties {
 
-    private boolean enabled = false;
+    private boolean enabled = true;
     private String serviceAccountPath;
 }

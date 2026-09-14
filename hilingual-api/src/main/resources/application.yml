@@ -100,7 +100,7 @@ openai:
   api-key: ${OPENAI_API_KEY}
 
 firebase:
-  enabled: ${FIREBASE_ENABLED:false}
+  enabled: ${FIREBASE_ENABLED:true}
   service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:}
 
 ---
