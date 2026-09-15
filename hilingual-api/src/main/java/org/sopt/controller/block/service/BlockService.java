@@ -94,6 +94,7 @@ public class BlockService {
         return null;
     }
 
+    @Transactional(readOnly = true)
     public BlockedListRes getBlockedUserList(final Long userId) {
         // 유저 존재 여부 확인(없을 시 UserRetriever에서 not found 예외 처리)
         userFacade.getUserById(userId);

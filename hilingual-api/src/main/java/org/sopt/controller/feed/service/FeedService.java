@@ -93,6 +93,7 @@ public class FeedService {
         );
     }
 
+    @Transactional(readOnly = true)
     public SharedDiaryListRes getSharedDiaries(Long userId, Long targetUserId) {
         // 유저 프로필 조회
         UserProfile userProfile = userFacade.getUserById(targetUserId).getUserProfile();
