@@ -9,12 +9,11 @@ import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.alarmpreference.facade.AlarmPreferenceFacade;
-import org.sopt.block.facade.BlockFacade;
 import org.sopt.context.TimezoneContextHolder;
-import org.sopt.controller.auth.util.ApplePublicKeyList;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
 import org.sopt.controller.auth.exception.*;
+import org.sopt.controller.auth.util.ApplePublicKeyList;
 import org.sopt.controller.auth.util.GoogleOAuth2UserInfo;
 import org.sopt.controller.auth.util.MyKeyLocator;
 import org.sopt.controller.token.TokenService;
@@ -24,27 +23,27 @@ import org.sopt.diary.facade.DiaryFacade;
 import org.sopt.exception.AuthErrorCode;
 import org.sopt.exception.UnAuthorizedException;
 import org.sopt.exception.code.GlobalErrorCode;
-import org.sopt.feedalarm.facade.FeedAlarmFacade;
-import org.sopt.follow.facade.FollowFacade;
-import org.sopt.type.UserRole;
 import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.likeddiary.facade.LikedDiaryFacade;
+import org.sopt.type.UserRole;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
 import org.sopt.user.util.ExternalIdGenerator;
-import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.sopt.userprofile.facade.UserProfileFacade;
-import org.sopt.voca.facade.VocaFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.*;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -153,7 +152,6 @@ public class AuthService {
         User user;
         Optional<User> optionalUser = userFacade.getByProviderAndProviderId(String.valueOf(req.provider()), providerId);
 
-        String currentZoneId = TimezoneContextHolder.getTimezone().getId();
         // 이미 유저가 존재하는 경우
         if(optionalUser.isPresent()) {
             user = optionalUser.get();
@@ -163,9 +161,15 @@ public class AuthService {
                 user.revertDeleteUser();
             }
 
-            user.setPrimaryTimezone(currentZoneId);
+           TimezoneContextHolder.find().ifPresent(user::updatePrimaryTimezone);
+            user = userFacade.save(user);
 
         } else {
+            String initialZoneId = TimezoneContextHolder.find()
+                    .filter(z -> ZoneId.getAvailableZoneIds().contains(z.getId()))
+                    .orElse(TimezoneContextHolder.DEFAULT_ZONE)
+                    .getId();
+
             user = User.builder()
                     .provider(String.valueOf(req.provider()))
                     .providerId(providerId)
@@ -173,7 +177,7 @@ public class AuthService {
                     .notifyStatus(false)
                     .registerStatus(RegisterStatus.SOCIAL_LOGIN_COMPLETED)
                     .role(UserRole.USER)
-                    .primaryTimezone(currentZoneId)
+                    .primaryTimezone(initialZoneId)
                     .build();
 
             user = userFacade.save(user);

@@ -1,21 +1,21 @@
 package org.sopt.controller.diary.service;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.aws.s3.dto.Purpose;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.aws.s3.dto.Purpose;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.diary.dto.CreateDiaryReq;
+import org.sopt.controller.diary.dto.DiaryRes;
 import org.sopt.controller.diary.exception.DiaryApiErrorCode;
 import org.sopt.controller.diary.exception.DiaryImagePurposeMismatchException;
-import org.sopt.diaryfeedback.diff.dto.DiaryDetailsRes;
-import org.sopt.controller.diary.dto.DiaryRes;
+import org.sopt.controller.diaryfeedback.service.DiaryFeedbackService;
 import org.sopt.controller.recommend.service.RecommendService;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
-import org.sopt.diaryfeedback.domain.DiaryFeedback;
-import org.sopt.controller.diaryfeedback.service.DiaryFeedbackService;
-import org.sopt.diaryfeedback.diff.service.DiaryDiffService;
+import org.sopt.diaryfeedback.diff.dto.DiaryDetailsRes;
 import org.sopt.diaryfeedback.diff.prompt.DiaryFeedbackPrompt;
+import org.sopt.diaryfeedback.diff.service.DiaryDiffService;
+import org.sopt.diaryfeedback.domain.DiaryFeedback;
 import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.openai.OpenAIService;
 import org.sopt.openai.dto.res.GptFeedbackResponse;
@@ -24,16 +24,12 @@ import org.sopt.recoveryticket.domain.RecoveryTicket;
 import org.sopt.recoveryticket.facade.RecoveryTicketFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
-import org.sopt.usercalendar.facade.UserCalendarFacade;
-import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 @Slf4j
@@ -92,7 +88,7 @@ public class DiaryService {
     ) {
         User user = userFacade.getUserById(userId);
 
-        user.setPrimaryTimezone(userZone.getId());
+        user.updatePrimaryTimezone(userZone);
         diaryFacade.validateNotExists(user, writtenDate);
 
         String fileKey = bindDiaryImageIfPresent(userId, writtenDate, imageRef);

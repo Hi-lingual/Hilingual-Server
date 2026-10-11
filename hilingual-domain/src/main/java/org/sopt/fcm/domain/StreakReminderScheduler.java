@@ -74,7 +74,7 @@ public class StreakReminderScheduler {
         List<TargetDeviceDto> targetDevices = new ArrayList<>();
 
         for (UserProfile profile : targetProfiles) {
-            ZoneId userZone = ZoneId.of(profile.getUser().getPrimaryTimezone());
+            ZoneId userZone = profile.getUser().getZoneIdOrDefault();
             LocalDate today = LocalDate.ofInstant(truncatedNow, userZone);
             LocalDate yesterday = today.minusDays(1); // 오늘 21시 기준 어제
             LocalDate dayBeforeYesterday = today.minusDays(2);

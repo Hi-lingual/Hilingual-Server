@@ -31,14 +31,13 @@ public class DeviceFacade {
     @Transactional
     public void upsertDevice(final long userId, final DeviceInfo deviceInfo) {
 
-        validateTimezone(deviceInfo.timezone());
-
+        String timezone = validateTimezone(deviceInfo.timezone());
         Optional<Device> optionalDevice = findExistingDevice(userId, deviceInfo);
 
         if (optionalDevice.isPresent()) {
             Device existingDevice = optionalDevice.get();
             existingDevice.updateDeviceInfo(
-                    deviceInfo.timezone(),
+                    timezone,
                     deviceInfo.osVersion(),
                     deviceInfo.appVersion()
             );
@@ -47,7 +46,7 @@ public class DeviceFacade {
             Device newDevice = Device.create(
                     user,
                     deviceInfo.deviceUuid(),
-                    deviceInfo.timezone(),
+                    timezone,
                     deviceInfo.deviceName(),
                     deviceInfo.deviceType(),
                     deviceInfo.osType(),
@@ -94,11 +93,10 @@ public class DeviceFacade {
         deviceRemover.deleteAllByUserId(userId);
     }
 
-    private void validateTimezone(String timezone) {
+    private String validateTimezone(String timezone) {
+        if (!StringUtils.hasText(timezone)) return null;
         try {
-            if (StringUtils.hasText(timezone)) {
-                ZoneId.of(timezone);
-            }
+            return ZoneId.of(timezone.trim()).getId();
         } catch (DateTimeException e) {
             throw new InvalidTimezoneFormatException(DeviceCoreErrorCode.INVALID_TIMEZONE_FORMAT);
         }
