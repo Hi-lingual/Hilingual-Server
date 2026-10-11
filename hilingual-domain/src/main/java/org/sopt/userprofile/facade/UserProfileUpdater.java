@@ -55,7 +55,7 @@ public class UserProfileUpdater {
      */
     public void updateStreakOnWrite(UserProfile profile, LocalDate writtenDate, ZoneId userZone) {
         // 일기 작성 시 타임존 변경된 경우 저장
-        profile.getUser().updatePrimaryTimezone(userZone.getId());
+        profile.getUser().updatePrimaryTimezone(userZone);
 
         // 전달받은 유저의 로컬 타임존
         LocalDate today     = LocalDate.now(userZone); // D
@@ -191,7 +191,7 @@ public class UserProfileUpdater {
 
         // 대상 유저들의 로컬 날짜 기준으로 스트릭 검사 및 갱신
         for (UserProfile profile : targetProfiles) {
-            ZoneId userZone = ZoneId.of(profile.getUser().getPrimaryTimezone());
+            ZoneId userZone = profile.getUser().getZoneIdOrDefault();
 
             LocalDate today = LocalDate.ofInstant(truncatedNow, userZone);
             LocalDate yesterday = today.minusDays(1);
@@ -261,7 +261,7 @@ public class UserProfileUpdater {
     @Transactional
     public void syncStreak(final long userId, ZoneId userZone) {
         UserProfile profile = userProfileRetriever.findByUserId(userId);
-        profile.getUser().updatePrimaryTimezone(userZone.getId());
+        profile.getUser().updatePrimaryTimezone(userZone);
 
         LocalDate today = LocalDate.now(userZone);
 

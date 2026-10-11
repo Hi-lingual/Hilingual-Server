@@ -4,13 +4,16 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.sopt.common.config.BaseTimeEntity;
-import org.sopt.type.UserRole;
+import org.sopt.context.TimezoneContextHolder;
 import org.sopt.noticedelivery.domain.NoticeDelivery;
+import org.sopt.type.UserRole;
 import org.sopt.user.type.RegisterStatus;
 import org.sopt.user.type.RegisterStatusConverter;
 import org.sopt.userprofile.domain.UserProfile;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,10 +81,20 @@ public class User extends BaseTimeEntity {
         this.registerStatus = registerStatus;
     }
 
-    public void updatePrimaryTimezone(String newTimezone) {
-        if (newTimezone != null && !this.primaryTimezone.equals(newTimezone)) {
-            this.primaryTimezone = newTimezone;
+    public ZoneId getZoneIdOrDefault() {
+        if (primaryTimezone == null) return TimezoneContextHolder.DEFAULT_ZONE;
+        try {
+            return ZoneId.of(primaryTimezone);
+        } catch (DateTimeException e) {
+            return TimezoneContextHolder.DEFAULT_ZONE;
         }
+    }
+
+    // TODO 추후 엔티티에서 userFacade.updateTimezone으로 변경하고 함수 호출 해당 함수로 수정
+    public void updatePrimaryTimezone(ZoneId zone) {   // String 오버로드가 있다면 이 메서드로 위임
+        if (TimezoneContextHolder.find().isEmpty()) return;
+        if (!ZoneId.getAvailableZoneIds().contains(zone.getId())) return;
+        this.primaryTimezone = zone.getId();
     }
 
     public void revertDeleteUser() {

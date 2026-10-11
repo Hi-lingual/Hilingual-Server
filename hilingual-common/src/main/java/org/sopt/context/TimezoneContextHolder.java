@@ -1,22 +1,37 @@
 package org.sopt.context;
 
-import java.time.ZoneId;
+import lombok.extern.slf4j.Slf4j;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
+import java.util.Optional;
+
+@Slf4j
 public class TimezoneContextHolder {
     private static final ThreadLocal<ZoneId> TIMEZONE_HOLDER = new ThreadLocal<>();
+    public static final ZoneId DEFAULT_ZONE = ZoneId.of("Asia/Seoul");
 
-    private static final ZoneId DEFAULT_ZONE = ZoneId.of("Asia/Seoul");
-
-    public static void setTimezone(String timezoneId) {
-        try {
-            TIMEZONE_HOLDER.set(ZoneId.of(timezoneId));
-        } catch (Exception e) {
-            TIMEZONE_HOLDER.set(DEFAULT_ZONE); // 잘못된 값이 오면 기본값 사용
-        }
+    // 헤더에서 실제로 읽힌 유효한 값만 반환
+    public static Optional<ZoneId> find() {
+        return Optional.ofNullable(TIMEZONE_HOLDER.get());
     }
 
+    // 계산 및 응답 생성용. 폴백 포함이므로 저장에 쓰지 말 것
     public static ZoneId getTimezone() {
-        return TIMEZONE_HOLDER.get() != null ? TIMEZONE_HOLDER.get() : DEFAULT_ZONE;
+        return find().orElse(DEFAULT_ZONE);
+    }
+
+    public static void setTimezone(String timezoneId) {
+        if (timezoneId == null) {
+            TIMEZONE_HOLDER.remove();
+            return;
+        }
+        try {
+            TIMEZONE_HOLDER.set(ZoneId.of(timezoneId.trim()));
+        } catch (DateTimeException e) {
+            log.warn("Invalid timezone header: '{}'", timezoneId);
+            TIMEZONE_HOLDER.remove();
+        }
     }
 
     public static void clear() {
