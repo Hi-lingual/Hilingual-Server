@@ -1,21 +1,21 @@
 package org.sopt.controller.diary.service;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.aws.s3.dto.Purpose;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.aws.s3.dto.Purpose;
 import org.sopt.aws.s3.service.S3Service;
 import org.sopt.controller.diary.dto.CreateDiaryReq;
+import org.sopt.controller.diary.dto.DiaryRes;
 import org.sopt.controller.diary.exception.DiaryApiErrorCode;
 import org.sopt.controller.diary.exception.DiaryImagePurposeMismatchException;
-import org.sopt.diaryfeedback.diff.dto.DiaryDetailsRes;
-import org.sopt.controller.diary.dto.DiaryRes;
+import org.sopt.controller.diaryfeedback.service.DiaryFeedbackService;
 import org.sopt.controller.recommend.service.RecommendService;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.facade.DiaryFacade;
-import org.sopt.diaryfeedback.domain.DiaryFeedback;
-import org.sopt.controller.diaryfeedback.service.DiaryFeedbackService;
-import org.sopt.diaryfeedback.diff.service.DiaryDiffService;
+import org.sopt.diaryfeedback.diff.dto.DiaryDetailsRes;
 import org.sopt.diaryfeedback.diff.prompt.DiaryFeedbackPrompt;
+import org.sopt.diaryfeedback.diff.service.DiaryDiffService;
+import org.sopt.diaryfeedback.domain.DiaryFeedback;
 import org.sopt.likeddiary.facade.LikedDiaryFacade;
 import org.sopt.openai.OpenAIService;
 import org.sopt.openai.dto.res.GptFeedbackResponse;
@@ -24,16 +24,13 @@ import org.sopt.recoveryticket.domain.RecoveryTicket;
 import org.sopt.recoveryticket.facade.RecoveryTicketFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
-import org.sopt.usercalendar.facade.UserCalendarFacade;
 import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 @Slf4j
@@ -49,6 +46,7 @@ public class DiaryService {
     private final RecommendService recommendService;
     private final DiaryDiffService diaryDiffService;
     private final RecoveryTicketFacade recoveryTicketFacade;
+    private final UserProfileFacade userProfileFacade;
 
     private final S3Service s3Service;
 
@@ -62,7 +60,7 @@ public class DiaryService {
             ZoneId userZone
     ) {
         Diary diary = createDiary(userId, originalText, writtenDate, imageRef, userZone, false);
-        return new DiaryRes(diary.getId(), diary.getIsAdWatched());
+        return new DiaryRes(diary.getId(), diary.getIsAdWatched(), userProfileFacade.getProfileByUserId(userId).getStreak());
     }
 
     // [스트릭 부활 전용] 일기 피드백 요청
@@ -82,7 +80,7 @@ public class DiaryService {
         // 티켓 사용 처리 - 일기 작성 완료 시 해당 티켓을 is_used = true로 변경
         ticket.markIsUsed();
 
-        return new DiaryRes(diary.getId(), diary.getIsAdWatched());
+        return new DiaryRes(diary.getId(), diary.getIsAdWatched(), userProfileFacade.getProfileByUserId(userId).getStreak());
     }
 
     private Diary createDiary(
