@@ -5,21 +5,17 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.context.TimezoneContextHolder;
 import org.sopt.controller.auth.dto.SocialLoginReq;
 import org.sopt.controller.auth.dto.SocialLoginRes;
-import org.sopt.exception.AuthErrorCode;
-import org.sopt.exception.InvalidAdminLeaveException;
-import org.sopt.exception.InvalidAdminLogoutException;
-import org.sopt.exception.InvalidTokenException;
-import org.sopt.exception.TokenNotFoundException;
-import org.sopt.type.UserRole;
-import org.sopt.jwt.auth.domain.type.AuthProvider;
+import org.sopt.exception.*;
 import org.sopt.jwt.auth.domain.Token;
 import org.sopt.jwt.auth.domain.TokenRepository;
+import org.sopt.jwt.auth.domain.type.AuthProvider;
 import org.sopt.jwt.auth.dto.ReissueTokensRes;
 import org.sopt.jwt.core.JwtClaimsKeys;
 import org.sopt.jwt.core.JwtTokenProvider;
 import org.sopt.jwt.core.TokenHasher;
 import org.sopt.jwt.core.TokenId;
 import org.sopt.jwt.support.AuthConstants;
+import org.sopt.type.UserRole;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
 import org.sopt.user.type.RegisterStatus;
@@ -57,18 +53,15 @@ public class TokenService {
                 구버전은 랜덤ID, 신버전은 DeviceUuid로 들어감.
              */
         String identifier = claims.get(JwtClaimsKeys.SESSION_ID, String.class);
-        System.out.println("1. 토큰에서 뽑은 identifier: " + identifier); // Redis의 UUID와 똑같은지 확인
 
         AuthProvider provider = AuthProvider.valueOf(claims.get(JwtClaimsKeys.PROVIDER, String.class));
 
         User user = userFacade.getUserById(userId);
         UserRole role = user.getRole();
-        String currentZoneId = TimezoneContextHolder.getTimezone().getId();
-        user.setPrimaryTimezone(currentZoneId);
+        TimezoneContextHolder.find().ifPresent(user::updatePrimaryTimezone);
 
         // Redis 에서 토큰 정보 조회 & 해시 대조
         String tokenId = new TokenId(userId, identifier).toString();
-        System.out.println("2. DB에서 조회할 tokenId: " + tokenId); // "2:UUID" 형태인지 확인
         Token stored = tokenRepository.findById(tokenId)
                 .orElseThrow(() -> new TokenNotFoundException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND_IN_STORE));
 

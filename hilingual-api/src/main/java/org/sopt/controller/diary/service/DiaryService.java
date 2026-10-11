@@ -90,7 +90,7 @@ public class DiaryService {
     ) {
         User user = userFacade.getUserById(userId);
 
-        user.setPrimaryTimezone(userZone.getId());
+        user.updatePrimaryTimezone(userZone);
         diaryFacade.validateNotExists(user, writtenDate);
 
         String fileKey = bindDiaryImageIfPresent(userId, writtenDate, imageRef);

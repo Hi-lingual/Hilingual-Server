@@ -77,7 +77,7 @@ public class WinBackReminderSchedular {
         List<TargetDeviceDto> targetDevices = new ArrayList<>();
 
         for (UserProfile profile : targetProfiles) {
-            ZoneId userZone = ZoneId.of(profile.getUser().getPrimaryTimezone());
+            ZoneId userZone = profile.getUser().getZoneIdOrDefault();
             LocalDate today = LocalDate.ofInstant(truncatedNow, userZone);
 
             // 최근 7일간 작성된 일기가 있는지 검사
