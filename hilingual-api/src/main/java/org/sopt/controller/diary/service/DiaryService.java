@@ -24,6 +24,7 @@ import org.sopt.recoveryticket.domain.RecoveryTicket;
 import org.sopt.recoveryticket.facade.RecoveryTicketFacade;
 import org.sopt.user.domain.User;
 import org.sopt.user.facade.UserFacade;
+import org.sopt.userprofile.facade.UserProfileFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,7 @@ public class DiaryService {
     private final RecommendService recommendService;
     private final DiaryDiffService diaryDiffService;
     private final RecoveryTicketFacade recoveryTicketFacade;
+    private final UserProfileFacade userProfileFacade;
 
     private final S3Service s3Service;
 
@@ -58,7 +60,7 @@ public class DiaryService {
             ZoneId userZone
     ) {
         Diary diary = createDiary(userId, originalText, writtenDate, imageRef, userZone, false);
-        return new DiaryRes(diary.getId(), diary.getIsAdWatched());
+        return new DiaryRes(diary.getId(), diary.getIsAdWatched(), userProfileFacade.getProfileByUserId(userId).getStreak());
     }
 
     // [스트릭 부활 전용] 일기 피드백 요청
@@ -78,7 +80,7 @@ public class DiaryService {
         // 티켓 사용 처리 - 일기 작성 완료 시 해당 티켓을 is_used = true로 변경
         ticket.markIsUsed();
 
-        return new DiaryRes(diary.getId(), diary.getIsAdWatched());
+        return new DiaryRes(diary.getId(), diary.getIsAdWatched(), userProfileFacade.getProfileByUserId(userId).getStreak());
     }
 
     private Diary createDiary(
