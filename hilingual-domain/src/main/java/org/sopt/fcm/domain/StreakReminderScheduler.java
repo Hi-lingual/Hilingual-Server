@@ -3,8 +3,6 @@ package org.sopt.fcm.domain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.device.domain.Device;
-import org.sopt.device.exception.DeviceCoreErrorCode;
-import org.sopt.device.exception.DeviceNotFoundException;
 import org.sopt.device.facade.DeviceFacade;
 import org.sopt.fcm.dto.TargetDeviceDto;
 import org.sopt.firebase.FCMClient;
@@ -43,7 +41,7 @@ public class StreakReminderScheduler {
      * 스트릭이 1 이상이며, 다가오는 자정에 48시간 유예기간이 만료되어 스트릭이 깨지는 유저에게 FCM 발송
      */
     @Scheduled(cron = "0 0,15,30,45 * * * *")
-    @Transactional(readOnly = true)
+    @Transactional
     public void sendStreakReminderAt9PM() {
         Instant rawNow = Instant.now();
 
@@ -87,7 +85,7 @@ public class StreakReminderScheduler {
             boolean missedYesterday = (yStatus != WriteStatus.WRITTEN && yStatus != WriteStatus.RECOVERED);
 
             if (wroteDayBefore && missedYesterday) {
-                List<Device> devices = deviceFacade.findAllByUserId(profile.getId());
+                List<Device> devices = deviceFacade.findAllByUserId(profile.getUser().getId());
 
                 for (Device device : devices) {
                     String fcmToken = device.getFcmToken();
@@ -123,10 +121,14 @@ public class StreakReminderScheduler {
                 fcmClient.send(request);
             } catch (FCMException e) {
                 if (e.getErrorCode() == FCMErrorCode.FCM_INVALID_TOKEN) {
-                    log.warn("만료되거나 유효하지 않은 FCM 토큰 감지, 토큰 초기화 실행: userId={}, deviceId={}, token={}",
-                            target.userId(), target.deviceId(), target.fcmToken());
+                    log.warn("만료되거나 유효하지 않은 FCM 토큰 감지, 토큰 초기화 실행: userId={}, deviceId={}",
+                            target.userId(), target.deviceId());
 
-                    clearFcmToken(target.userId(), target.deviceId());
+                    try {
+                        deviceFacade.clearFcmToken(target.userId(), target.deviceId());
+                    } catch (Exception clearEx) {
+                        log.error("FCM 토큰 초기화 실패: deviceId={}", target.deviceId(), clearEx);
+                    }
 
                 } else {
                     log.error("스트릭 리마인더 푸시 발송 실패: errorCode={}, message={}", e.getErrorCode(), e.getMessage());
@@ -139,12 +141,4 @@ public class StreakReminderScheduler {
         log.info("{}개의 기기로 스트릭 리마인더 푸시 발송 처리 완료", targetDevices.size());
     }
 
-    @Transactional
-    private void clearFcmToken(final long userId, final long deviceId) {
-        Device device = deviceFacade.findByDeviceId(deviceId);
-        if (!device.getUser().getId().equals(userId)) {
-            throw new DeviceNotFoundException(DeviceCoreErrorCode.DEVICE_NOT_FOUND);
-        }
-        device.clearFcmToken();
-    }
 }
