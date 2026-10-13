@@ -87,7 +87,7 @@ public class StreakReminderScheduler {
             boolean missedYesterday = (yStatus != WriteStatus.WRITTEN && yStatus != WriteStatus.RECOVERED);
 
             if (wroteDayBefore && missedYesterday) {
-                List<Device> devices = deviceFacade.findAllByUserId(profile.getId());
+                List<Device> devices = deviceFacade.findAllByUserId(profile.getUser().getId());
 
                 for (Device device : devices) {
                     String fcmToken = device.getFcmToken();
