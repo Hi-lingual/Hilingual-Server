@@ -3,6 +3,6 @@ package org.sopt.controller.diary.dto;
 public record DiaryRes(
         Long diaryId,
         Boolean isAdWatched,
-        Integer streak
+        Integer totalDiaries
 ) {
 }
