@@ -60,7 +60,7 @@ public class DiaryService {
             ZoneId userZone
     ) {
         Diary diary = createDiary(userId, originalText, writtenDate, imageRef, userZone, false);
-        return new DiaryRes(diary.getId(), diary.getIsAdWatched(), userProfileFacade.getProfileByUserId(userId).getStreak());
+        return new DiaryRes(diary.getId(), diary.getIsAdWatched(), userProfileFacade.getProfileByUserId(userId).getTotalDiaries());
     }
 
     // [스트릭 부활 전용] 일기 피드백 요청
@@ -80,7 +80,7 @@ public class DiaryService {
         // 티켓 사용 처리 - 일기 작성 완료 시 해당 티켓을 is_used = true로 변경
         ticket.markIsUsed();
 
-        return new DiaryRes(diary.getId(), diary.getIsAdWatched(), userProfileFacade.getProfileByUserId(userId).getStreak());
+        return new DiaryRes(diary.getId(), diary.getIsAdWatched(), userProfileFacade.getProfileByUserId(userId).getTotalDiaries());
     }
 
     private Diary createDiary(
