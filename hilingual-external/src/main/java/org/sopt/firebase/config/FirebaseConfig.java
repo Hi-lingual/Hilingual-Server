@@ -32,9 +32,7 @@ public class FirebaseConfig {
     public FirebaseMessaging firebaseMessaging() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
             // 심볼릭 링크 해소를 위해 canonical path로 정규화
-            String testPath = "C:\\Users\\hajie\\Downloads\\hilingual_fcm.json";
-            File serviceAccountFile = new File(testPath);
-            // File serviceAccountFile = new File(firebaseProperties.getServiceAccountPath()).getCanonicalFile();
+            File serviceAccountFile = new File(firebaseProperties.getServiceAccountPath()).getCanonicalFile();
 
             if (!serviceAccountFile.exists()) {
                 log.error("Firebase 서비스 계정 파일이 존재하지 않습니다: path={}", serviceAccountFile.getPath());
