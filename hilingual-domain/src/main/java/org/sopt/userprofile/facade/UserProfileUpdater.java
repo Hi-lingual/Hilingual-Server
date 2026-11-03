@@ -254,9 +254,7 @@ public class UserProfileUpdater {
     }
 
     private void resyncTotal(UserProfile profile) {
-        // TODO QA 후 삭제
-        //  long cnt = userCalendarFacade.countWritten(profile.getUser().getId());
-        long cnt = userProfileRetriever.findByUserId(profile.getUser().getId()).getTotalDiaries() + 1;
+        long cnt = userCalendarFacade.countWritten(profile.getUser().getId());
         profile.updateTotalDiaries((int) cnt);
     }
 
