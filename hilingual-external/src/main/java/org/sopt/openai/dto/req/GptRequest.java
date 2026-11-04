@@ -9,7 +9,7 @@ public record GptRequest(
         String model,
         List<MessageDto> messages,
         double temperature,
-        @JsonProperty("max_tokens") int maxTokens
+        @JsonProperty("max_completion_tokens") int maxTokens
 ) {
     public static GptRequest of(String prompt, String originalText) {
         return new GptRequest(
