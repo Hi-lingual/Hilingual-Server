@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 @Component
 public class WinBackReminderSchedular {
 
+    private static final String WEEKLY_NOTIFICATION_CHANNEL_ID = "channel_weekly_notification";
+
     private final DeviceFacade deviceFacade;
     private final UserProfileFacade userProfileFacade;
     private final UserCalendarFacade userCalendarFacade;
@@ -125,7 +127,7 @@ public class WinBackReminderSchedular {
 
         for (TargetDeviceDto target : targetDevices) {
             try {
-                FCMMessageRequest request = FCMMessageRequest.of(target.fcmToken(), title, body, data);
+                FCMMessageRequest request = FCMMessageRequest.of(target.fcmToken(), title, body, data, WEEKLY_NOTIFICATION_CHANNEL_ID);
                 fcmClient.send(request);
             } catch (FCMException e) {
                 if (e.getErrorCode() == FCMErrorCode.FCM_INVALID_TOKEN) {
