@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 @Component
 public class StreakReminderScheduler {
 
+    private static final String DAILY_NOTIFICATION_CHANNEL_ID = "channel_daily_notification";
+
     private final UserCalendarFacade userCalendarFacade;
     private final UserProfileRepository userProfileRepository;
     private final FCMClient fcmClient;
@@ -117,7 +119,7 @@ public class StreakReminderScheduler {
 
         for (TargetDeviceDto target : targetDevices) {
             try {
-                FCMMessageRequest request = FCMMessageRequest.of(target.fcmToken(), title, body, data);
+                FCMMessageRequest request = FCMMessageRequest.of(target.fcmToken(), title, body, data, DAILY_NOTIFICATION_CHANNEL_ID);
                 fcmClient.send(request);
             } catch (FCMException e) {
                 if (e.getErrorCode() == FCMErrorCode.FCM_INVALID_TOKEN) {
