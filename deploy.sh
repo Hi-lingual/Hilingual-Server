@@ -42,20 +42,23 @@ docker compose build spring-${NEW} --no-cache
 ######## 1) 새 컨테이너 기동 ########
 docker compose up -d spring-${NEW}
 
-######## 2) 헬스체크 (최대 100초) ########
+######## 2) 헬스체크 (최대 200초) ########
 SUCCESS=0
-for i in {1..20}; do
+for i in {1..40}; do
   if curl -fs "http://localhost:${PORT_NEW}/actuator/health" 2>/dev/null | grep -q '"status":"UP"'; then
     SUCCESS=1
     break
   fi
-  echo "  …health ${i}/20"
+  echo "  …health ${i}/40"
   sleep 5
 done
 
 if [ "$SUCCESS" -ne 1 ]; then
-  echo "[ERROR] Health check failed on :${PORT_NEW}"
-  ROLLBACK=1
+  echo "[ERROR] Health check failed on :${PORT_NEW} (new container: hilingual-${NEW})"
+  echo "[ERROR] Nginx 전환을 건너뜁니다. 기존 컨테이너(hilingual-${CURRENT:-$OLD})가 계속 서빙합니다."
+  echo "[INFO] 실패한 새 컨테이너 정리: hilingual-${NEW}"
+  docker stop "hilingual-${NEW}" || true
+  exit 1   # 배포 실패를 워크플로우에 정확히 반영 (거짓 성공 방지)
 fi
 
 ############################################
