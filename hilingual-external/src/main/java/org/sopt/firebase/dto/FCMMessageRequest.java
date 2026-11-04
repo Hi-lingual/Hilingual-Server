@@ -13,7 +13,8 @@ public record FCMMessageRequest(
         String token,
         String title,
         String body,
-        Map<String, String> data
+        Map<String, String> data,
+        String androidChannelId
 ) {
     public FCMMessageRequest {
         if (token == null || token.isBlank()) {
@@ -26,13 +27,19 @@ public record FCMMessageRequest(
             throw new IllegalArgumentException("body must not be blank");
         }
         data = data != null ? Map.copyOf(data) : Map.of(); // 방어적 복사 — 외부 변경으로부터 보호
+        androidChannelId = (androidChannelId == null || androidChannelId.isBlank()) ? null : androidChannelId;
     }
 
     public static FCMMessageRequest of(String token, String title, String body) {
-        return new FCMMessageRequest(token, title, body, Map.of());
+        return new FCMMessageRequest(token, title, body, Map.of(), null);
     }
 
     public static FCMMessageRequest of(String token, String title, String body, Map<String, String> data) {
-        return new FCMMessageRequest(token, title, body, data);
+        return new FCMMessageRequest(token, title, body, data, null);
+    }
+
+    public static FCMMessageRequest of(String token, String title, String body,
+                                       Map<String, String> data, String androidChannelId) {
+        return new FCMMessageRequest(token, title, body, data, androidChannelId);
     }
 }
