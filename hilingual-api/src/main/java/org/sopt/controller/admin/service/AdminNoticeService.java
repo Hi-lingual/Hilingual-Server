@@ -18,16 +18,17 @@ import org.sopt.noticedelivery.exception.NoticeAlreadyDeliveredException;
 import org.sopt.noticedelivery.exception.NoticeDeliveryCoreErrorCode;
 import org.sopt.noticedelivery.exception.NoticeNotFoundException;
 import org.sopt.noticedelivery.repository.NoticeDeliveryRepository;
+import org.sopt.sse.SseEmitterManager;
 import org.sopt.user.domain.User;
 import org.sopt.user.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +38,7 @@ public class AdminNoticeService {
     private final UserRepository userRepository;
     private final AlarmPreferenceRepository alarmPreferenceRepository;
     private final NoticeDeliveryRepository noticeDeliveryRepository;
+    private final SseEmitterManager sseEmitterManager;
 
     private static final int BATCH_SIZE = 500;
 
@@ -98,6 +100,7 @@ public class AdminNoticeService {
                 }
             }
             userRepository.turnOnNotifyByIds(batch);
+            batch.forEach(uid -> sseEmitterManager.send(uid, Map.of("hasNewAlarm", true)));
         }
     }
 

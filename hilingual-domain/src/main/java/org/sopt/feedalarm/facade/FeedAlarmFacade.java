@@ -3,13 +3,24 @@ package org.sopt.feedalarm.facade;
 import lombok.RequiredArgsConstructor;
 import org.sopt.diary.domain.Diary;
 import org.sopt.feedalarm.domain.FeedAlarm;
+import org.sopt.feedalarm.event.FeedAlarmCreatedEvent;
 import org.sopt.user.domain.User;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * 피드 알림(좋아요, 팔로우) 관련 비즈니스 로직을 조합하는 Facade
+ *
+ * 알림 생성 후 ApplicationEventPublisher로 FeedAlarmCreatedEvent를 발행한다.
+ * → hilingual-api의 FeedAlarmEventListener가 이벤트를 수신해서 SSE로 클라이언트에게 push한다.
+ *
+ * domain이 api를 직접 호출하지 않고 이벤트를 통해 분리한 이유:
+ *   domain → api 직접 호출 시 순환 의존이 발생하기 때문
+ */
 @Component
 @RequiredArgsConstructor
 public class FeedAlarmFacade {
@@ -17,6 +28,12 @@ public class FeedAlarmFacade {
     private final FeedAlarmRetriever feedAlarmRetriever;
     private final FeedAlarmSaver feedAlarmSaver;
     private final FeedAlarmRemover feedAlarmRemover;
+
+    /**
+     * ApplicationEventPublisher: 스프링이 기본으로 제공하는 이벤트 발행 도구
+     * 별도 의존성 추가 없이 주입받아 사용할 수 있다.
+     */
+    private final ApplicationEventPublisher eventPublisher;
 
     public void markAlarmAsRead(Long userId, Long alarmId) {
         feedAlarmRetriever.markAlarmAsRead(userId, alarmId);
@@ -42,8 +59,11 @@ public class FeedAlarmFacade {
         try {
             feedAlarmSaver.save(alarm);
             targetUser.turnOnNotify();
+            // 알림 저장 성공 → 이벤트 발행 → FeedAlarmEventListener가 SSE로 클라이언트에게 push
+            eventPublisher.publishEvent(new FeedAlarmCreatedEvent(targetUserId));
         } catch (org.springframework.dao.DataIntegrityViolationException ignore) {
             // 동시성 환경에서 중복 insert 시 무시
+            // 이 경우엔 알림이 이미 존재하므로 이벤트를 발행하지 않는다
             targetUser.turnOnNotify();
         }
     }
@@ -79,10 +99,12 @@ public class FeedAlarmFacade {
         try {
             feedAlarmSaver.save(alarm);
             targetUser.turnOnNotify();
+            // 알림 저장 성공 → 이벤트 발행 → FeedAlarmEventListener가 SSE로 클라이언트에게 push
+            eventPublisher.publishEvent(new FeedAlarmCreatedEvent(targetUserId));
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
             // 동시성 환경에서 중복 insert 시 무시
+            // 이 경우엔 알림이 이미 존재하므로 이벤트를 발행하지 않는다
             targetUser.turnOnNotify();
-
         }
     }
 

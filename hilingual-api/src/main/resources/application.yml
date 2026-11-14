@@ -13,6 +13,7 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
+    open-in-view: false  # SSE 연결 중 DB 커넥션 고갈 방지
     hibernate:
       ddl-auto: validate
     properties:
