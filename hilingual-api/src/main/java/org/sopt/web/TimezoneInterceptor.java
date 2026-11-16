@@ -13,12 +13,11 @@ public class TimezoneInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
+        TimezoneContextHolder.clear();
         String timezone = request.getHeader("X-Timezone");
 
         if (StringUtils.hasText(timezone)) {
             TimezoneContextHolder.setTimezone(timezone);
-        } else {
-            TimezoneContextHolder.setTimezone("Asia/Seoul"); // 헤더가 없을 경우
         }
 
         return true;

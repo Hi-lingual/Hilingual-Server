@@ -1,11 +1,11 @@
 package org.sopt.controller.device.service;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.controller.device.dto.DeviceReq;
 import org.sopt.controller.device.dto.UpdateFcmTokenReq;
 import org.sopt.controller.device.exception.DeviceApiErrorCode;
 import org.sopt.controller.device.exception.MissingDeviceIdentifierException;
-
 import org.sopt.device.domain.Device;
 import org.sopt.device.dto.DeviceInfo;
 import org.sopt.device.facade.DeviceFacade;
@@ -32,7 +32,7 @@ public class DeviceService {
         DeviceInfo deviceInfo = req.toDeviceInfo();
 
         User user = userFacade.getUserById(userId);
-        user.updatePrimaryTimezone(userZone.getId());
+        user.updatePrimaryTimezone(userZone);
 
         deviceFacade.upsertDevice(userId, deviceInfo);
     }

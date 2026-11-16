@@ -59,7 +59,7 @@ class FCMMessageRequestTest {
     @Test
     @DisplayName("data가 null이면 빈 Map으로 초기화된다")
     void create_nullData_becomesEmptyMap() {
-        FCMMessageRequest request = new FCMMessageRequest("token123", "제목", "내용", null);
+        FCMMessageRequest request = new FCMMessageRequest("token123", "제목", "내용", null, null);
 
         assertThat(request.data()).isNotNull().isEmpty();
     }

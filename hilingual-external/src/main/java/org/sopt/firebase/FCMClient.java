@@ -1,10 +1,6 @@
 package org.sopt.firebase;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.MessagingErrorCode;
-import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.firebase.dto.FCMMessageRequest;
@@ -18,16 +14,7 @@ public class FCMClient {
     private final FirebaseMessaging firebaseMessaging;
 
     public void send(FCMMessageRequest request) {
-        Notification notification = Notification.builder()
-                .setTitle(request.title())
-                .setBody(request.body())
-                .build();
-
-        Message message = Message.builder()
-                .setToken(request.token())
-                .setNotification(notification)
-                .putAllData(request.data())
-                .build();
+        Message message = buildMessage(request);
 
         try {
             String messageId = firebaseMessaging.send(message);
@@ -47,6 +34,29 @@ public class FCMClient {
             log.error("FCM 발송 중 예상치 못한 오류: token={}", maskToken(request.token()), e);
             throw new FCMException(FCMErrorCode.FCM_SEND_FAILED);
         }
+    }
+
+    private Message buildMessage(FCMMessageRequest request) {
+        Notification notification = Notification.builder()
+                .setTitle(request.title())
+                .setBody(request.body())
+                .build();
+
+        Message.Builder builder = Message.builder()
+                .setToken(request.token())
+                .setNotification(notification)
+                .putAllData(request.data());
+
+        // 채널 ID가 지정된 경우에만 android 블록 추가
+        if (request.androidChannelId() != null) {
+            builder.setAndroidConfig(AndroidConfig.builder()
+                    .setNotification(AndroidNotification.builder()
+                            .setChannelId(request.androidChannelId())
+                            .build())
+                    .build());
+        }
+
+        return builder.build();
     }
 
     private String maskToken(String token) {
